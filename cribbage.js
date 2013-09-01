@@ -9,6 +9,7 @@ function Card(suit, val) {
 }
 
 function Deck() {
+	this.cut_card = null;
 	this.deck = [];
 	for (var i = 0; i < SUITS.length; i++ ) {
 		for (var j = 0; j < VALS.length; j++ ) {
@@ -19,11 +20,17 @@ function Deck() {
 Deck.prototype.shuffle = function () {
 	this.deck = _.shuffle(this.deck);
 };
+Deck.prototype.cut = function () {
+	var index = Math.floor(Math.random() * this.deck.length);
+	this.cut_card = this.deck.splice(index, 1)[0];
+};
 
 var deck = new Deck();
-console.log(deck);
-deck.shuffle();
-console.log(deck);
+_.times(30, function (n) {
+	deck.cut();
+	console.log('deck length: ' + deck.deck.length + ", cut card: " + deck.cut_card.val + deck.cut_card.suit);
+})
+
 
 
 
