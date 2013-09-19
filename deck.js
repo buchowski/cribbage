@@ -11,6 +11,8 @@ Deck = function () {
 		}
 	}
 }
+
+
 Deck.prototype.shuffle = function () {
 	this.deck = _.shuffle(this.deck);
 };
