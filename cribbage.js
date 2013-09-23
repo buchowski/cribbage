@@ -75,6 +75,18 @@ Game.prototype.register_cards = function () {
 		})
 	})
 }
+Game.prototype.increment_discard_count = function () {
+	this.discard_count++;
+}
+Game.prototype.reset_discard_count = function () {
+	this.discard_count = 0;
+}
+Game.prototype.cards_discarded = function () {
+	return this.discard_count >= 4;
+}
+Game.prototype.all_hands_played = function () {
+	return (this.player1.hand.cards.length == 0 && this.player2.hand.cards.length == 0);
+}
 
 module.exports.Player = Player;
 module.exports.Game = Game;

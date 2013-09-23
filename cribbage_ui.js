@@ -24,29 +24,28 @@ UI.prototype.print_state = function () {
 	console.log('pile: ' + JSON.stringify(this.game.pile.cards));
 }
 UI.prototype.show_hand = function (hand) {
-	var card_str = '';
-	_.each(hand.cards, function (card) {
-		card_str += card.val + card.suit + ', ';
-	})
-	return card_str;
+	return _.map(hand.cards, function (card) {
+		return card.val + card.suit;
+	}).join(', ');
 }
 UI.prototype.discard = function () {
 	var game = this.game;
 	var that = this;
-	
-	if ( game.discard_count >= 4 ) { 
+
+	if ( game.cards_discarded() ) { 
 		game.register_cards();
 		that.play();
-		game.discard_count = 0;
+		game.reset_discard_count();
 		return; 
-	} 
-	console.log(game.current_player.name + "'s hand: " + COLORS['green'] + this.show_hand(game.current_player.hand) + COLORS['black']);
-	this.rl.question(game.current_player.name + ', what card would you like to discard?', function (card) {
-		game.dealer.crib.push(game.current_player.discard(card));
-		game.discard_count++;
-		game.switch_player();
-		that.discard();
-	})
+	} else {
+		this.show_current_players_hand();
+		this.rl.question(this.ask_for_discard() , function (card) {
+			game.dealer.crib.push(game.current_player.discard(card));
+			game.increment_discard_count();
+			game.switch_player();
+			that.discard();
+		})
+	}
 }
 
 UI.prototype.play = function () {
@@ -55,25 +54,34 @@ UI.prototype.play = function () {
 
 	game.switch_player();
 
-	if ( game.player1.hand.cards.length == 0 && game.player2.hand.cards.length == 0 ) {
+	if ( game.all_hands_played() ) {
 		that.rl.close();
 		that.print_state();
 		return;
+	} else {
+		this.show_current_players_hand();
+		this.rl.question(this.ask_for_card() , function (card) {
+			game.pile.push(game.current_player.discard(card));
+			that.show_scores(game);
+			that.play();
+		})
 	}
-
-	console.log(game.current_player.name + "'s hand: " + COLORS['green'] + this.show_hand(game.current_player.hand) + COLORS['black']);
-
-	this.rl.question(game.current_player.name + ', add a card to the pile.', function (card) {
-
-		game.pile.push(game.current_player.discard(card));
-		
-		console.log(COLORS['cyan'] + 'the pile score is: ' + game.pile.score);
-		console.log(game.player1.name + "'s score is: " + game.player1.score);
-		console.log(game.player2.name + "'s score is: " + game.player2.score + COLORS['black']);
-		that.play();
-	})
 }
-
+UI.prototype.ask_for_discard = function () {
+	return this.game.current_player.name + ', what card would you like to discard?';
+}
+UI.prototype.ask_for_card = function () {
+	return this.game.current_player.name + ', add a card to the pile.'
+}
+UI.prototype.show_current_players_hand = function () {
+	var player = this.game.current_player;
+	console.log(player.name + "'s hand: " + COLORS['green'] + this.show_hand(player.hand) + COLORS['black']);
+}
+UI.prototype.show_scores = function (game) {
+	console.log(COLORS['cyan'] + 'the pile score is: ' + game.pile.score);
+	console.log(game.player1.name + "'s score is: " + game.player1.score);
+	console.log(game.player2.name + "'s score is: " + game.player2.score + COLORS['black']);
+}
 
 var jeremy = new Player('jeremy');
 var nathan = new Player('nathan');
