@@ -42,6 +42,21 @@ function Hand() {
 }
 Hand.prototype.push = function (card) {
 	this.cards.push(card);
+	this.update_score(card);
+}
+Hand.prototype.is_valid_push = function (card) {
+	return ( this.score + card.int_val() <= 31 );
+}
+Hand.prototype.update_score = function (card) {
+	this.score += card.int_val();
+}
+Hand.prototype.has_playable_card = function (game) {
+	return _.some(this.cards, function (card) {
+		return game.pile.is_valid_push(card);
+	})
+}
+Hand.prototype.reset_score = function () {
+	this.score = 0;
 }
 
 function Player(name) {
@@ -53,6 +68,9 @@ function Player(name) {
 Player.prototype.discard = function (card) {
 	return this.hand.cards.splice(card - 1, 1)[0];
 };
+Player.prototype.card = function (card) {
+	return this.hand.cards.slice(card - 1)[0];
+}
 
 function Game(player1, player2) {
 	
@@ -75,6 +93,7 @@ Game.prototype.register_cards = function () {
 		})
 	})
 }
+<<<<<<< HEAD
 Game.prototype.increment_discard_count = function () {
 	this.discard_count++;
 }
@@ -86,6 +105,10 @@ Game.prototype.cards_discarded = function () {
 }
 Game.prototype.all_hands_played = function () {
 	return (this.player1.hand.cards.length == 0 && this.player2.hand.cards.length == 0);
+=======
+Game.prototype.reward_point_for_last_card = function () {
+	this.current_player.score++;
+>>>>>>> score_tracker
 }
 
 module.exports.Player = Player;
