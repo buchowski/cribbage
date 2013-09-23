@@ -47,31 +47,6 @@ UI.prototype.discard = function () {
 		})
 	}
 }
-
-UI.prototype.play = function () {
-	var game = this.game;
-	var that = this;
-
-<<<<<<< HEAD
-	game.switch_player();
-
-	if ( game.all_hands_played() ) {
-=======
-	if ( game.player1.hand.cards.length == 0 && game.player2.hand.cards.length == 0 ) {
->>>>>>> score_tracker
-		that.rl.close();
-		that.print_state();
-		return;
-	} else {
-		this.show_current_players_hand();
-		this.rl.question(this.ask_for_card() , function (card) {
-			game.pile.push(game.current_player.discard(card));
-			that.show_scores(game);
-			that.play();
-		})
-	}
-<<<<<<< HEAD
-}
 UI.prototype.ask_for_discard = function () {
 	return this.game.current_player.name + ', what card would you like to discard?';
 }
@@ -82,7 +57,16 @@ UI.prototype.show_current_players_hand = function () {
 	var player = this.game.current_player;
 	console.log(player.name + "'s hand: " + COLORS['green'] + this.show_hand(player.hand) + COLORS['black']);
 }
-=======
+
+UI.prototype.play = function () {
+	var game = this.game;
+	var that = this;
+
+	if ( game.player1.hand.cards.length == 0 && game.player2.hand.cards.length == 0 ) {
+		that.rl.close();
+		that.print_state();
+		return;
+	} 
 
 	console.log(game.current_player.name + "'s hand: " + COLORS['green'] + this.show_hand(game.current_player.hand) + COLORS['black']);
 
@@ -110,16 +94,12 @@ UI.prototype.show_current_players_hand = function () {
 		that.play();
 	})
 }
->>>>>>> score_tracker
+
 UI.prototype.show_scores = function (game) {
 	console.log(COLORS['cyan'] + 'the pile score is: ' + game.pile.score);
 	console.log(game.player1.name + "'s score is: " + game.player1.score);
 	console.log(game.player2.name + "'s score is: " + game.player2.score + COLORS['black']);
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> score_tracker
 
 var jeremy = new Player('jeremy');
 var nathan = new Player('nathan');
