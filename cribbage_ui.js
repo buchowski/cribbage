@@ -5,7 +5,7 @@ var Hand = require('./cribbage.js').Hand;
 var Deck = require('./cribbage.js').Deck;
 var Card = require('./cribbage.js').Card;
 
-var COLORS = {'green': '\033[32m', 'cyan': '\033[36m', 'black': '\033[0m'}
+var COLORS = {'green': '\033[32m', 'cyan': '\033[36m', 'black': '\033[0m', 'red': '\033[31m'}
 
 function UI (player1, player2) {
 	this.game = new Game(player1, player2);
@@ -53,8 +53,6 @@ UI.prototype.play = function () {
 	var game = this.game;
 	var that = this;
 
-	game.switch_player();
-
 	if ( game.player1.hand.cards.length == 0 && game.player2.hand.cards.length == 0 ) {
 		that.rl.close();
 		that.print_state();
@@ -65,13 +63,32 @@ UI.prototype.play = function () {
 
 	this.rl.question(game.current_player.name + ', add a card to the pile.', function (card) {
 
-		game.pile.push(game.current_player.discard(card));
-		
-		console.log(COLORS['cyan'] + 'the pile score is: ' + game.pile.score);
-		console.log(game.player1.name + "'s score is: " + game.player1.score);
-		console.log(game.player2.name + "'s score is: " + game.player2.score + COLORS['black']);
+		if ( game.pile.is_valid_push(game.current_player.card(card)) ) { 
+			game.pile.push(game.current_player.discard(card));
+			game.switch_player();
+		} else {
+			if ( game.current_player.hand.has_playable_card(game) ) {
+				console.log(COLORS['red'] + "you can't play that card. try again." + COLORS['black']);
+			} else { 
+				game.switch_player(); //can the opponent play a card?
+				if ( game.current_player.hand.has_playable_card(game) ) {
+					console.log(COLORS['red'] + "you can't play any cards." + COLORS['black']);
+				} else {
+					console.log(COLORS['red'] + "neither player can play a card. reset to zero." + COLORS['black']);
+					game.switch_player();
+					game.pile.reset_score();
+					game.reward_point_for_last_card();
+				}
+			}
+		}
+		that.show_scores(game);
 		that.play();
 	})
+}
+UI.prototype.show_scores = function (game) {
+	console.log(COLORS['cyan'] + 'the pile score is: ' + game.pile.score);
+	console.log(game.player1.name + "'s score is: " + game.player1.score);
+	console.log(game.player2.name + "'s score is: " + game.player2.score + COLORS['black']);
 }
 
 
