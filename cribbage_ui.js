@@ -62,32 +62,33 @@ UI.prototype.play = function () {
 	var game = this.game;
 	var that = this;
 
-	if ( game.player1.hand.cards.length == 0 && game.player2.hand.cards.length == 0 ) {
-		that.rl.close();
-		that.print_state();
-		return;
-	} 
-
-	console.log(game.current_player.name + "'s hand: " + COLORS['green'] + this.show_hand(game.current_player.hand) + COLORS['black']);
-
-	this.rl.question(game.current_player.name + ', add a card to the pile.', function (card) {
+	if ( game.current_player.hand.is_empty() ) {
+		game.switch_player();
+	}
+	this.show_current_players_hand();
+	this.rl.question(this.ask_for_card() , function (card) {
 
 		if ( game.pile.is_valid_push(game.current_player.card(card)) ) { 
 			game.pile.push(game.current_player.discard(card));
+			game.award_points(); // points for 15 and 31. reset score on 31. 
+			if ( game.is_round_over() ) { // round is over when neither player has any cards left
+				that.rl.close();
+				game.add_points(1);
+				that.show_scores(game);
+				return;
+			}
 			game.switch_player();
+		} else if ( game.current_player.hand.has_playable_card(game) ) {
+			console.log(COLORS['red'] + "you can't play that card. try again." + COLORS['black']);
 		} else {
+			game.switch_player(); //can the opponent play a card?
 			if ( game.current_player.hand.has_playable_card(game) ) {
-				console.log(COLORS['red'] + "you can't play that card. try again." + COLORS['black']);
-			} else { 
-				game.switch_player(); //can the opponent play a card?
-				if ( game.current_player.hand.has_playable_card(game) ) {
-					console.log(COLORS['red'] + "you can't play any cards." + COLORS['black']);
-				} else {
-					console.log(COLORS['red'] + "neither player can play a card. reset to zero." + COLORS['black']);
-					game.switch_player();
-					game.pile.reset_score();
-					game.reward_point_for_last_card();
-				}
+				console.log(COLORS['red'] + "you can't play any cards." + COLORS['black']);
+			} else {
+				console.log(COLORS['red'] + "neither player can play a card. reset to zero." + COLORS['black']);
+				game.pile.reset_score();
+				game.add_points(1);
+				game.switch_player();
 			}
 		}
 		that.show_scores(game);

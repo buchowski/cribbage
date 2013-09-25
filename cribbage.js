@@ -58,6 +58,12 @@ Hand.prototype.has_playable_card = function (game) {
 Hand.prototype.reset_score = function () {
 	this.score = 0;
 }
+Hand.prototype.is_score = function (num) {
+	return this.score == num;
+}
+Hand.prototype.is_empty = function () {
+	return this.cards.length == 0;
+}
 
 function Player(name) {
 	this.name = name;
@@ -106,8 +112,19 @@ Game.prototype.cards_discarded = function () {
 Game.prototype.all_hands_played = function () {
 	return (this.player1.hand.cards.length == 0 && this.player2.hand.cards.length == 0);
 }
-Game.prototype.reward_point_for_last_card = function () {
-	this.current_player.score++;
+Game.prototype.add_points = function (num) {
+	this.current_player.score += num;
+}
+Game.prototype.award_points = function () {
+	if ( this.pile.is_score(15) || this.pile.is_score(31) ) { 
+		this.add_points(2); 
+	}
+	if ( this.pile.is_score(31) ) {
+		this.pile.reset_score(); 
+	}
+}
+Game.prototype.is_round_over = function () {
+	return ( this.player1.hand.cards.length == 0 && this.player2.hand.cards.length == 0 );
 }
 
 module.exports.Player = Player;
