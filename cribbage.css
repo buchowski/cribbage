@@ -1,0 +1,30 @@
+.card {
+	width: 28px;
+	height: 40px;
+	padding-top: 10px;
+	padding-left: 5px;
+	margin: 5px;
+	float: left;
+}
+.card:hover {
+	cursor: pointer;
+	background-color: #FF00BB;
+}
+.S {
+	border: 2px solid black;
+}
+.H {
+	border: 2px solid red;
+}
+.C {
+	border: 2px solid black;
+}
+.D {
+	border: 2px solid red;
+}
+.name {
+	clear: both;
+}
+#game_prompt {
+	color: #FB0FBF;
+}

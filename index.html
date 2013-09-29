@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Cribbage</title>
+		<link rel="stylesheet" href="cribbage.css" />
+		<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'></script>
+		<script type='text/javascript' src='cribbage.js'></script>
+		<script type='text/javascript' src='cribbage_web_ui.js'></script>
+		<script type='text/javascript' src='underscore.js'></script>
+	</head>
+	<body>
+		<form id="create_players">
+			<label for="player1">Player 1</label>
+				<input type="text" id="player1"></input>
+			<label for="player2">Player 2</label>
+				<input type="text" id="player2"></input>
+			<input type="submit" value="Create Players"></input>
+		</form>
+		<div id="dealer_name"></div>
+		<div id="cut_card"></div>
+		<div class="name" id="player1_name"></div>
+		<div class="cards" id="player1_cards"></div>
+		<div class="name" id="player2_name"></div>
+		<div class="cards" id="player2_cards"></div>
+		<div id="game_prompt"></div>
+		<script type="text/javascript">
+			$( $('#create_players').on('submit', function (e) {
+					e.preventDefault();
+					var player1 = $("#player1").val();
+					var player2 = $("#player2").val();
+					$('#create_players').hide(400);
+					new CRIBBAGE.View(player1, player2).start();
+				})
+			)
+		</script>
+	</body>
+</html>
