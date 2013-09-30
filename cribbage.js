@@ -5,7 +5,6 @@
 	var SUITS = CRIBBAGE.SUITS = ['H', 'C', 'S', 'D'];
 
 	var Card = CRIBBAGE.Card = function (suit, val) {
-		this.player = null;
 		this.suit = suit;
 		this.val = val;
 	}
@@ -59,11 +58,17 @@
 	Hand.prototype.is_empty = function () {
 		return this.cards.length == 0;
 	}
-	var Round = CRIBBAGE.Round = function (players) {
+	var Round = CRIBBAGE.Round = function (game) {
 		// should Round store the crib?
 		// Round should store the discard_count
-		this.current_player = players[0];
-		this.dealer = players[1];
+		this.game = game;
+		this.current_player = game.players[0];
+		this.dealer = game.players[1];
+		this.discard_count = 0;
+	}
+	Round.prototype.switch_player = function () {
+		var players = this.game.players;
+		this.current_player = players[( players.indexOf(this.current_player ) + 1) % 2];
 	}
 
 	var Player = CRIBBAGE.Player = function (name, game) {
@@ -74,14 +79,12 @@
 		this.score = 0;
 	}
 	Player.prototype.discard = function (val, suit, render) {
-		console.log(val, suit);
-		var player = this;
-		_.each(player.hand.cards, function (card) {
-			if (card.val == val && card.suit == suit) {
-				player.game.deck.cards.push(player.hand.cards.splice(player.hand.cards.indexOf(card), 1)[0]);
-				render();
-			}
-		});
+		var game = this.game;
+		var cards = this.hand.cards;
+		game.deck.cards.push(cards.splice(cards.indexOf({suit: suit, val: val}), 1)[0]);
+		game.round.discard_count++;
+		game.round.switch_player();
+		render();
 	};
 	Player.prototype.card = function (card) {
 		return this.hand.cards.slice(card - 1)[0];
@@ -91,8 +94,7 @@
 		this.deck = new CRIBBAGE.Deck();
 		this.pile = new CRIBBAGE.Hand();
 		this.players = [new CRIBBAGE.Player(player1, this), new CRIBBAGE.Player(player2, this)];
-		this.round = new Round(this.players);
-		this.discard_count = 0;
+		this.round = new Round(this);
 	}
 	Game.prototype.deal = function () {
 		var game = this;

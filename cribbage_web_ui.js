@@ -11,7 +11,10 @@
 		return "<div class='card " + card.suit + "' id='" + card.val + card.suit + "'>" + card.val + card.suit + "</div>";
 	}
 	View.player_template = function (player) {
-		return "<div class='view name' id='" + player.name + "'><h1>" + player.name + "'s Cards:" + "</h1></div>";
+		return "<div class='name' id='" + player.name + "'><h1>" + player.name + "'s Cards:" + "</h1></div>";
+	}
+	View.prompt_template = function (player, msg) {
+		return "<h1 class='name'>" + player + ", " + msg + "</h1>";
 	}
 	View.get_val_suit = function($el) {
 		var val = $el.attr('id')[0];
@@ -31,6 +34,7 @@
 				$('#' + player.name).append(View.card_template(card));
 			})
 		})
+		$("#game").append(View.prompt_template(game.round.current_player.name, "please discard a card."));
 		this.bind_clicks();
 	}
 	View.prototype.start = function () {
@@ -47,10 +51,10 @@
 		var view = this;
 		var discard = function () {
 			var card = View.get_val_suit($(this));
-			game.round.current_player.discard(card[0], card[1], function () { 
-				view.render(); 
-			});
+			game.round.current_player.discard(card[0], card[1], view.render.bind(view));
 		};
-		$("#" + game.round.current_player.name).on('click', '.card', discard);
+		if (game.round.discard_count < 4) {
+			$("#" + game.round.current_player.name).on('click', '.card', discard);
+		}
 	}
 })(this);
