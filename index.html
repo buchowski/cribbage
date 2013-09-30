@@ -16,16 +16,12 @@
 				<input type="text" id="player2"></input>
 			<input type="submit" value="Create Players"></input>
 		</form>
-		<div id="dealer_name"></div>
-		<div id="cut_card"></div>
-		<div class="name" id="player1_name"></div>
-		<div class="cards" id="player1_cards"></div>
-		<div class="name" id="player2_name"></div>
-		<div class="cards" id="player2_cards"></div>
-		<div id="game_prompt"></div>
+		<div id="game"></div>
 		<script type="text/javascript">
 			$( $('#create_players').on('submit', function (e) {
 					e.preventDefault();
+					// eventually move all the javascript out of this file
+					// any spaces in a player's name will break this
 					var player1 = $("#player1").val();
 					var player2 = $("#player2").val();
 					$('#create_players').hide(400);
