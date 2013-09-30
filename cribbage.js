@@ -60,7 +60,6 @@
 	}
 	var Round = CRIBBAGE.Round = function (game) {
 		// should Round store the crib?
-		// Round should store the discard_count
 		this.game = game;
 		this.current_player = game.players[0];
 		this.dealer = game.players[1];
@@ -78,12 +77,12 @@
 		this.crib = new Hand();
 		this.score = 0;
 	}
-	Player.prototype.discard = function (val, suit, render) {
-		var game = this.game;
+	Player.prototype.discard = function (val, suit, group, render) {
+		var round = this.game.round;
 		var cards = this.hand.cards;
-		game.deck.cards.push(cards.splice(cards.indexOf({suit: suit, val: val}), 1)[0]);
-		game.round.discard_count++;
-		game.round.switch_player();
+		group.cards.push(cards.splice(cards.indexOf({suit: suit, val: val}), 1)[0]);
+		round.discard_count++;
+		round.switch_player();
 		render();
 	};
 	Player.prototype.card = function (card) {
