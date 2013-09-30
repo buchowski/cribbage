@@ -2,24 +2,36 @@
 	var CRIBBAGE = root.CRIBBAGE = (root.CRIBBAGE || {});
 
 	var View = CRIBBAGE.View = function (player1, player2) {
-		this.game = new CRIBBAGE.Game(player1, player2);
+		this.game = new CRIBBAGE.Game(player1, player2, this);
+	}
+	View.empty_view = function () {
+		$('.view').empty();
+	}
+	View.card_template = function (card) {
+		return "<div class='card " + card.suit + "' id='" + card.val + card.suit + "'>" + card.val + card.suit + "</div>";
+	}
+	View.player_template = function (player) {
+		return "<div class='view name' id='" + player.name + "'><h1>" + player.name + "'s Cards:" + "</h1></div>";
+	}
+	View.get_val_suit = function($el) {
+		var val = $el.attr('id')[0];
+		var val = ( val == '1') ? '10' : val;
+		var suit = ( val == '10') ? $el.attr('id')[2] : $el.attr('id')[1];
+		return [val, suit];
 	}
 	View.prototype.render = function () {
-		// var view = this;
 		var game = this.game;
-		var player1 = game.player1;
-		var player2 = game.player2;
+		$("#game").empty();
+		$('#game').append("<h1>" + game.round.dealer.name + " is the dealer</h1>");
+		$("#game").append("<h1>Cut Card:</h1>" + View.card_template(game.deck.cut_card));
 
-		$('#dealer_name').append("<h1>" + game.dealer.name + " is the dealer</h1>");
-		$('#player1_name').append("<h1>" + player1.name + "'s Cards:</h1>");
-		$('#player2_name').append("<h1>" + player2.name + "'s Cards:</h1>");
-		_.each(player1.hand.cards, function (card) {
-			$('#player1_cards').append(View.card_template(card));
+		_.each(game.players, function (player) {
+			$('#game').append(View.player_template(player));
+			_.each(player.hand.cards, function (card) {
+				$('#' + player.name).append(View.card_template(card));
+			})
 		})
-		_.each(player2.hand.cards, function (card) {
-			$('#player2_cards').append(View.card_template(card));
-		})
-		$("#cut_card").append("<h1>Cut Card:</h1>" + View.card_template(game.deck.cut_card));
+		this.bind_clicks();
 	}
 	View.prototype.start = function () {
 		var game = this.game;
@@ -30,29 +42,15 @@
 
 		this.render();
 	}
-	View.card_template = function (card) {
-		return "<div class='card " + card.suit + "' id='" + card.val + card.suit + "'>" + card.val + card.suit + "</div>";
+	View.prototype.bind_clicks = function () {
+		var game = this.game;
+		var view = this;
+		var discard = function () {
+			var card = View.get_val_suit($(this));
+			game.round.current_player.discard(card[0], card[1], function () { 
+				view.render(); 
+			});
+		};
+		$("#" + game.round.current_player.name).on('click', '.card', discard);
 	}
 })(this);
-
-
-// if (game.current_player == player1 ) {
-// 			$("#player1_cards").on('click', '.card', discard(game));
-// 		} else {
-// 			$("#player2_cards").on('click', '.card', discard(game));
-// 		}
-	
-// 		$("#game_prompt").append("<h1 class='name'>" + game.current_player.name + ", click two cards you'd like to discard.</h1>");
-		
-// function discard(e) {
-// 	var val = $(e.target).attr('id')[0];
-// 	if (val == '1') {
-// 		val = 10;
-// 		var suit = $(e.target).attr('id')[2];
-// 	} else {
-// 		var suit = $(e.target).attr('id')[1];
-// 	}
-// 	game.current_player.discard(val, suit, game, function () { 
-// 		$('#' + this.val + this.suit).remove();
-// 	});
-// }

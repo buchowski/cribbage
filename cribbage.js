@@ -59,40 +59,48 @@
 	Hand.prototype.is_empty = function () {
 		return this.cards.length == 0;
 	}
-	var Player = CRIBBAGE.Player = function (name) {
-		console.log('create player: ' + name);
+	var Round = CRIBBAGE.Round = function (players) {
+		// should Round store the crib?
+		// Round should store the discard_count
+		this.current_player = players[0];
+		this.dealer = players[1];
+	}
+
+	var Player = CRIBBAGE.Player = function (name, game) {
 		this.name = name;
-		this.score = 0;
+		this.game = game;
 		this.hand = new Hand();
 		this.crib = new Hand();
+		this.score = 0;
 	}
-	Player.prototype.discard = function (val, suit, game, callback) {
-		_.each(this.hand.cards, function (card) {
+	Player.prototype.discard = function (val, suit, render) {
+		console.log(val, suit);
+		var player = this;
+		_.each(player.hand.cards, function (card) {
 			if (card.val == val && card.suit == suit) {
-				callback.call(card);
+				player.game.deck.cards.push(player.hand.cards.splice(player.hand.cards.indexOf(card), 1)[0]);
+				render();
 			}
 		});
 	};
 	Player.prototype.card = function (card) {
 		return this.hand.cards.slice(card - 1)[0];
 	}
-	var Game = CRIBBAGE.Game = function (player1, player2) {
+	var Game = CRIBBAGE.Game = function (player1, player2, view) {
+		this.view = view;
 		this.deck = new CRIBBAGE.Deck();
 		this.pile = new CRIBBAGE.Hand();
-		this.player1 = new CRIBBAGE.Player(player1);
-		this.player2 = new CRIBBAGE.Player(player2);
-		this.current_player = this.player1;
-		this.dealer = this.player1;
-		
+		this.players = [new CRIBBAGE.Player(player1, this), new CRIBBAGE.Player(player2, this)];
+		this.round = new Round(this.players);
 		this.discard_count = 0;
 	}
 	Game.prototype.deal = function () {
-		var that = this;
+		var game = this;
 		_.times(12, function (n) {
-			( n % 2 === 0) ? that.player1.hand.push(that.deck.cards.pop()) : that.player2.hand.push(that.deck.cards.pop());
+			var card = game.deck.cards.pop();
+			game.players[ n % 2 ].hand.push(card);
 		})
 	}
-
 	Game.prototype.switch_player = function () {
 		this.current_player = ( this.current_player == this.player1 ) ? this.player2: this.player1;
 	}
@@ -103,7 +111,6 @@
 			})
 		})
 	}
-
 	Game.prototype.increment_discard_count = function () {
 		this.discard_count++;
 	}
@@ -130,7 +137,6 @@
 	Game.prototype.is_round_over = function () {
 		return ( this.player1.hand.cards.length == 0 && this.player2.hand.cards.length == 0 );
 	}
-
 })(this);
 
 
