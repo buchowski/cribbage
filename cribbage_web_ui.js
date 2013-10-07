@@ -51,28 +51,12 @@
 		var game = this.game;
 		var view = this;
 		var count = game.round.discard_count;
-		// var group = (game.round.discard_count < 4) ? game.round.dealer.crib : game.pile;
 		var name = game.round.current_player.name;
 
-		if (count < 4) {
-			$("#" + name).on('click', '.card', function () {
-				var card = View.get_val_suit($(this));
-				game.deck.push(card);
-				view.render();
-			})
-		} else if (count < 12) {
-			$("#" + name).on('click', '.card', function () {
-				var card = View.get_val_suit($(this));
-				game.pile.push(card);
-				view.render();
-			})
-		} else {
-			alert("el fin del partido");
-		}
-
-		// $("#" + game.round.current_player.name).on('click', '.card', function () {
-		// 	var card = View.get_val_suit($(this));
-		// 	game.round.current_player.discard(card[0], card[1], group, view.render.bind(view));
-		// });
+		$("#" + name).on('click', '.card', function () {
+			var card = View.get_val_suit($(this));
+			(count < 4) ? game.deck.push(card) : game.pile.push(card) ;
+			view.render();
+		})
 	};
 })(this);
