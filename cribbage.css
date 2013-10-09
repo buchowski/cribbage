@@ -28,3 +28,7 @@
 #game_prompt {
 	color: #FB0FBF;
 }
+#error {
+	color: red;
+	font-weight: bold;
+}

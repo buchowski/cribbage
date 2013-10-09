@@ -11,11 +11,15 @@
 		return "<div class='card " + card.suit + "' id='" + card.val + card.suit + "'>" + card.val + card.suit + "</div>";
 	};
 	View.player_template = function (player) {
-		return "<h1 class='name'>" + player.name + "'s Score: " + player.score + "</h1>" +
-				"<div class='name' id='" + player.name + "'><h1>" + player.name + "'s Cards:" + "</h1></div>";
+		return "<p class='name'>" + player.name + "'s Score: " + player.score + "</p>" +
+				"<div class='name' id='" + player.name + "'><p>" + player.name + "'s Cards:" + "</p></div>";
 	};
 	View.prompt_template = function (name, msg) {
-		return "<h1 class='name'>" + name + msg + "</h1>";
+		return "<p class='name'>" + name + msg + "</p>";
+	};
+	View.msg_template = function (msg) {
+		return "<div id='error_msg'><p id='error'>" + msg + 
+			"</p><input type='button' id='ok_error' value='Okee Dokee'></input></div>";
 	};
 	View.get_val_suit = function($el) {
 		var val = $el.attr('id')[0];
@@ -23,11 +27,13 @@
 		var suit = ( val == '10') ? $el.attr('id')[2] : $el.attr('id')[1];
 		return [val, suit];
 	};
-	View.prototype.render = function () {
-		var game = this.game;
+	View.prototype.render = function (msg = null, callback = null) {
+		var view = this;
+		var game = view.game;
+		
 		$("#game").empty();
-		$('#game').append("<h1>" + game.round.dealer.name + " is the dealer</h1>");
-		$("#game").append("<h1>Cut Card:</h1>" + View.card_template(game.deck.cut_card));
+		// $('#game').append("<p>" + game.round.dealer.name + " is the dealer</p>");
+		// $("#game").append("<p>Cut Card:</p>" + View.card_template(game.deck.cut_card));
 
 		_.each([game.pile, game.players[0], game.players[1]], function (player) {
 			$('#game').append(View.player_template(player));
@@ -36,27 +42,36 @@
 			})
 		})
 		$("#game").append(View.prompt_template(game.round.current_player.name, ", please discard a card."));
-		this.bind_clicks();
+		if (msg !== null) {
+			$("#game").prepend(View.msg_template(msg));
+			$("#ok_error").on('click', function () {
+				$("#error_msg").hide(400);
+				if (callback !== null) {
+					callback();
+				}
+				view.render();
+			})
+		} else {
+			view.bind_clicks();
+		}
 	}
 	View.prototype.start = function () {
 		var game = this.game;
-
 		game.deck.cut();
 		game.deck.shuffle();
 		game.deal();
-
 		this.render();
 	};
 	View.prototype.bind_clicks = function () {
-		var game = this.game;
 		var view = this;
+		var game = view.game;
 		var count = game.round.discard_count;
 		var name = game.round.current_player.name;
 
 		$("#" + name).on('click', '.card', function () {
 			var card = View.get_val_suit($(this));
-			(count < 4) ? game.deck.push(card) : game.pile.push(card) ;
-			view.render();
+			var render = view.render.bind(view);
+			(count < 4) ? game.deck.push(card, render) : game.pile.push(card, render) ;
 		})
 	};
 })(this);

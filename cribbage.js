@@ -31,13 +31,14 @@
 		var index = Math.floor(Math.random() * this.cards.length);
 		this.cut_card = this.cards.splice(index, 1)[0];
 	};
-	Deck.prototype.push = function (card) {
+	Deck.prototype.push = function (card, render) {
 		var hand = this.game.round.current_player.hand;
 		var round = this.game.round;
 
 		this.cards.push(hand.cards.splice(hand.get_card_index(card[0], card[1]), 1)[0]);
 		round.discard_count++;
 		round.switch_player();
+		render();
 	};
 
 	var Hand = CRIBBAGE.Hand = function () {
@@ -66,9 +67,9 @@
 		this.score = 0;
 		this.name = 'Pile';
 	}
-	Pile.prototype.push = function (card) {
+	Pile.prototype.push = function (card, render) {
 		var pile = this;
-		var round = this.game.round;
+		var round = pile.game.round;
 		var hand = round.current_player.hand;
 		var card_index = hand.get_card_index(card[0], card[1]);
 
@@ -78,21 +79,49 @@
 			pile.update_score(card);
 			round.discard_count++;
 
-			// nobody has a playable card
-			if (!pile.game.any_playable_cards()) {
-				// if neither player has a playable card, then award point for last card
-				round.current_player.score++;
-				alert("no one has a playable card. reset.");
-				pile.score = 0;
-			// the opponent has a playable card
-			} else if (round.other_player().hand.cards.length != 0 && round.other_player().hand.has_playable_card(pile)) {
-				round.switch_player();
-			// the current player has a playable card
-			} else {
-				alert(round.other_player.name + " can't play a card. it's still " + round.current_player.name + "'s turn.");
+			if (pile.game.are_both_hands_empty()) { //neither player has any cards left
+				if (pile.score == 31) {
+					round.current_player.score += 2;
+					render('This round is over. ' + round.current_player.name + " gets 2 points for 31!");
+					round.current_player = round.dealer;
+					round.current_player = round.other_player();
+				} else {
+					round.current_player.score++;
+					render('This round is over. ' + round.current_player.name + " gets point for last card.");
+				}
+			} else { // at least one player has a card. the first 2 ifs will never be true if score == 31
+				if (round.other_player().hand.has_playable_card(pile)) { 
+					round.switch_player();
+					render();
+				} else if (round.current_player.hand.has_playable_card(pile)) { 
+					render(round.other_player().name + " can't play a card so it's still " +
+								round.current_player.name + "'s turn.");
+				} else { // neither player can play a card but both hands aren't empty
+					if (pile.score == 31) {
+						round.current_player.score += 2;
+						if (round.other_player().hand.cards.length == 0) {
+							render(round.current_player.name + " gets 2 points for 31!" +
+								round.other_player().name + " has no cards so it's still " +
+								round.current_player.name + "'s turn.", pile.reset_score.bind(pile));
+						} else {
+							round.switch_player();
+							render(round.other_player().name + " gets 2 points for 31.", pile.reset_score.bind(pile));
+						}
+					} else {
+						round.current_player.score++;
+						if (round.other_player().hand.cards.length == 0) {
+							render(round.current_player.name + " gets point for last card." + 
+								round.other_player().name + " has no cards so it's still " +
+								round.current_player.name + "'s turn.", pile.reset_score.bind(pile));
+						} else {
+							round.switch_player();
+							render(round.other_player().name + " gets point for last card.", pile.reset_score.bind(pile));
+						}
+					}
+				}
 			}
 		} else {
-			alert('invalid push. try a different card.');
+			render('invalid push. try a different card.');
 		}
 	}
 	Pile.prototype.is_valid_push = function (card) {
@@ -100,13 +129,16 @@
 	}
 	Pile.prototype.update_score = function (card) {
 		this.score += card.int_val();
-		if ( this.score == 15 ) {
-			card.holder.score += 2;
-		} else if ( this.score == 31 ) {
-			card.holder.score += 2;
-			this.score = 0;
-		}
+		// if ( this.score == 15 ) {
+		// 	card.holder.score += 2;
+		// } else if ( this.score == 31 ) {
+		// 	// don't set this.score to zero yet. first make user acknowledge that it equals 31.
+		// 	card.holder.score += 2;
+		// }
 	};
+	Pile.prototype.reset_score = function () {
+		this.score = 0;
+	}
 
 	var Round = CRIBBAGE.Round = function (game) {
 		this.game = game;
@@ -155,6 +187,9 @@
 	Game.prototype.any_playable_cards = function () {
 		 return (this.players[0].hand.has_playable_card(this.pile) || this.players[1].hand.has_playable_card(this.pile));
 	};
+	Game.prototype.are_both_hands_empty = function () {
+		return (this.players[0].hand.cards.length == 0 && this.players[1].hand.cards.length == 0);
+	}
 })(this);
 
 
