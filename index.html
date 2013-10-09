@@ -24,8 +24,9 @@
 					// any spaces in a player's name will break this
 					var player1 = $("#player1").val();
 					var player2 = $("#player2").val();
-					$('#create_players').hide(400);
-					new CRIBBAGE.View(player1, player2).start();
+					$('#create_players').hide(400, function () {
+						new CRIBBAGE.View(player1, player2).start();
+					});
 				})
 			)
 		</script>

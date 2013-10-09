@@ -72,6 +72,7 @@
 		var round = pile.game.round;
 		var hand = round.current_player.hand;
 		var card_index = hand.get_card_index(card[0], card[1]);
+		var callback = pile.reset_score.bind(pile);
 		var msg = "";
 
 		if (pile.is_valid_push(hand.cards[card_index])) {
@@ -80,11 +81,11 @@
 			pile.update_score(card);
 			round.discard_count++;
 
-			if (round.other_player().hand.has_playable_card(pile)) { 
+			if (round.other_player.hand.has_playable_card(pile)) { 
 				round.switch_player();
 				msg = null;
 			} else if (round.current_player.hand.has_playable_card(pile)) { 
-				msg += round.other_player().name + " can't play a card so it's still " + round.current_player.name + "'s turn.";
+				msg += round.other_player.name + " can't play a card so it's still " + round.current_player.name + "'s turn.";
 			} else { // neither player can play a card 
 				msg += round.current_player.name;
 				msg += (pile.score == 31) ? " gets 2 points for 31!" : " gets point for last card.";
@@ -92,15 +93,15 @@
 
 				if (pile.game.are_both_hands_empty()) {
 					msg += " The round is over.";
-					round.current_player = round.dealer;
-					round.current_player = round.other_player();
-				} else if (round.other_player().hand.cards.length == 0) {
-					msg += round.other_player().name + " has no cards so it's still " + round.current_player.name + "'s turn.";
+					callback = function () { alert('time to score the hands and crib')};
+					// if (round.current_player == round.dealer) { round.switch_player(); }
+				} else if (round.other_player.hand.cards.length == 0) {
+					msg += round.other_player.name + " has no cards so it's still " + round.current_player.name + "'s turn.";
 				} else {
 					round.switch_player();
 				}
 			}
-			render(msg, pile.reset_score.bind(pile));
+			render(msg, callback);
 		} else {
 			render('invalid push. try a different card.');
 		}
@@ -118,14 +119,14 @@
 	var Round = CRIBBAGE.Round = function (game) {
 		this.game = game;
 		this.current_player = game.players[0];
+		this.other_player = game.players[1];
 		this.dealer = game.players[1];
 		this.discard_count = 0;
 	};
 	Round.prototype.switch_player = function () {
-		this.current_player = this.other_player();
-	};
-	Round.prototype.other_player = function () {
-		return this.game.players[(this.game.players.indexOf(this.current_player) + 1) % 2];
+		var temp_player = this.current_player;
+		this.current_player = this.other_player;
+		this.other_player = temp_player;
 	};
 
 	var Player = CRIBBAGE.Player = function (name, game) {

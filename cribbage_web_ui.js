@@ -32,8 +32,8 @@
 		var game = view.game;
 		
 		$("#game").empty();
-		// $('#game').append("<p>" + game.round.dealer.name + " is the dealer</p>");
-		// $("#game").append("<p>Cut Card:</p>" + View.card_template(game.deck.cut_card));
+		$('#game').append("<p>" + game.round.dealer.name + " is the dealer</p>");
+		$("#game").append("<p>Cut Card:</p>" + View.card_template(game.deck.cut_card));
 
 		_.each([game.pile, game.players[0], game.players[1]], function (player) {
 			$('#game').append(View.player_template(player));
@@ -45,11 +45,10 @@
 		if (msg !== null) {
 			$("#game").prepend(View.msg_template(msg));
 			$("#ok_error").on('click', function () {
-				$("#error_msg").hide(400);
-				if (callback !== null) {
-					callback();
-				}
-				view.render();
+				$('#error_msg').hide(400, function () {
+					if (callback !== null) { callback(); }
+					view.render();
+				});
 			})
 		} else {
 			view.bind_clicks();
