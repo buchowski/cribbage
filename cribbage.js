@@ -93,7 +93,7 @@
 
 				if (pile.game.are_both_hands_empty()) {
 					msg += " The round is over.";
-					callback = function () { alert('time to score the hands and crib')};
+					callback = pile.return_cards_to_players.bind(pile);
 					// if (round.current_player == round.dealer) { round.switch_player(); }
 				} else if (round.other_player.hand.cards.length == 0) {
 					msg += round.other_player.name + " has no cards so it's still " + round.current_player.name + "'s turn.";
@@ -114,8 +114,14 @@
 	};
 	Pile.prototype.reset_score = function () {
 		this.score = 0;
-	}
-
+	};
+	Pile.prototype.return_cards_to_players = function () {
+		var pile = this;
+		while (pile.hand.cards.length != 0) {
+			var card = pile.hand.cards.pop();
+			card.holder.hand.push(card);
+		}
+	};
 	var Round = CRIBBAGE.Round = function (game) {
 		this.game = game;
 		this.current_player = game.players[0];
@@ -136,15 +142,15 @@
 		this.crib = new Hand();
 		this.score = 0;
 	};
-	Player.prototype.discard = function (val, suit, group, render) {
-		var round = this.game.round;
-		var hand = this.hand;
+	// Player.prototype.discard = function (val, suit, group, render) {
+	// 	var round = this.game.round;
+	// 	var hand = this.hand;
 
-		group.push(hand.cards.splice(hand.get_card_index(val, suit), 1)[0])
-		round.discard_count++;
-		round.switch_player();
-		render();
-	};
+	// 	group.push(hand.cards.splice(hand.get_card_index(val, suit), 1)[0])
+	// 	round.discard_count++;
+	// 	round.switch_player();
+	// 	render();
+	// };
 	var Game = CRIBBAGE.Game = function (player1, player2, view) {
 		this.view = view;
 		this.deck = new CRIBBAGE.Deck(this);

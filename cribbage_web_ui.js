@@ -30,10 +30,11 @@
 	View.prototype.render = function (msg = null, callback = null) {
 		var view = this;
 		var game = view.game;
+		var non_dealer = (game.round.dealer == game.players[0]) ? game.players[1] : game.players[0];
 		
 		$("#game").empty();
-		$('#game').append("<p>" + game.round.dealer.name + " is the dealer</p>");
-		$("#game").append("<p>Cut Card:</p>" + View.card_template(game.deck.cut_card));
+		// $('#game').append("<p>" + game.round.dealer.name + " is the dealer</p>");
+		// $("#game").append("<p>Cut Card:</p>" + View.card_template(game.deck.cut_card));
 
 		_.each([game.pile, game.players[0], game.players[1]], function (player) {
 			$('#game').append(View.player_template(player));
@@ -41,6 +42,7 @@
 				$('#' + player.name).append(View.card_template(card));
 			})
 		})
+
 		$("#game").append(View.prompt_template(game.round.current_player.name, ", please discard a card."));
 		if (msg !== null) {
 			$("#game").prepend(View.msg_template(msg));
