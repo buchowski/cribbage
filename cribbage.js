@@ -72,6 +72,7 @@
 		var round = pile.game.round;
 		var hand = round.current_player.hand;
 		var card_index = hand.get_card_index(card[0], card[1]);
+		var msg = "";
 
 		if (pile.is_valid_push(hand.cards[card_index])) {
 			card = hand.cards.splice(card_index, 1)[0];
@@ -79,47 +80,27 @@
 			pile.update_score(card);
 			round.discard_count++;
 
-			if (pile.game.are_both_hands_empty()) { //neither player has any cards left
-				if (pile.score == 31) {
-					round.current_player.score += 2;
-					render('This round is over. ' + round.current_player.name + " gets 2 points for 31!");
+			if (round.other_player().hand.has_playable_card(pile)) { 
+				round.switch_player();
+				msg = null;
+			} else if (round.current_player.hand.has_playable_card(pile)) { 
+				msg += round.other_player().name + " can't play a card so it's still " + round.current_player.name + "'s turn.";
+			} else { // neither player can play a card 
+				msg += round.current_player.name;
+				msg += (pile.score == 31) ? " gets 2 points for 31!" : " gets point for last card.";
+				round.current_player.score += (pile.score == 31) ? 2 : 1;
+
+				if (pile.game.are_both_hands_empty()) {
+					msg += " The round is over.";
 					round.current_player = round.dealer;
 					round.current_player = round.other_player();
+				} else if (round.other_player().hand.cards.length == 0) {
+					msg += round.other_player().name + " has no cards so it's still " + round.current_player.name + "'s turn.";
 				} else {
-					round.current_player.score++;
-					render('This round is over. ' + round.current_player.name + " gets point for last card.");
-				}
-			} else { // at least one player has a card. the first 2 ifs will never be true if score == 31
-				if (round.other_player().hand.has_playable_card(pile)) { 
 					round.switch_player();
-					render();
-				} else if (round.current_player.hand.has_playable_card(pile)) { 
-					render(round.other_player().name + " can't play a card so it's still " +
-								round.current_player.name + "'s turn.");
-				} else { // neither player can play a card but both hands aren't empty
-					if (pile.score == 31) {
-						round.current_player.score += 2;
-						if (round.other_player().hand.cards.length == 0) {
-							render(round.current_player.name + " gets 2 points for 31!" +
-								round.other_player().name + " has no cards so it's still " +
-								round.current_player.name + "'s turn.", pile.reset_score.bind(pile));
-						} else {
-							round.switch_player();
-							render(round.other_player().name + " gets 2 points for 31.", pile.reset_score.bind(pile));
-						}
-					} else {
-						round.current_player.score++;
-						if (round.other_player().hand.cards.length == 0) {
-							render(round.current_player.name + " gets point for last card." + 
-								round.other_player().name + " has no cards so it's still " +
-								round.current_player.name + "'s turn.", pile.reset_score.bind(pile));
-						} else {
-							round.switch_player();
-							render(round.other_player().name + " gets point for last card.", pile.reset_score.bind(pile));
-						}
-					}
 				}
 			}
+			render(msg, pile.reset_score.bind(pile));
 		} else {
 			render('invalid push. try a different card.');
 		}
@@ -129,12 +110,6 @@
 	}
 	Pile.prototype.update_score = function (card) {
 		this.score += card.int_val();
-		// if ( this.score == 15 ) {
-		// 	card.holder.score += 2;
-		// } else if ( this.score == 31 ) {
-		// 	// don't set this.score to zero yet. first make user acknowledge that it equals 31.
-		// 	card.holder.score += 2;
-		// }
 	};
 	Pile.prototype.reset_score = function () {
 		this.score = 0;
