@@ -6,10 +6,11 @@
 		<script type='text/javascript' src='jquery-1.10.2.min.js'></script>
 		<script type='text/javascript' src='cribbage.js'></script>
 		<script type='text/javascript' src='cribbage_web_ui.js'></script>
+		<script type='text/javascript' src='controller.js'></script>
 		<script type='text/javascript' src='underscore.js'></script>
 	</head>
 	<body>
-		<form id="create_players">
+<!-- 		<form id="create_players">
 			<label for="player1">Player 1</label>
 				<input type="text" id="player1"></input>
 			<label for="player2">Player 2</label>
@@ -18,17 +19,24 @@
 		</form>
 		<div id="game"></div>
 		<script type="text/javascript">
-			$( $('#create_players').on('submit', function (e) {
-					e.preventDefault();
-					// eventually move all the javascript out of this file
-					// any spaces in a player's name will break this
-					var player1 = $("#player1").val();
-					var player2 = $("#player2").val();
-					$('#create_players').hide(400, function () {
-						new CRIBBAGE.View(player1, player2).start();
-					})
-				})
-			)
+			// $( $('#create_players').on('submit', function (e) {
+			// 		e.preventDefault();
+			// 		// eventually move all the javascript out of this file
+			// 		// any spaces in a player's name will break this
+			// 		var player1 = $("#player1").val();
+			// 		var player2 = $("#player2").val();
+			// 		$('#create_players').hide(400, function () {
+			// 			console.log(controller.display());
+			// 			// new CRIBBAGE.View(player1, player2).start();
+			// 		})
+			// 	})
+			// )
 		</script>
+ -->	
+ 	<script type="text/javascript">
+ 		$( 
+ 			function () { new CRIBBAGE.Controller(); } 
+ 		)
+ 	</script>
 	</body>
 </html>

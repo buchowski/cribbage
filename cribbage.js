@@ -9,111 +9,70 @@
 		this.suit = suit;
 		this.val = val;
 	}
-	Card.prototype.int_val = function () {
-		var num = Number(this.val);
-		return ( isNaN(num) ) ? ((this.val == 'A') ? 1 : 10 ): num;
+	Card.int_val = function (val) {
+		var num = Number(val);
+		return ( isNaN(num) ) ? ((val == 'A') ? 1 : 10 ): num;
 	};
 
-	var Deck = CRIBBAGE.Deck = function (game) {
-		this.game = game;
-		this.cut_card = null;
+	var Card_Collection = CRIBBAGE.Card_Collection = function () {};
+	Card_Collection.prototype.push = function (card) {
+		this.cards.push(card);
+	};
+	Card_Collection.prototype.get_card_index = function (val_and_suit) {
+		// should this function be rewritten to take a card object?
+		for (var i = 0; i < this.cards.length; i++) {
+			var card = this.cards[i];
+			if (card.val == val_and_suit[0] && card.suit == val_and_suit[1]) return i;
+		}
+	};
+	Card_Collection.prototype.splice_card = function (index) {
+		return this.cards.splice(index, 1)[0];
+	}
+	Card_Collection.prototype.cut_card = function () {
+		// you may eventually add functionality so the user can determine where the deck's cut
+		var index = Math.floor(Math.random() * this.cards.length);
+		// return this.cards.splice(index, 1)[0];
+		return this.splice_card(index);
+	};
+	Card_Collection.prototype.shuffle = function () {
+		this.cards = _.shuffle(this.cards);
+	};
+
+	var Deck = CRIBBAGE.Deck = function () {
 		this.cards = [];
+	};
+	Deck.prototype = Card_Collection.prototype;
+	Deck.prototype.add_52_cards = function () {
 		for (var i = 0; i < SUITS.length; i++ ) {
 			for (var j = 0; j < VALS.length; j++ ) {
 				this.cards.push(new Card(SUITS[i], VALS[j]));
 			}
 		}
 	};
-	Deck.prototype.shuffle = function () {
-		this.cards = _.shuffle(this.cards);
-	};
-	Deck.prototype.cut = function () {
-		var index = Math.floor(Math.random() * this.cards.length);
-		this.cut_card = this.cards.splice(index, 1)[0];
-	};
-	Deck.prototype.push = function (card, render) {
-		var hand = this.game.round.current_player.hand;
-		var round = this.game.round;
 
-		this.cards.push(hand.cards.splice(hand.get_card_index(card[0], card[1]), 1)[0]);
-		round.discard_count++;
-		round.switch_player();
-		render();
-	};
-
-	var Hand = CRIBBAGE.Hand = function () {
+	var Hand = CRIBBAGE.Hand = function (owner) {
+		this.owner = owner;
 		this.cards = [];
 		this.score = 0;
 	};
-	Hand.prototype.push = function (card) {
-		this.cards.push(card);
-	};
-	
-	Hand.prototype.get_card_index = function (val, suit) {
-		for (var i = 0; i < this.cards.length; i++) {
-			var card = this.cards[i];
-			if (card.val == val && card.suit == suit) return i;
-		}
-	}
+	Hand.prototype = Card_Collection.prototype;
 	Hand.prototype.has_playable_card = function (pile) {
 		return _.some(this.cards, function (card) {
 			return pile.is_valid_push(card);
 		})
 	};
 
-	var Pile = CRIBBAGE.Pile = function (game) {
-		this.game = game;
-		this.hand = new Hand();
+	var Pile = CRIBBAGE.Pile = function () {
+		this.cards = [];
 		this.score = 0;
-		this.name = 'Pile';
-	}
-	Pile.prototype.push = function (card, render) {
-		var pile = this;
-		var round = pile.game.round;
-		var hand = round.current_player.hand;
-		var card_index = hand.get_card_index(card[0], card[1]);
-		var callback = pile.reset_score.bind(pile);
-		var msg = "";
+	};
+	Pile.prototype = Card_Collection.prototype;
 
-		if (pile.is_valid_push(hand.cards[card_index])) {
-			card = hand.cards.splice(card_index, 1)[0];
-			pile.hand.cards.push(card);
-			pile.update_score(card);
-			round.discard_count++;
-
-			if (round.other_player.hand.has_playable_card(pile)) { 
-				round.switch_player();
-				msg = null;
-			} else if (round.current_player.hand.has_playable_card(pile)) { 
-				msg += round.other_player.name + " can't play a card so it's still " + round.current_player.name + "'s turn.";
-			} else { // neither player can play a card 
-				msg += round.current_player.name;
-				msg += (pile.score == 31) ? " gets 2 points for 31!" : " gets point for last card.";
-				round.current_player.score += (pile.score == 31) ? 2 : 1;
-
-				if (pile.game.are_both_hands_empty()) {
-					msg += " The round is over.";
-					callback = pile.return_cards_to_players.bind(pile);
-					// if (round.current_player == round.dealer) { round.switch_player(); }
-				} else if (round.other_player.hand.cards.length == 0) {
-					msg += round.other_player.name + " has no cards so it's still " + round.current_player.name + "'s turn.";
-				} else {
-					round.switch_player();
-				}
-			}
-			render(msg, callback);
-		} else {
-			render('invalid push. try a different card.');
-		}
-	}
 	Pile.prototype.is_valid_push = function (card) {
-		return ( this.score + card.int_val() <= 31 );
+		return ( this.score + Card.int_val(card.val) <= 31 );
 	}
 	Pile.prototype.update_score = function (card) {
-		this.score += card.int_val();
-	};
-	Pile.prototype.reset_score = function () {
-		this.score = 0;
+		this.score += Card.int_val(card.val);
 	};
 	Pile.prototype.return_cards_to_players = function () {
 		var pile = this;
@@ -122,41 +81,24 @@
 			card.holder.hand.push(card);
 		}
 	};
-	var Round = CRIBBAGE.Round = function (game) {
-		this.game = game;
-		this.current_player = game.players[0];
-		this.other_player = game.players[1];
-		this.dealer = game.players[1];
-		this.discard_count = 0;
-	};
-	Round.prototype.switch_player = function () {
-		var temp_player = this.current_player;
-		this.current_player = this.other_player;
-		this.other_player = temp_player;
-	};
 
-	var Player = CRIBBAGE.Player = function (name, game) {
+	var Player = CRIBBAGE.Player = function (name, id, game) {
 		this.name = name;
+		this.id = id;
 		this.game = game;
 		this.hand = new Hand();
 		this.crib = new Hand();
 		this.score = 0;
 	};
-	// Player.prototype.discard = function (val, suit, group, render) {
-	// 	var round = this.game.round;
-	// 	var hand = this.hand;
-
-	// 	group.push(hand.cards.splice(hand.get_card_index(val, suit), 1)[0])
-	// 	round.discard_count++;
-	// 	round.switch_player();
-	// 	render();
-	// };
-	var Game = CRIBBAGE.Game = function (player1, player2, view) {
-		this.view = view;
+	var Game = CRIBBAGE.Game = function (player_names, controller) {
+		this.controller = controller;
 		this.deck = new CRIBBAGE.Deck(this);
-		this.pile = new CRIBBAGE.Pile(this);
-		this.players = [new CRIBBAGE.Player(player1, this), new CRIBBAGE.Player(player2, this)];
-		this.round = new Round(this);
+		this.pile = new CRIBBAGE.Pile();
+		this.players = [new CRIBBAGE.Player(player_names[0], "player1", this), new CRIBBAGE.Player(player_names[1], "player2", this)];
+		this.dealer = this.players[0];
+		this.current_player = this.players[1];
+		this.cut_card = null;
+		this.discard_count = 0;
 	};
 	Game.prototype.deal = function () {
 		var game = this;
@@ -172,6 +114,136 @@
 	Game.prototype.are_both_hands_empty = function () {
 		return (this.players[0].hand.cards.length == 0 && this.players[1].hand.cards.length == 0);
 	}
+	Game.prototype.other_player = function () {
+		return (this.current_player == this.players[0]) ? this.players[1] : this.players[0];
+	};
+	Game.prototype.switch_player = function () {
+		this.current_player = this.other_player();
+	};
+
+	// var Deck = CRIBBAGE.Deck = function (game) {
+	// 	this.game = game;
+	// 	this.cut_card = null;
+	// 	this.cards = [];
+	// 	for (var i = 0; i < SUITS.length; i++ ) {
+	// 		for (var j = 0; j < VALS.length; j++ ) {
+	// 			this.cards.push(new Card(SUITS[i], VALS[j]));
+	// 		}
+	// 	}
+	// };
+	// Deck.prototype.shuffle = function () {
+	// 	this.cards = _.shuffle(this.cards);
+	// };
+	// Deck.prototype.cut = function () {
+	// 	var index = Math.floor(Math.random() * this.cards.length);
+	// 	this.cut_card = this.cards.splice(index, 1)[0];
+	// };
+	// Deck.prototype.push = function (card, render) {
+	// 	var hand = this.game.round.current_player.hand;
+	// 	var round = this.game.round;
+
+	// 	this.cards.push(hand.cards.splice(hand.get_card_index(card[0], card[1]), 1)[0]);
+	// 	round.discard_count++;
+	// 	round.switch_player();
+	// 	render();
+	// };
+
+	// var Hand = CRIBBAGE.Hand = function (owner) {
+	// 	this.owner = owner;
+	// 	this.cards = [];
+	// 	this.score = 0;
+	// };
+	// Hand.prototype.push = function (card) {
+	// 	this.cards.push(card);
+	// };
+	
+	// Hand.prototype.get_card_index = function (val, suit) {
+	// 	for (var i = 0; i < this.cards.length; i++) {
+	// 		var card = this.cards[i];
+	// 		if (card.val == val && card.suit == suit) return i;
+	// 	}
+	// }
+	// Hand.prototype.has_playable_card = function (pile) {
+	// 	return _.some(this.cards, function (card) {
+	// 		return pile.is_valid_push(card);
+	// 	})
+	// };
+
+	// var Pile = CRIBBAGE.Pile = function (game) {
+	// 	this.game = game;
+	// 	this.score = 0;
+	// 	this.id = "Pile";
+	// 	this.name = "Pile";
+	// 	this.hand = new Hand();
+	// }
+	// Pile.prototype.push = function (card, render) {
+		// var pile = this;
+		// var round = pile.game.round;
+		// var hand = round.current_player.hand;
+		// var card_index = hand.get_card_index(card[0], card[1]);
+		// var callback = pile.reset_score.bind(pile);
+		// var msg = "";
+
+		// if (pile.is_valid_push(hand.cards[card_index])) {
+		// 	card = hand.cards.splice(card_index, 1)[0];
+		// 	pile.hand.cards.push(card);
+		// 	pile.update_score(card);
+		// 	round.discard_count++;
+
+		// 	if (round.other_player.hand.has_playable_card(pile)) { 
+		// 		round.switch_player();
+		// 		msg = null;
+		// 	} else if (round.current_player.hand.has_playable_card(pile)) { 
+		// 		msg += round.other_player.name + " can't play a card so it's still " + round.current_player.name + "'s turn.";
+		// 	} else { // neither player can play a card 
+		// 		msg += round.current_player.name;
+		// 		msg += (pile.score == 31) ? " gets 2 points for 31!" : " gets point for last card.";
+		// 		round.current_player.score += (pile.score == 31) ? 2 : 1;
+
+		// 		if (pile.game.are_both_hands_empty()) {
+		// 			msg += " The round is over.";
+		// 			callback = pile.return_cards_to_players.bind(pile);
+		// 			// if (round.current_player == round.dealer) { round.switch_player(); }
+		// 		} else if (round.other_player.hand.cards.length == 0) {
+		// 			msg += round.other_player.name + " has no cards so it's still " + round.current_player.name + "'s turn.";
+		// 		} else {
+		// 			round.switch_player();
+		// 		}
+		// 	}
+		// 	render(msg, callback);
+		// } else {
+		// 	render('invalid push. try a different card.');
+		// }
+	// }
+	// Pile.prototype.is_valid_push = function (card) {
+	// 	return ( this.score + card.int_val() <= 31 );
+	// }
+	// Pile.prototype.update_score = function (card) {
+	// 	this.score += card.int_val();
+	// };
+	// Pile.prototype.reset_score = function () {
+	// 	this.score = 0;
+	// };
+	// Pile.prototype.return_cards_to_players = function () {
+	// 	var pile = this;
+	// 	while (pile.hand.cards.length != 0) {
+	// 		var card = pile.hand.cards.pop();
+	// 		card.holder.hand.push(card);
+	// 	}
+	// };
+	// var Round = CRIBBAGE.Round = function (game) {
+	// 	this.game = game;
+	// 	this.current_player = game.players[0];
+	// 	this.other_player = game.players[1];
+	// 	this.dealer = game.players[1];
+	// 	this.discard_count = 0;
+	// };
+	// Round.prototype.switch_player = function () {
+	// 	var temp_player = this.current_player;
+	// 	this.current_player = this.other_player;
+	// 	this.other_player = temp_player;
+	// };
+
 })(this);
 
 
