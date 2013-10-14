@@ -25,6 +25,9 @@
 .name {
 	clear: both;
 }
+div.name {
+	border: 1px solid black;
+}
 #game_prompt {
 	color: #FB0FBF;
 }
