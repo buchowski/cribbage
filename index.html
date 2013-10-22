@@ -3,36 +3,32 @@
 	<head>
 		<title>Cribbage</title>
 		<link rel="stylesheet" href="cribbage.css" />
+		<link rel="stylesheet" href="css/bootstrap.min.css" />
 		<script type='text/javascript' src='jquery-1.10.2.min.js'></script>
-		<script type='text/javascript' src='cribbage.js'></script>
-		<script type='text/javascript' src='cribbage_web_ui.js'></script>
-		<script type='text/javascript' src='controller.js'></script>
 		<script type='text/javascript' src='underscore.js'></script>
+		<script type-'text/javascript' src='js/bootstrap.min.js'></script>
+		<script type='text/javascript' src='model.js'></script>
+		<script type='text/javascript' src='view.js'></script>
+		<script type='text/javascript' src='controller.js'></script>
 	</head>
 	<body>
-<!-- 		<form id="create_players">
-			<label for="player1">Player 1</label>
-				<input type="text" id="player1"></input>
-			<label for="player2">Player 2</label>
-				<input type="text" id="player2"></input>
-			<input type="submit" value="Create Players"></input>
-		</form>
-		<div id="game"></div>
-		<script type="text/javascript">
-			// $( $('#create_players').on('submit', function (e) {
-			// 		e.preventDefault();
-			// 		// eventually move all the javascript out of this file
-			// 		// any spaces in a player's name will break this
-			// 		var player1 = $("#player1").val();
-			// 		var player2 = $("#player2").val();
-			// 		$('#create_players').hide(400, function () {
-			// 			console.log(controller.display());
-			// 			// new CRIBBAGE.View(player1, player2).start();
-			// 		})
-			// 	})
-			// )
-		</script>
- -->	
+		<div id="wrap">
+			<div class="navbar navbar-default navbar-fixed-top">
+				<div class="container">
+					<div class="navbar-header">
+						<a class="navbar-brand" href="#">Cribbage</a>
+					</div>
+				</div>
+			</div>
+			<div class="container">
+				<div id="cribbage"></div>
+			</div>
+		</div> 
+		<div class="navbar navbar-fixed-bottom">
+			<div class="container">
+				<p class="text-muted credit">Cribbage - A Game by Adam Bucholz</p>
+			</div>
+		</div> 
  	<script type="text/javascript">
  		$( 
  			function () { new CRIBBAGE.Controller(); } 

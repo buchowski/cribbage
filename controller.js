@@ -7,8 +7,8 @@
 		controller.executes = {
 			submit_player_names: function (e) {
 				e.preventDefault();
-				var player1_name = $("#player1").val();
-				var player2_name = $("#player2").val();
+				var player1_name = $("#player1_name").val();
+				var player2_name = $("#player2_name").val();
 				$('#create_players').hide(400, function () {
 					controller.create_game([player1_name, player2_name]);
 				})
@@ -20,51 +20,67 @@
 			play: function (e) {
 				var val_and_suit = Controller.get_val_suit($(this));
 				controller.play_card(val_and_suit);
+			},
+			close_warning: function (e) {
+				$("#cribbage").empty();
+				$("#cribbage").append(CRIBBAGE.View.main_template(controller.game, "slap a card down on thy battlefield!"));
+				$("#" + controller.game.current_player.id).on("click", ".card", controller.executes["play"]);
 			}
 		};
-		$("body").empty();
-		$("body").append(CRIBBAGE.View.new_player_template());
+		$("#cribbage").empty();
+		$("#cribbage").append(CRIBBAGE.View.new_player_template());
 		$("#create_players").on("submit", this.executes["submit_player_names"]);
 	};
-	Controller.prototype.play_card = function (val_and_suit) { // return [val, suit];
+	Controller.prototype.play_card = function (val_and_suit) { 
 		var hand = this.game.current_player.hand;
 		var pile = this.game.pile;
+		$("#cribbage").empty();
 
-		if (pile.is_valid_push(val_and_suit[0])) {
+		if (pile.is_valid_push(val_and_suit)) {
 			var card_index = hand.get_card_index(val_and_suit);
 			var card = hand.splice_card(card_index);
 			pile.push(card);
 			pile.update_score(card);
-			$("body").empty();
 
 			if (this.game.other_player().hand.has_playable_card(pile)) {
 				this.game.switch_player();
 
-				$("body").append(CRIBBAGE.View.play_template(this.game));
+				$("#cribbage").append(CRIBBAGE.View.main_template(this.game, "slap a card down on thy battlefield!"));
 				$("#" + this.game.current_player.id).on("click", ".card", this.executes["play"]);
-			} else if (this.game.current_player().hand.has_playable_card(pile)) {
+			} else if (this.game.current_player.hand.has_playable_card(pile)) {
 				// the other player can't make a play so it's still the current player's turn
-				$("body").append(CRIBBAGE.View.play_template(this.game));
-				$("#" + this.game.current_player.id).on("click", ".card", this.executes["play"]);
-			} else { // neither player can play a card
-				round.current_player.score += (pile.score == 31) ? 2 : 1;
-				if (this.game.are_both_hands_empty()) {
-					alert("y'all done done it!!!");
-				} else if (this.game.other_player().hand.cards.length == 0) {
-					pile.score == 0;
+				$("#cribbage").append(CRIBBAGE.View.main_template(this.game, "it's still your turn. " + this.game.other_player().name + "can't play a card."));
+				$("#prompt").append("<input id='warning' type='button' value='Okee Dokee' />");
+				$("#warning").on("click", this.executes["close_warning"]);
 
-					$("body").append(CRIBBAGE.View.play_template(this.game));
-					$("#" + this.game.current_player.id).on("click", ".card", this.executes["play"]);
+			} else { // neither player can play a card
+				this.game.current_player.score += (pile.score == 31) ? 2 : 1;
+
+				if (this.game.are_both_hands_empty()) {
+					$("#cribbage").append(CRIBBAGE.View.main_template(this.game, "gets a point or two for last card. " + 
+						"Both players' hands are empty. Let's score our hand's and the crib now."));
+					$("#prompt").append("<input id='warning' type='button' value='Okee Dokee' />");
+				} else if (this.game.other_player().hand.cards.length == 0) {
+
+					$("#cribbage").append(CRIBBAGE.View.main_template(this.game, "it's still your turn. " + this.game.other_player().name + "can't play a card. " +
+						this.game.current_player.name + " gets a point or two for last card."));
+					$("#prompt").append("<input id='warning' type='button' value='Okee Dokee' />");
+					pile.score = 0;
+					$("#warning").on("click", this.executes["close_warning"]);
 				} else {
-					pile.score == 0;
 					this.game.switch_player();
 
-						$("body").append(CRIBBAGE.View.play_template(this.game));
-						$("#" + this.game.current_player.id).on("click", ".card", this.executes["play"]);
+					$("#cribbage").append(CRIBBAGE.View.main_template(this.game, "it's your turn. " + 
+						this.game.other_player().name + " gets a point or two for last card."));
+					$("#prompt").append("<input id='warning' type='button' value='Okee Dokee' />");
+					pile.score = 0;
+					$("#warning").on("click", this.executes["close_warning"]);
 				}
 			}
-		} else {
-			alert("no puedes hacer lo jefe!");
+		} else { // the push isn't valid
+			$("#cribbage").append(CRIBBAGE.View.main_template(this.game, "you cannot play that card!"));
+			$("#prompt").append("<input id='warning' type='button' value='Okee Dokee' />");
+			$("#warning").on("click", this.executes["close_warning"]);
 		}
 	};
 	Controller.prototype.discard_card = function (val_and_suit) {
@@ -76,13 +92,13 @@
 		this.game.dealer.crib.push(card);
 		this.game.discard_count++;
 		this.game.switch_player();
-		$("body").empty();
+		$("#cribbage").empty();
 
 		if (count < 3) {
-			$("body").append(CRIBBAGE.View.discard_template(this.game));
+			$("#cribbage").append(CRIBBAGE.View.main_template(this.game, "rid thyself of a card!"));
 			$("#" + this.game.current_player.id).on("click", ".card", this.executes["discard"]);
 		} else {
-			$("body").append(CRIBBAGE.View.play_template(this.game));
+			$("#cribbage").append(CRIBBAGE.View.main_template(this.game, "slap a card down on thy battlefield!"));
 			$("#" + this.game.current_player.id).on("click", ".card", this.executes["play"]);
 		}
 	};
@@ -94,8 +110,8 @@
 		this.game.deck.shuffle();
 		this.game.deal();
 
-		$("body").empty();
-		$("body").append(CRIBBAGE.View.discard_template(this.game));
+		$("#cribbage").empty();
+		$("#cribbage").append(CRIBBAGE.View.main_template(this.game, "rid thyself of a card!"));
 		$("#" + this.game.current_player.id).on("click", ".card", this.executes["discard"]);
 
 	};

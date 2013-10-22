@@ -1,4 +1,4 @@
-.card {
+/*.card {
 	width: 28px;
 	height: 40px;
 	padding-top: 10px;
@@ -6,26 +6,44 @@
 	margin: 5px;
 	float: left;
 }
+.clear {
+	clear: both;
+}*/
+#cribbage {
+	padding-top: 60px;
+}
 .card:hover {
 	cursor: pointer;
-	background-color: #FF00BB;
+	/*background-color: #FF00BB;*/
+}
+.card {
+	margin-top: 10px;
+	padding: 10px;
+	border-top: 1px solid;
+	border-left: 1px solid;
+	border-right: 1px solid;
+	border-radius: 10px; /* CSS3 Property */
+	-moz-border-radius: 10px;  /* Firefox */
+	-webkit-border-radius: 10px; /* Chrome/Safari */
+	-khtml-border-radius: 10px; /* Linux browsers */
 }
 .S {
-	border: 2px solid black;
+/*	border: 2px solid black;
+*/	color: black;
 }
 .H {
-	border: 2px solid red;
+	/*border: 2px solid red;*/
+	color: red;
 }
 .C {
-	border: 2px solid black;
+	/*border: 2px solid black;*/
+	color: black;
 }
 .D {
-	border: 2px solid red;
+	/*border: 2px solid red;*/
+	color: red;
 }
-.name {
-	clear: both;
-}
-div.name {
+/*div.name {
 	border: 1px solid black;
 }
 #game_prompt {
@@ -40,4 +58,4 @@ div.name {
 }
 #player2 {
 	
-}
+}*/
