@@ -1,75 +1,107 @@
 (function (root) {
 	var CRIBBAGE = root.CRIBBAGE = (root.CRIBBAGE || {});
 
-	var View = CRIBBAGE.View = function () {};
-
-	View.card_template = function (card) {
-		return "<div class='card " + card.suit + "' id='" + card.val + card.suit + "'>" 
-					+ card.val + card.suit + 
-				"</div>";
-	};
-	View.hand_template = function (hand) {
-		var html_string = "";
-		_.each(hand.cards, function (card) {
-			html_string += View.card_template(card);
-		})
-		return (hand.cards.length == 0) ? "<h1>empty, no cards</h1>" : html_string;
-	};
-	View.player_template = function (player) {
-		return "<p>" + player.name + "'s Score: " + player.score + "</p>" +
-				"<p>" + player.name + "'s Cards:" + "</p>";
-	};
-	View.prompt_template = function (name, msg) {
-		return "<p class='name'>" + 
-					name + msg + 
-				"</p>";
-	};
-	View.msg_template = function (msg) {
-		return "<div id='error_msg'>" + 
-					"<p id='error'>" + 
-						msg + 
-					"</p>" + 
-					"<input type='button' id='ok_error' value='Okee Dokee'></input>" + 
-				"</div>";
-	};
-	View.new_player_template = function () {
-		return "<div class='col-md-4'></div>" +
-					"<div class='col-md-4'>" +
-						"<form id='create_players'>" + 
-							"<div id='player1'>" +
-								"<label for='player1_name'>Player 1</label>" +
-									"<input type='text' id='player1_name'></input>" +
+	var View = CRIBBAGE.View = function () {
+		var view = this;
+		view.renders = {
+			// msg's do not contain html, just messages. in a msg, 'this' is always the game
+			play_msg: function () {
+				return this.current_player.name + ", slap a card down on thy battlefield!";
+			},
+			discard_msg: function () {
+				return this.current_player.name + ", rid thyself of a card!";
+			},
+			fifteen_msg: function () {
+				return this.current_player.name + " gets 2 points for 15!";
+			},
+			still_your_turn_msg: function () {
+				return this.current_player.name + " it's still your turn. " + this.other_player().name + "can't play a card.";
+			},
+			point_for_last_card_msg: function () {
+				return this.current_player.name + " gets a point or two for last card.";
+			},
+			both_hands_empty_msg: function () {
+				return  "both players' hands are empty. Let's score our hands and the crib now.";
+			},
+			invalid_card_msg: function () {
+				return this.current_player.name + ", you cannot play that card!";
+			},
+			// templates contain html
+			card_template: function () {
+				return "<div class='card " + this.suit + "' id='" + this.val + this.suit + "'>" 
+							+ this.val + this.suit + 
+						"</div>";
+			},
+			ok_button_template: function () {
+				return "<input id='warning' class='btn btn-info' type='button' value='Okee Dokee' />";
+			},
+			hand_template: function () {
+				var html_string = "";
+				_.each(this.cards, function (card) {
+					html_string += view.renders["card_template"].call(card);
+				})
+				return (this.cards.length == 0) ? "<h3>empty, no cards</h3>" : html_string;
+			},
+			player_template: function () {
+				return "<p>" + this.name + "'s Score: " + this.score + "</p>" +
+						"<p>" + this.name + "'s Cards:" + "</p>";
+			},
+			new_player_template: function () {
+				return 	"<div class='col-md-4'></div>" +
+						"<div class='col-md-4'>" +
+							"<form id='create_players' class='form-horizontal' role='form'>" + 
+								  "<h4>Please Enter Two Player Names</h4>" +
+								  "<div class='form-group'>" + 
+									    "<div class='col-md-12'>" +
+									      "<input type='text' class='form-control' id='player1_name' placeholder='Player One'>" +
+									    "</div>" +
+								  "</div>" +
+								  "<div class='form-group'>" + 
+									    "<div class='col-md-12'>" +
+									      "<input type='text' class='form-control' id='player2_name' placeholder='Player Two'>" +
+									    "</div>" +
+								  "</div>" +
+								  "<div class='form-group'>" +
+								    "<div class='col-md-10'>" +
+								      "<button type='submit' class='btn btn-info'>Start Game</button>" +
+								    "</div>" +
+								  "</div>" +
+							"</form>" +
+						"</div>" +
+						"<div class='col-md-4'></div>";
+			},
+			 game_template: function (messages) {
+			 	var game = this;
+				return 	"<div id='prompt'>" + 
+							"<h3>" + 
+								_.map(messages, function (msg) {
+									return view.renders[msg].call(game);
+								}).join(" ") + 
+							"</h3>" + 
+						"</div>" + 
+						"<div id='game'>" +
+							"<div class='col-md-4'>" +
+								"<div id='" + this.players[0].id + "'>" + 
+									view.renders["player_template"].call(this.players[0]) +
+									view.renders["hand_template"].call(this.players[0].hand) +
+								"</div>" + 
+								"<div id='crib'><p>" + this.dealer.name + "'s Crib: </p>" +
+									view.renders["hand_template"].call(this.dealer.crib) +
+								"</div>" + 
 							"</div>" +
-							"<div id='player2'>" +
-								"<label for='player2_name'>Player 2</label>" +
-									"<input type='text' id='player2_name'></input>" +
+							"<div class='col-md-4'>" + 
+									"<div id='pile'>" + 
+									"<p>Pile Score: " + this.pile.score + "</p>" +
+									"<p>Pile Cards:</p>" +
+									view.renders["hand_template"].call(this.pile) +
+								"</div>" +
 							"</div>" +
-							"<input type='submit' value='Create Players'></input>" +
-						"</form>" +
-					"</div>" +
-					"<div class='col-md-4'></div>";
-	};
-	View.main_template = function (game, msg) {
-		return 	"<div id='prompt'><h1>" + game.current_player.name + ", " + msg + "</h1></div>" + 
-				"<div class='col-md-4'>" +
-					"<div id='" + game.players[0].id + "'>" + 
-						View.player_template(game.players[0]) +
-						View.hand_template(game.players[0].hand) +
-					"</div>" + 
-					"<div id='crib'><p>" + game.dealer.name + "'s Crib: </p>" +
-						View.hand_template(game.dealer.crib) +
-					"</div>" + 
-				"</div>" +
-				"<div class='col-md-4'>" + 
-						"<div id='pile'>" + 
-						"<p>Pile Score: " + game.pile.score + "</p>" +
-						"<p>Pile Cards:</p>" +
-						View.hand_template(game.pile) +
-					"</div>" +
-				"</div>" +
-				"<div class='col-md-4' id='" + game.players[1].id + "'>" + 
-					View.player_template(game.players[1]) +
-					View.hand_template(game.players[1].hand) +
-				"</div>";
+							"<div class='col-md-4' id='" + this.players[1].id + "'>" + 
+								view.renders["player_template"].call(this.players[1]) +
+								view.renders["hand_template"].call(this.players[1].hand) +
+							"</div>" +
+						"</div>";
+			}
+		};
 	};
 })(this);

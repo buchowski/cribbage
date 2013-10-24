@@ -12,6 +12,17 @@
 #cribbage {
 	padding-top: 60px;
 }
+.gray {
+	background-color: #F8F8F8;
+/*	opacity: .5;
+*/}	
+#prompt {
+	padding: 10px;
+	border-radius: 10px; /* CSS3 Property */
+	-moz-border-radius: 10px;  /* Firefox */
+	-webkit-border-radius: 10px; /* Chrome/Safari */
+	-khtml-border-radius: 10px; /* Linux browsers */
+}
 .card:hover {
 	cursor: pointer;
 	/*background-color: #FF00BB;*/
