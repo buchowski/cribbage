@@ -25,6 +25,7 @@
 			close_warning: function (e) {
 				$("#cribbage").empty();
 				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, ["play_msg"]));
+				$("body").toggleClass("gray", false);
 				$("#" + controller.game.current_player.id).on("click", ".card", controller.executes["play"]);
 			}
 		};
@@ -46,21 +47,25 @@
 			pile.push(card);
 			pile.update_score(card);
 
-			if (pile.score == 15) {
+			if (pile.score == 15 || pile.score == 31) {
 				this.game.current_player.score += 2;
-				messages.push("fifteen_msg");
-			}
+				(pile.score == 15) ? messages.push("fifteen_msg") : messages.push("thirtyone_msg"); ;
+			} 
 
 			if (this.game.other_player().hand.has_playable_card(pile)) {
 				this.game.switch_player();
-				messages.push("play_msg");
-				append_prompt = false;
+				if (pile.score != 15) {
+					append_prompt = false;
+					messages.push("play_msg");
+				}
 			} else if (this.game.current_player.hand.has_playable_card(pile)) {
 				// the other player can't make a play so it's still the current player's turn
 				messages.push("still_your_turn_msg");
 			} else { // neither player can play a card
-				this.game.current_player.score += (pile.score == 31) ? 2 : 1;
-				messages.push("point_for_last_card_msg");
+				if (pile.score != 31) {
+					this.game.current_player.score += 1;
+					messages.push("point_for_last_card_msg");
+				} 
 				reset_score = true;
 				if (this.game.are_both_hands_empty()) {
 					messages.push("both_hands_empty_msg");
@@ -78,6 +83,8 @@
 		$("#cribbage").append(this.view.renders["game_template"].call(this.game, messages));
 		if (append_prompt) {
 			$("#prompt").append(this.view.renders["ok_button_template"]);
+			$("body").toggleClass("gray", true);
+			$("#prompt").toggleClass("white", true);
 			$("#warning").on("click", this.executes["close_warning"]);
 			if (reset_score) pile.score = 0;
 		} else {

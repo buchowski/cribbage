@@ -14,8 +14,13 @@
 }
 .gray {
 	background-color: #F8F8F8;
-/*	opacity: .5;
-*/}	
+}	
+.white {
+	background-color: #FFFFFF;
+}
+.gray .col-md-4 {
+	opacity: 0.1;
+}
 #prompt {
 	padding: 10px;
 	border-radius: 10px; /* CSS3 Property */

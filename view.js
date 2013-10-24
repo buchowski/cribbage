@@ -6,7 +6,7 @@
 		view.renders = {
 			// msg's do not contain html, just messages. in a msg, 'this' is always the game
 			play_msg: function () {
-				return this.current_player.name + ", slap a card down on thy battlefield!";
+				return this.current_player.name + ", slap a card down on the battlefield!";
 			},
 			discard_msg: function () {
 				return this.current_player.name + ", rid thyself of a card!";
@@ -14,11 +14,14 @@
 			fifteen_msg: function () {
 				return this.current_player.name + " gets 2 points for 15!";
 			},
-			still_your_turn_msg: function () {
-				return this.current_player.name + " it's still your turn. " + this.other_player().name + "can't play a card.";
+			thirtyone_msg: function () {
+				return this.current_player.name + " gets 2 points for 31!";
 			},
 			point_for_last_card_msg: function () {
-				return this.current_player.name + " gets a point or two for last card.";
+				return this.current_player.name + " gets 1 point for last card.";
+			},
+			still_your_turn_msg: function () {
+				return this.current_player.name + " it's still your turn. " + this.other_player().name + "can't play a card.";
 			},
 			both_hands_empty_msg: function () {
 				return  "both players' hands are empty. Let's score our hands and the crib now.";
@@ -53,12 +56,12 @@
 								  "<h4>Please Enter Two Player Names</h4>" +
 								  "<div class='form-group'>" + 
 									    "<div class='col-md-12'>" +
-									      "<input type='text' class='form-control' id='player1_name' placeholder='Player One'>" +
+									      "<input type='text' class='form-control' id='player1_name' maxlength='20' placeholder='Player One'>" +
 									    "</div>" +
 								  "</div>" +
 								  "<div class='form-group'>" + 
 									    "<div class='col-md-12'>" +
-									      "<input type='text' class='form-control' id='player2_name' placeholder='Player Two'>" +
+									      "<input type='text' class='form-control' id='player2_name' maxlength='20' placeholder='Player Two'>" +
 									    "</div>" +
 								  "</div>" +
 								  "<div class='form-group'>" +
