@@ -75,8 +75,8 @@
 	};
 	Pile.prototype.return_cards_to_players = function () {
 		var pile = this;
-		while (pile.hand.cards.length != 0) {
-			var card = pile.hand.cards.pop();
+		while (pile.cards.length != 0) {
+			var card = pile.cards.pop();
 			card.holder.hand.push(card);
 		}
 	};

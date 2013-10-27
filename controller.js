@@ -23,15 +23,17 @@
 				controller.play_card(val_and_suit);
 			},
 			close_warning: function (e) {
-				$("#cribbage").empty();
+				// $("#cribbage").empty();
 				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, [controller.play_msg()]));
 
 				controller.toggle_prompt_class(false);
 
 				$("#" + controller.game.current_player.id).on("click", ".card", controller.executes["play"]);
 			},
-			squirt: function (e) {
-				alert("squirt!");
+			return_cards: function (e) {
+				controller.game.pile.return_cards_to_players();
+				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, ["big dog know best!"]));
+				controller.toggle_prompt_class(false);
 			}
 		};
 		$("#cribbage").empty();
@@ -66,7 +68,7 @@
 
 				if (this.game.are_both_hands_empty()) {
 					messages.push(this.both_hands_empty_msg());
-					callback = "squirt";
+					callback = "return_cards";
 				} else if (this.game.other_player().hand.cards.length == 0) {
 					messages.push(this.still_your_turn_msg());
 				} else {
@@ -74,7 +76,7 @@
 				}
 			}
 		} else { 
-			messages.push(this.invalid_card_msg);
+			messages.push(this.invalid_card_msg());
 		}
 
 		if (messages.length == 0) messages = [this.play_msg()];
