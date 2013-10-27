@@ -73,9 +73,13 @@
 									view.renders["hand_template"].call(this.pile) +
 								"</div>" +
 							"</div>" +
-							"<div class='col-md-4' id='" + this.players[1].id + "'>" + 
-								view.renders["player_template"].call(this.players[1]) +
-								view.renders["hand_template"].call(this.players[1].hand) +
+							"<div class='col-md-4'>" +
+							// "<div class='col-md-4' id='" + this.players[1].id + "'>" + 
+								"<div id='" + this.players[1].id + "'>" + 
+									view.renders["player_template"].call(this.players[1]) +
+									view.renders["hand_template"].call(this.players[1].hand) +
+								"</div>" +
+							// "</div>" +
 							"</div>" +
 						"</div>";
 			}

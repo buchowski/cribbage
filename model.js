@@ -60,6 +60,19 @@
 			return pile.is_valid_push(val_and_suit);
 		})
 	};
+	Hand.prototype.score_cards = function () {
+		// score the whole hand. you can display it incrementally in the controller
+		var scores = [];
+		for (var i = 0; i < this.cards.length; i++) {
+			for (var j = i + 1; j < this.cards.length; j++) {
+				var sum = Card.int_val(this.cards[i].val) + Card.int_val(this.cards[j].val);
+				if (sum == 15) {
+					scores.push(this.cards[i].val + " + " + this.cards[j].val + " = " + sum);
+				} 
+			}
+		}	
+		return scores;
+	};
 
 	var Pile = CRIBBAGE.Pile = function () {
 		this.cards = [];

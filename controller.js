@@ -23,7 +23,6 @@
 				controller.play_card(val_and_suit);
 			},
 			close_warning: function (e) {
-				// $("#cribbage").empty();
 				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, [controller.play_msg()]));
 
 				controller.toggle_prompt_class(false);
@@ -32,8 +31,17 @@
 			},
 			return_cards: function (e) {
 				controller.game.pile.return_cards_to_players();
-				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, ["big dog know best!"]));
+				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, [controller.scoring_hand()]));
 				controller.toggle_prompt_class(false);
+
+				var scores = controller.game.current_player.hand.score_cards();
+				if (scores.length != 0) {
+					_.each(scores, function (score) {
+						$("#" + controller.game.current_player.id).prepend("<p>" + score + "</p>");
+					})
+				} else {
+					$("#" + controller.game.current_player.id).prepend("<p>ain't no score</p>");
+				}
 			}
 		};
 		$("#cribbage").empty();
@@ -67,6 +75,7 @@
 				(pile.score == 31) ? messages.push(this.thirtyone()): messages.push(this.point_for_last_card_msg());
 
 				if (this.game.are_both_hands_empty()) {
+					if (this.game.current_player == this.game.dealer) this.game.switch_player();
 					messages.push(this.both_hands_empty_msg());
 					callback = "return_cards";
 				} else if (this.game.other_player().hand.cards.length == 0) {
@@ -159,9 +168,12 @@
 		return this.game.current_player.name + " it's still your turn. " + this.game.other_player().name + "can't play a card.";
 	};
 	Controller.prototype.both_hands_empty_msg = function () {
-		return  "both players' hands are empty. Let's score our hands and the crib now.";
+		return  "both players' hands are empty. Let's score " + this.game.current_player.name + "'s hand.";
 	};
 	Controller.prototype.invalid_card_msg = function () {
 		return this.game.current_player.name + ", you cannot play that card!";
+	};
+	Controller.prototype.scoring_hand = function () {
+		return "scoring " + this.game.current_player.name + "'s hand...";
 	};
 })(this);
