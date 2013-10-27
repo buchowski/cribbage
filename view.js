@@ -4,32 +4,6 @@
 	var View = CRIBBAGE.View = function () {
 		var view = this;
 		view.renders = {
-			// msg's do not contain html, just messages. in a msg, 'this' is always the game
-			play_msg: function () {
-				return this.current_player.name + ", slap a card down on the battlefield!";
-			},
-			discard_msg: function () {
-				return this.current_player.name + ", rid thyself of a card!";
-			},
-			fifteen_msg: function () {
-				return this.current_player.name + " gets 2 points for 15!";
-			},
-			thirtyone_msg: function () {
-				return this.current_player.name + " gets 2 points for 31!";
-			},
-			point_for_last_card_msg: function () {
-				return this.current_player.name + " gets 1 point for last card.";
-			},
-			still_your_turn_msg: function () {
-				return this.current_player.name + " it's still your turn. " + this.other_player().name + "can't play a card.";
-			},
-			both_hands_empty_msg: function () {
-				return  "both players' hands are empty. Let's score our hands and the crib now.";
-			},
-			invalid_card_msg: function () {
-				return this.current_player.name + ", you cannot play that card!";
-			},
-			// templates contain html
 			card_template: function () {
 				return "<div class='card " + this.suit + "' id='" + this.val + this.suit + "'>" 
 							+ this.val + this.suit + 
@@ -50,6 +24,7 @@
 						"<p>" + this.name + "'s Cards:" + "</p>";
 			},
 			new_player_template: function () {
+	 			$("#cribbage").empty();
 				return 	"<div class='col-md-4'></div>" +
 						"<div class='col-md-4'>" +
 							"<form id='create_players' class='form-horizontal' role='form'>" + 
@@ -75,11 +50,10 @@
 			},
 			 game_template: function (messages) {
 			 	var game = this;
+	 			$("#cribbage").empty();
 				return 	"<div id='prompt'>" + 
 							"<h3>" + 
-								_.map(messages, function (msg) {
-									return view.renders[msg].call(game);
-								}).join(" ") + 
+								messages.join(" ") + 
 							"</h3>" + 
 						"</div>" + 
 						"<div id='game'>" +

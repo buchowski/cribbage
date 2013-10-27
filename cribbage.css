@@ -9,8 +9,10 @@
 .clear {
 	clear: both;
 }*/
+
 #cribbage {
 	padding-top: 60px;
+	/*font-family: 'Volkhov', serif;*/
 }
 .gray {
 	background-color: #F8F8F8;

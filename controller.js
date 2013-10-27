@@ -24,9 +24,14 @@
 			},
 			close_warning: function (e) {
 				$("#cribbage").empty();
-				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, ["play_msg"]));
-				$("body").toggleClass("gray", false);
+				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, [controller.play_msg()]));
+
+				controller.toggle_prompt_class(false);
+
 				$("#" + controller.game.current_player.id).on("click", ".card", controller.executes["play"]);
+			},
+			squirt: function (e) {
+				alert("squirt!");
 			}
 		};
 		$("#cribbage").empty();
@@ -35,8 +40,9 @@
 	};
 	Controller.prototype.play_card = function (val_and_suit) { 
 		var hand = this.game.current_player.hand;
+		var renders = this.view.renders;
 		var pile = this.game.pile;
-		var append_prompt = true;
+		var callback = "close_warning";
 		var reset_score = false;
 		var messages = [];
 
@@ -47,50 +53,52 @@
 			pile.push(card);
 			pile.update_score(card);
 
-			if (pile.score == 15 || pile.score == 31) {
-				this.game.current_player.score += 2;
-				(pile.score == 15) ? messages.push("fifteen_msg") : messages.push("thirtyone_msg"); ;
-			} 
+			if (pile.score == 15) messages.push(this.fifteen());
 
 			if (this.game.other_player().hand.has_playable_card(pile)) {
 				this.game.switch_player();
-				if (pile.score != 15) {
-					append_prompt = false;
-					messages.push("play_msg");
-				}
 			} else if (this.game.current_player.hand.has_playable_card(pile)) {
-				// the other player can't make a play so it's still the current player's turn
-				messages.push("still_your_turn_msg");
-			} else { // neither player can play a card
-				if (pile.score != 31) {
-					this.game.current_player.score += 1;
-					messages.push("point_for_last_card_msg");
-				} 
+				messages.push(this.still_your_turn_msg());
+			} else { 
 				reset_score = true;
+				this.game.current_player.score += 1; 
+				(pile.score == 31) ? messages.push(this.thirtyone()): messages.push(this.point_for_last_card_msg());
+
 				if (this.game.are_both_hands_empty()) {
-					messages.push("both_hands_empty_msg");
+					messages.push(this.both_hands_empty_msg());
+					callback = "squirt";
 				} else if (this.game.other_player().hand.cards.length == 0) {
-					messages.push("still_your_turn_msg");
+					messages.push(this.still_your_turn_msg());
 				} else {
 					this.game.switch_player();
-					messages.push("play_msg");
 				}
 			}
-		} else { // the push isn't valid
-			messages.push("invalid_card_msg");
+		} else { 
+			messages.push(this.invalid_card_msg);
 		}
-		$("#cribbage").empty();
+
+		if (messages.length == 0) messages = [this.play_msg()];
 		$("#cribbage").append(this.view.renders["game_template"].call(this.game, messages));
-		if (append_prompt) {
-			$("#prompt").append(this.view.renders["ok_button_template"]);
-			$("body").toggleClass("gray", true);
-			$("#prompt").toggleClass("white", true);
-			$("#warning").on("click", this.executes["close_warning"]);
-			if (reset_score) pile.score = 0;
-		} else {
-			$("#" + this.game.current_player.id).on("click", ".card", this.executes["play"]);
-		}
+		(messages[0] == this.play_msg()) ? this.play_bind() : this.display_info_msg(callback);
+
+		if (reset_score) pile.score = 0;
 	};
+	Controller.prototype.fifteen = function () {
+		this.game.current_player.score += 2;
+		return this.fifteen_msg();
+	},
+	Controller.prototype.play_bind = function () {
+		$("#" + this.game.current_player.id).on("click", ".card", controller.executes["play"]);
+	}
+	Controller.prototype.thirtyone = function () {
+		this.game.current_player.score += 1; // player already received 1 point for last card
+		return this.thirtyone_msg();
+	},
+	Controller.prototype.display_info_msg = function (callback) {
+		$("#prompt").append(this.view.renders["ok_button_template"]);
+		this.toggle_prompt_class(true);
+		$("#warning").on("click", this.executes[callback]);
+	}
 	Controller.prototype.discard_card = function (val_and_suit) {
 		var hand = this.game.current_player.hand;
 		var count = this.game.discard_count;
@@ -102,10 +110,10 @@
 		this.game.switch_player();
 
 		var callback = (count < 3) ? "discard" : "play";
-		var message = (count < 3) ? "discard_msg" : "play_msg";
+		var message = (count < 3) ? this.discard_msg : this.play_msg;
 
 		$("#cribbage").empty();
-		$("#cribbage").append(this.view.renders["game_template"].call(this.game, [message]));
+		$("#cribbage").append(this.view.renders["game_template"].call(this.game, [message.call(this)]));
 		$("#" + this.game.current_player.id).on("click", ".card", this.executes[callback]);
 	};
 	Controller.prototype.create_game = function (player_names) {
@@ -116,15 +124,42 @@
 		this.game.deck.shuffle();
 		this.game.deal();
 
-		$("#cribbage").empty();
-		$("#cribbage").append(this.view.renders["game_template"].call(this.game, ["discard_msg"]));
+		$("#cribbage").append(this.view.renders["game_template"].call(this.game, [this.discard_msg()]));
 		$("#" + this.game.current_player.id).on("click", ".card", this.executes["discard"]);
 
+	};
+	Controller.prototype.toggle_prompt_class = function (display) {
+		$("body").toggleClass("gray", display);
+		$("#prompt").toggleClass("white", display);
 	};
 	Controller.get_val_suit = function($el) {
 		var val = $el.attr('id')[0];
 		var val = ( val == '1') ? '10' : val;
 		var suit = ( val == '10') ? $el.attr('id')[2] : $el.attr('id')[1];
 		return [val, suit];
+	};
+	Controller.prototype.play_msg = function () {
+		return this.game.current_player.name + ", slap a card down on the battlefield!";
+	};
+	Controller.prototype.discard_msg = function () {
+		return this.game.current_player.name + ", rid thyself of a card!";
+	};
+	Controller.prototype.fifteen_msg = function () {
+		return this.game.current_player.name + " gets 2 points for 15!";
+	};
+	Controller.prototype.thirtyone_msg = function () {
+		return this.game.current_player.name + " gets 2 points for 31!";
+	};
+	Controller.prototype.point_for_last_card_msg = function () {
+		return this.game.current_player.name + " gets 1 point for last card.";
+	};
+	Controller.prototype.still_your_turn_msg = function () {
+		return this.game.current_player.name + " it's still your turn. " + this.game.other_player().name + "can't play a card.";
+	};
+	Controller.prototype.both_hands_empty_msg = function () {
+		return  "both players' hands are empty. Let's score our hands and the crib now.";
+	};
+	Controller.prototype.invalid_card_msg = function () {
+		return this.game.current_player.name + ", you cannot play that card!";
 	};
 })(this);

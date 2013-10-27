@@ -19,7 +19,6 @@
 		this.cards.push(card);
 	};
 	Card_Collection.prototype.get_card_index = function (val_and_suit) {
-		// should this function be rewritten to take a card object?
 		for (var i = 0; i < this.cards.length; i++) {
 			var card = this.cards[i];
 			if (card.val == val_and_suit[0] && card.suit == val_and_suit[1]) return i;
