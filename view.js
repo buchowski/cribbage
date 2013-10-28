@@ -74,14 +74,27 @@
 								"</div>" +
 							"</div>" +
 							"<div class='col-md-4'>" +
-							// "<div class='col-md-4' id='" + this.players[1].id + "'>" + 
 								"<div id='" + this.players[1].id + "'>" + 
 									view.renders["player_template"].call(this.players[1]) +
 									view.renders["hand_template"].call(this.players[1].hand) +
 								"</div>" +
-							// "</div>" +
 							"</div>" +
 						"</div>";
+			},
+			score_table_template: function (scores){
+				var $table = $("<table id='scorebox'></table>");
+				if (scores.length == 0) {
+					$table.append("<p>ALLYOURDATAAREBELONGTOUS!!!</p>");
+				} else {
+					_.each(scores, function (score) {
+						$table.append(view.renders["score_row_template"].call(this, score));
+					})
+				}
+				return $table;
+			},
+			score_row_template: function (score) {
+				return "<tr><td>" + score[0] + "</td><td>+</td><td>" + score[1] + 
+					"</td><td>=</td><td>" + score[2] + "</td><td>for</td><td>" + score[3] + "</td></tr>";
 			}
 		};
 	};

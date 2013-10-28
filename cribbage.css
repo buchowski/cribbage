@@ -23,6 +23,10 @@
 .gray .col-md-4 {
 	opacity: 0.1;
 }
+#scorebox {
+/*	display: none;
+*/	background-color: yellow;
+}
 #prompt {
 	padding: 10px;
 	border-radius: 10px; /* CSS3 Property */

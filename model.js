@@ -67,7 +67,9 @@
 			for (var j = i + 1; j < this.cards.length; j++) {
 				var sum = Card.int_val(this.cards[i].val) + Card.int_val(this.cards[j].val);
 				if (sum == 15) {
-					scores.push(this.cards[i].val + " + " + this.cards[j].val + " = " + sum);
+					// scores.push(this.cards[i].val + " + " + this.cards[j].val + " = " + sum);
+
+					scores.push([this.cards[i].val, this.cards[j].val, sum, 2]);
 				} 
 			}
 		}	

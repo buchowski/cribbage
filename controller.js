@@ -29,24 +29,70 @@
 
 				$("#" + controller.game.current_player.id).on("click", ".card", controller.executes["play"]);
 			},
-			return_cards: function (e) {
+			return_cards: function (e) {		
+				controller.toggle_prompt_class(false);		
 				controller.game.pile.return_cards_to_players();
-				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, [controller.scoring_hand()]));
-				controller.toggle_prompt_class(false);
+				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, []));
+				controller.score_hand("hand");
+				// $("#cribbage").append(controller.view.renders["game_template"].call(controller.game, [controller.scoring_hand()]));
+				// controller.toggle_prompt_class(false);
 
-				var scores = controller.game.current_player.hand.score_cards();
-				if (scores.length != 0) {
-					_.each(scores, function (score) {
-						$("#" + controller.game.current_player.id).prepend("<p>" + score + "</p>");
-					})
-				} else {
-					$("#" + controller.game.current_player.id).prepend("<p>ain't no score</p>");
-				}
+				// var $table = $("<table id='dude'></table>");
+
+				// var scores = controller.game.current_player.hand.score_cards();
+				// $("#" + controller.game.current_player.id).prepend(controller.view.renders["score_table_template"].call(controller.game, scores));
+				// $("#scorebox").hide(0).slideDown(2000, function () {
+
+				// });
+
+				// if (scores.length != 0) {
+				// 	_.each(scores, function (score) {
+				// 		$table.prepend("<tr><td>" + score[] + "</td><td>" + "</td></tr>");
+				// 	})
+				// } else {
+				// 	$("#" + controller.game.current_player.id).prepend("<p>ain't no score</p>");
+				// }
 			}
 		};
 		$("#cribbage").empty();
 		$("#cribbage").append(controller.view.renders["new_player_template"]);
 		$("#create_players").on("submit", this.executes["submit_player_names"]);
+	};
+	Controller.prototype.score_hand = function (hand) {
+		var controller = this;
+		var player = controller.game.current_player;
+		var renders = controller.view.renders;
+
+		// controller.toggle_prompt_class(false);
+		// $("#cribbage").append(renders["game_template"].call(controller.game, [controller.scoring_hand(hand)]));
+
+		// var scores = (hand == "hand") ? player.hand.score_cards() : player.crib.score_cards();
+
+		$("#prompt").empty();
+		$("#prompt").append("<h3>" + controller.scoring_hand(hand) + "</h3>");
+
+		if (hand == "hand") {
+			var scores = player.hand.score_cards();
+			var el_id = player.id;
+		} else {
+			var scores = player.crib.score_cards();
+			var el_id = "crib";
+		}
+
+		$("#" + el_id).prepend(renders["score_table_template"].call(controller.game, scores));
+		
+		$("#scorebox").hide(0).slideDown(2000, function () {
+			if (player != controller.game.dealer) {
+				controller.game.switch_player();
+				controller.score_hand("hand");
+			} else if ($("#crib > table").length == 0) {
+				controller.score_hand("crib");
+			} else {
+				alert("all hands and crib should be scored!");
+			}
+
+			// ($("#" + player.id + " > table").length != 0) ? controller.score_hand("crib"): controller.score_hand("hand");
+		});
 	};
 	Controller.prototype.play_card = function (val_and_suit) { 
 		var hand = this.game.current_player.hand;
@@ -173,7 +219,7 @@
 	Controller.prototype.invalid_card_msg = function () {
 		return this.game.current_player.name + ", you cannot play that card!";
 	};
-	Controller.prototype.scoring_hand = function () {
-		return "scoring " + this.game.current_player.name + "'s hand...";
+	Controller.prototype.scoring_hand = function (hand) {
+		return "scoring " + this.game.current_player.name + "'s "+ hand + "...";
 	};
 })(this);
