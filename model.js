@@ -35,6 +35,11 @@
 	Card_Collection.prototype.shuffle = function () {
 		this.cards = _.shuffle(this.cards);
 	};
+	Card_Collection.prototype.return_cards_to_deck = function (deck) {
+		while (this.cards.length != 0) {
+			deck.push(this.cards.pop());
+		}
+	};
 
 	var Deck = CRIBBAGE.Deck = function () {
 		this.cards = [];
@@ -67,8 +72,6 @@
 			for (var j = i + 1; j < this.cards.length; j++) {
 				var sum = Card.int_val(this.cards[i].val) + Card.int_val(this.cards[j].val);
 				if (sum == 15) {
-					// scores.push(this.cards[i].val + " + " + this.cards[j].val + " = " + sum);
-
 					scores.push([this.cards[i].val, this.cards[j].val, sum, 2]);
 				} 
 			}
@@ -134,6 +137,14 @@
 	};
 	Game.prototype.switch_player = function () {
 		this.current_player = this.other_player();
+	};
+	Game.prototype.return_cards_to_deck = function () {
+		var game = this;
+		_.each(game.players, function (player) {
+			player.hand.return_cards_to_deck(game.deck);
+			player.crib.return_cards_to_deck(game.deck);
+		})
+		game.deck.push(game.cut_card);
 	};
 
 })(this);

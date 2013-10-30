@@ -23,27 +23,42 @@
 				controller.play_card(val_and_suit);
 			},
 			close_warning: function (e) {
-				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, [controller.play_msg()]));
+				$("#cribbage").empty().append(controller.view.renders["game_template"].call(controller.game, [controller.play_msg()]));
+				$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
 
-				controller.toggle_prompt_class(false);
+				// controller.toggle_prompt_class(false);
 
 				$("#" + controller.game.current_player.id).on("click", ".card", controller.executes["play"]);
 			},
 			return_cards: function (e) {		
-				controller.toggle_prompt_class(false);		
+				// controller.toggle_prompt_class(false);		
 				controller.game.pile.return_cards_to_players();
-				$("#cribbage").append(controller.view.renders["game_template"].call(controller.game, []));
+				$("#cribbage").empty().append(controller.view.renders["game_template"].call(controller.game, []));
+				$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
 				controller.executes["score_hand"].call(controller);
 			},
 			new_round: function () {
-				alert("all hands and crib should be scored!");
+				var game = controller.game;
+
+				game.discard_count = 0;
+				game.return_cards_to_deck();
+				game.deck.shuffle();
+				game.cut_card = game.deck.cut_card();
+				game.deal();
+
+				game.dealer = (game.dealer == game.players[0]) ? game.players[1] : game.players[0];
+				if (game.current_player == game.dealer) game.switch_player();
+
+				$("#cribbage").empty().append(controller.view.renders["game_template"].call(game, [controller.discard_msg()]));
+				$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
+				$("#" + game.current_player.id).on("click", ".card", controller.executes["discard"]);
 			},
 			score_hand: function () {
 				var controller = this;
 				var player = controller.game.current_player;
 				var renders = controller.view.renders;
 
-				this.toggle_prompt_class(false);
+				// this.toggle_prompt_class(false);
 
 				if ($("#" + player.id + " > table").length == 0) {
 					var scores = player.hand.score_cards();
@@ -69,8 +84,7 @@
 				});
 			}
 		};
-		$("#cribbage").empty();
-		$("#cribbage").append(controller.view.renders["new_player_template"]);
+		$("#cribbage").empty().append(controller.view.renders["new_player_template"]);
 		$("#create_players").on("submit", this.executes["submit_player_names"]);
 	};
 	Controller.prototype.play_card = function (val_and_suit) { 
@@ -114,7 +128,8 @@
 		}
 
 		if (messages.length == 0) messages = [this.play_msg()];
-		$("#cribbage").append(this.view.renders["game_template"].call(this.game, messages));
+		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, messages));
+		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
 		(messages[0] == this.play_msg()) ? this.play_bind() : this.display_info_msg(callback);
 
 		if (reset_score) pile.score = 0;
@@ -132,7 +147,7 @@
 	},
 	Controller.prototype.display_info_msg = function (callback, that = this) {
 		$("#prompt").append(this.view.renders["ok_button_template"]);
-		this.toggle_prompt_class(true);
+		// this.toggle_prompt_class(true);
 		$("#warning").on("click", this.executes[callback].bind(that));
 	}
 	Controller.prototype.discard_card = function (val_and_suit) {
@@ -148,19 +163,20 @@
 		var callback = (count < 3) ? "discard" : "play";
 		var message = (count < 3) ? this.discard_msg : this.play_msg;
 
-		$("#cribbage").empty();
-		$("#cribbage").append(this.view.renders["game_template"].call(this.game, [message.call(this)]));
+		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, [message.call(this)]));
+		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
 		$("#" + this.game.current_player.id).on("click", ".card", this.executes[callback]);
 	};
 	Controller.prototype.create_game = function (player_names) {
 		this.game = new CRIBBAGE.Game(player_names, controller);
 
 		this.game.deck.add_52_cards();
-		this.game.cut_card = this.game.deck.cut_card();
 		this.game.deck.shuffle();
+		this.game.cut_card = this.game.deck.cut_card();
 		this.game.deal();
 
-		$("#cribbage").append(this.view.renders["game_template"].call(this.game, [this.discard_msg()]));
+		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, [this.discard_msg()]));
+		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
 		$("#" + this.game.current_player.id).on("click", ".card", this.executes["discard"]);
 
 	};

@@ -48,43 +48,38 @@
 						"</div>" +
 						"<div class='col-md-4'></div>";
 			},
-			 game_template: function (messages) {
+			game_template: function (messages) {
 			 	var game = this;
-	 			$("#cribbage").empty();
 				return 	"<div id='prompt'>" + 
 							"<h3>" + 
 								messages.join(" ") + 
 							"</h3>" + 
 						"</div>" + 
 						"<div id='game'>" +
-							"<div class='col-md-4'>" +
-								"<div id='" + this.players[0].id + "'>" + 
-									view.renders["player_template"].call(this.players[0]) +
-									view.renders["hand_template"].call(this.players[0].hand) +
-								"</div>" + 
-								"<div id='crib'><p>" + this.dealer.name + "'s Crib: </p>" +
-									view.renders["hand_template"].call(this.dealer.crib) +
-								"</div>" + 
+							"<div class='col-md-4' id='" + game.players[0].id + "'>" +
+									view.renders["player_template"].call(game.players[0]) +
+									view.renders["hand_template"].call(game.players[0].hand) +
 							"</div>" +
-							"<div class='col-md-4'>" + 
-									"<div id='pile'>" + 
-									"<p>Pile Score: " + this.pile.score + "</p>" +
+							"<div class='col-md-4' id='pile'>" + 
+									"<p>Pile Score: " + game.pile.score + "</p>" +
 									"<p>Pile Cards:</p>" +
-									view.renders["hand_template"].call(this.pile) +
-								"</div>" +
+									view.renders["hand_template"].call(game.pile) +
 							"</div>" +
-							"<div class='col-md-4'>" +
-								"<div id='" + this.players[1].id + "'>" + 
-									view.renders["player_template"].call(this.players[1]) +
-									view.renders["hand_template"].call(this.players[1].hand) +
-								"</div>" +
+							"<div class='col-md-4' id='" + game.players[1].id +"'>" +
+									view.renders["player_template"].call(game.players[1]) +
+									view.renders["hand_template"].call(game.players[1].hand) +
 							"</div>" +
 						"</div>";
 			},
+			crib_template: function () {
+				return "<div id='crib'><p>" + this.dealer.name + "'s Crib: </p>" +
+					view.renders["hand_template"].call(this.dealer.crib) +
+				"</div>";
+			},
 			score_table_template: function (scores){
-				var $table = $("<table id='scorebox'></table>");
+				var $table = $("<table id='scorebox' class='table table-striped table-condensed'></table>");
 				if (scores.length == 0) {
-					$table.append("<p>ALLYOURDATAAREBELONGTOUS!!!</p>");
+					$table.append("<tr><td>bummer. nothing scored.</td></tr>");
 				} else {
 					_.each(scores, function (score) {
 						$table.append(view.renders["score_row_template"].call(this, score));
