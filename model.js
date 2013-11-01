@@ -66,18 +66,24 @@
 		})
 	};
 	Hand.prototype.score_cards = function () {
-		// score the whole hand. you can display it incrementally in the controller
-		var scores = [];
+		var scores = [];	
 		for (var i = 0; i < this.cards.length; i++) {
 			for (var j = i + 1; j < this.cards.length; j++) {
 				var sum = Card.int_val(this.cards[i].val) + Card.int_val(this.cards[j].val);
 				if (sum == 15) {
-					scores.push([this.cards[i].val, this.cards[j].val, sum, 2]);
+					scores.push([this.cards[i], this.cards[j], sum, 2]);
 				} 
 			}
 		}	
 		return scores;
 	};
+	Hand.total_score = function (scores) {
+		var total = 0;
+		_.each(scores, function (score) {
+			total += score[3]; // the points is a score is worth is stored in the last element of a score array
+		})
+		return total;
+	}
 
 	var Pile = CRIBBAGE.Pile = function () {
 		this.cards = [];

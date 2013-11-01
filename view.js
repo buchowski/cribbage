@@ -88,7 +88,7 @@
 				return $table;
 			},
 			score_row_template: function (score) {
-				return "<tr><td>" + score[0] + "</td><td>+</td><td>" + score[1] + 
+				return "<tr><td>" + score[0].val + score[0].suit + "</td><td>+</td><td>" + score[1].val + score[1].suit +
 					"</td><td>=</td><td>" + score[2] + "</td><td>for</td><td>" + score[3] + "</td></tr>";
 			}
 		};

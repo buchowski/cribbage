@@ -61,7 +61,7 @@
 				// this.toggle_prompt_class(false);
 
 				if ($("#" + player.id + " > table").length == 0) {
-					var scores = player.hand.score_cards();
+					var scores = player.hand.score_cards(); //scores[0] contains the scores array. scores[1] contains the score sum
 					var el_id = player.id;
 					$("#prompt").empty().append("<h3>" + controller.scoring_hand("hand") + "</h3>");
 				} else {
@@ -70,8 +70,7 @@
 					$("#prompt").empty().append("<h3>" + controller.scoring_hand("crib") + "</h3>");
 				}
 
-				$("#" + el_id).prepend("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>");
-
+				$("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>").insertBefore("#" + el_id + " > div");
 				controller.executes["append_scores"](controller, el_id, scores, 0);
 			},
 			append_scores: function (controller, el_id, scores, index) {
@@ -84,11 +83,12 @@
 					if (index < scores.length - 1) {
 						controller.executes["append_scores"](controller, el_id, scores, index + 1);
 					} else {
+						var total_score = CRIBBAGE.Hand.total_score(scores);
 						if ($("#crib > table").length == 0) {
-							$("#prompt").empty().append("<h3>" + controller.points_scored_msg(777, "hand") + "</h3>");
+							$("#prompt").empty().append("<h3>" + controller.points_scored_msg(total_score, "hand") + "</h3>");
 							controller.display_info_msg("score_hand", controller); 
 						} else {
-							$("#prompt").empty().append("<h3>" + controller.points_scored_msg(777, "hand") + "</h3>");
+							$("#prompt").empty().append("<h3>" + controller.points_scored_msg(total_score, "crib") + "</h3>");
 							controller.display_info_msg("new_round"); 						
 						}
 						if (controller.game.current_player != controller.game.dealer) controller.game.switch_player();
