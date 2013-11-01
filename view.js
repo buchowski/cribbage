@@ -76,8 +76,8 @@
 					view.renders["hand_template"].call(this.dealer.crib) +
 				"</div>";
 			},
-			score_table_template: function (scores){
-				var $table = $("<table id='scorebox' class='table table-striped table-condensed'></table>");
+			score_table_template: function (scores, el_id){
+				var $table = $("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>");
 				if (scores.length == 0) {
 					$table.append("<tr><td>bummer. nothing scored.</td></tr>");
 				} else {

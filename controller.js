@@ -70,18 +70,30 @@
 					$("#prompt").empty().append("<h3>" + controller.scoring_hand("crib") + "</h3>");
 				}
 
-				$("#" + el_id).prepend(renders["score_table_template"].call(controller.game, scores));
-				
-				$("#scorebox").hide(0).slideDown(2000, function () {
-					if ($("#crib > table").length == 0) {
-						$("#prompt").empty().append("<h3>" + controller.points_scored_msg(777, "hand") + "</h3>");
-						controller.display_info_msg("score_hand", controller); 
+				$("#" + el_id).prepend("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>");
+
+				controller.executes["append_scores"](controller, el_id, scores, 0);
+			},
+			append_scores: function (controller, el_id, scores, index) {
+				root.setTimeout(function () {
+					if (scores.length == 0) {
+						$("#" + el_id + "_score_table").append("<tr><td>bummer. nothing scored.</td></tr>");
 					} else {
-						$("#prompt").empty().append("<h3>" + controller.points_scored_msg(777, "hand") + "</h3>");
-						controller.display_info_msg("new_round"); 						
+						$("#" + el_id + "_score_table").append(controller.view.renders["score_row_template"].call(controller, scores[index]));
 					}
-					if (player != controller.game.dealer) controller.game.switch_player();
-				});
+					if (index < scores.length - 1) {
+						controller.executes["append_scores"](controller, el_id, scores, index + 1);
+					} else {
+						if ($("#crib > table").length == 0) {
+							$("#prompt").empty().append("<h3>" + controller.points_scored_msg(777, "hand") + "</h3>");
+							controller.display_info_msg("score_hand", controller); 
+						} else {
+							$("#prompt").empty().append("<h3>" + controller.points_scored_msg(777, "hand") + "</h3>");
+							controller.display_info_msg("new_round"); 						
+						}
+						if (controller.game.current_player != controller.game.dealer) controller.game.switch_player();
+					}
+				}, 2000)
 			}
 		};
 		$("#cribbage").empty().append(controller.view.renders["new_player_template"]);
