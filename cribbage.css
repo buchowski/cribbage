@@ -73,10 +73,10 @@
 #error {
 	color: red;
 	font-weight: bold;
-}
-#player1 {
-
-}
-#player2 {
-	
 }*/
+#player1_score span{
+	padding-right: 5px;
+}
+#player2_score span{
+	padding-right: 5px;
+}

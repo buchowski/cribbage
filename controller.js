@@ -70,30 +70,49 @@
 					$("#prompt").empty().append("<h3>" + controller.scoring_hand("crib") + "</h3>");
 				}
 
-				$("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>").insertBefore("#" + el_id + " > div");
+				$("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>").insertBefore("#" + el_id + " > .card");
 				controller.executes["append_scores"](controller, el_id, scores, 0);
 			},
 			append_scores: function (controller, el_id, scores, index) {
+				var total_score = CRIBBAGE.Hand.total_score(scores);
 				root.setTimeout(function () {
-					if (scores.length == 0) {
-						$("#" + el_id + "_score_table").append("<tr><td>bummer. nothing scored.</td></tr>");
-					} else {
-						$("#" + el_id + "_score_table").append(controller.view.renders["score_row_template"].call(controller, scores[index]));
-					}
+					var score_template = (scores.length == 0) ? "bummer_template" : "score_row_template";
+					$("#" + el_id + "_score_table").append(controller.view.renders[score_template].call(controller, scores[index]));
+
 					if (index < scores.length - 1) {
 						controller.executes["append_scores"](controller, el_id, scores, index + 1);
 					} else {
-						var total_score = CRIBBAGE.Hand.total_score(scores);
-						if ($("#crib > table").length == 0) {
-							$("#prompt").empty().append("<h3>" + controller.points_scored_msg(total_score, "hand") + "</h3>");
-							controller.display_info_msg("score_hand", controller); 
-						} else {
-							$("#prompt").empty().append("<h3>" + controller.points_scored_msg(total_score, "crib") + "</h3>");
-							controller.display_info_msg("new_round"); 						
-						}
-						if (controller.game.current_player != controller.game.dealer) controller.game.switch_player();
+						var new_score = controller.game.current_player.score + total_score;
+						var fn_name = (scores.length != 0) ? "score_animation": "display_score_msg";
+						controller.executes[fn_name](controller, ["+", total_score, "=", new_score], 0);
 					}
-				}, 2000)
+				}, 1800)
+			},
+			score_animation: function (controller, new_score_array, index) {
+				root.setTimeout(function () {
+					var fn_name = (index < new_score_array.length - 1) ? "score_animation": "slide_score";
+
+					$("#" + controller.game.current_player.id + "_score").append(" <span>" + new_score_array[index] + "</span>");
+					controller.executes[fn_name](controller, new_score_array, index + 1);
+				}, 1000)
+			},
+			display_score_msg: function (controller, new_score_array) {
+				var fn_name = ($("#crib > table").length == 0) ? "score_hand": "new_round";
+				var hand_name = ($("#crib > table").length == 0) ? "hand": "crib";
+
+				$("#prompt").empty().append("<h3>" + controller.points_scored_msg(new_score_array[1], hand_name) + "</h3>");
+				controller.display_info_msg(fn_name, controller); 
+
+				controller.game.current_player.score = new_score_array[3];
+				if (controller.game.current_player != controller.game.dealer) controller.game.switch_player();						
+			},
+			slide_score: function (controller, new_score_array) {
+				root.setTimeout(function () {
+					var player = controller.game.current_player;
+					$("#" + player.id + "_score").empty();
+					$("#" + player.id + "_score").append(player.name + "'s Score: " + new_score_array[3]);
+					controller.executes["display_score_msg"](controller, new_score_array);
+				}, 700)
 			}
 		};
 		$("#cribbage").empty().append(controller.view.renders["new_player_template"]);

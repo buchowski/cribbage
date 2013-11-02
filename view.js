@@ -20,7 +20,7 @@
 				return (this.cards.length == 0) ? "<h3>empty, no cards</h3>" : html_string;
 			},
 			player_template: function () {
-				return "<p>" + this.name + "'s Score: " + this.score + "</p>" +
+				return "<div id='" + this.id + "_score'>" + this.name + "'s Score: <span>" + this.score + "</span></div>" +
 						"<p>" + this.name + "'s Cards:" + "</p>";
 			},
 			new_player_template: function () {
@@ -90,6 +90,9 @@
 			score_row_template: function (score) {
 				return "<tr><td>" + score[0].val + score[0].suit + "</td><td>+</td><td>" + score[1].val + score[1].suit +
 					"</td><td>=</td><td>" + score[2] + "</td><td>for</td><td>" + score[3] + "</td></tr>";
+			},
+			bummer_template: function () {
+				return "<tr><td>bummer. nothing scored.</td></tr>";
 			}
 		};
 	};
