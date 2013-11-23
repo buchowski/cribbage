@@ -24,7 +24,7 @@
 						"<p>" + this.name + "'s Cards:" + "</p>";
 			},
 			new_player_template: function () {
-	 			$("#cribbage").empty();
+	 			// $("#cribbage").empty();
 				return 	"<div class='col-md-4'></div>" +
 						"<div class='col-md-4'>" +
 							"<form id='create_players' class='form-horizontal' role='form'>" + 
@@ -39,10 +39,16 @@
 									      "<input type='text' class='form-control' id='player2_name' maxlength='20' placeholder='Player Two'>" +
 									    "</div>" +
 								  "</div>" +
+								  "<h4>Please Select a Game Length</h4>" +
 								  "<div class='form-group'>" +
-								    "<div class='col-md-10'>" +
-								      "<button type='submit' class='btn btn-info'>Start Game</button>" +
-								    "</div>" +
+									  "<div class='col-md-4'><button class='btn duration_btn btn-success' value='short'>Short</button></div>" +
+	  								  "<div class='col-md-4'><button class='btn duration_btn' value='medium'>Medium</button></div>" +
+									  "<div class='col-md-4'><button class='btn duration_btn' value='long'>Long</button></div>" +
+									"</div>" +	
+								  "<div class='form-group'>" +
+								  	"<div class='col-md-12'>" +
+								      "<button id='start_btn' type='submit' class='btn btn-info'>Start Game</button>" +
+								     "</div>" +
 								  "</div>" +
 							"</form>" +
 						"</div>" +

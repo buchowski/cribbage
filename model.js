@@ -114,13 +114,14 @@
 		this.score = 0;
 	};
 	
-	var Game = CRIBBAGE.Game = function (player_names, controller) {
+	var Game = CRIBBAGE.Game = function (player_names, duration, controller) {
 		this.controller = controller;
 		this.deck = new CRIBBAGE.Deck(this);
 		this.pile = new CRIBBAGE.Pile();
 		this.players = [new CRIBBAGE.Player(player_names[0], "player1", this), new CRIBBAGE.Player(player_names[1], "player2", this)];
 		this.dealer = this.players[0];
 		this.current_player = this.players[1];
+		this.duration = duration;
 		this.cut_card = null;
 		this.discard_count = 0;
 	};

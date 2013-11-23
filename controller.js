@@ -10,8 +10,9 @@
 				e.preventDefault();
 				var player1_name = $("#player1_name").val();
 				var player2_name = $("#player2_name").val();
+				var duration = $(".btn-success").val();
 				$('#create_players').hide(400, function () {
-					controller.create_game([player1_name, player2_name]);
+					controller.create_game([player1_name, player2_name], duration);
 				})
 			},
 			discard: function (e) {
@@ -25,13 +26,14 @@
 			close_warning: function (e) {
 				$("#cribbage").empty().append(controller.view.renders["game_template"].call(controller.game, [controller.play_msg()]));
 				$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
-
-				// controller.toggle_prompt_class(false);
-
 				$("#" + controller.game.current_player.id).on("click", ".card", controller.executes["play"]);
 			},
+			set_duration: function (e) {
+				e.preventDefault();
+				$(".duration_btn").toggleClass("btn-success", false);
+				$(this).toggleClass("btn-success", true);
+			},
 			return_cards: function (e) {		
-				// controller.toggle_prompt_class(false);		
 				controller.game.pile.return_cards_to_players();
 				$("#cribbage").empty().append(controller.view.renders["game_template"].call(controller.game, []));
 				$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
@@ -57,8 +59,6 @@
 				var controller = this;
 				var player = controller.game.current_player;
 				var renders = controller.view.renders;
-
-				// this.toggle_prompt_class(false);
 
 				if ($("#" + player.id + " > table").length == 0) {
 					var scores = player.hand.score_cards(); //scores[0] contains the scores array. scores[1] contains the score sum
@@ -116,7 +116,8 @@
 			}
 		};
 		$("#cribbage").empty().append(controller.view.renders["new_player_template"]);
-		$("#create_players").on("submit", this.executes["submit_player_names"]);
+		$(".duration_btn").on("click", this.executes["set_duration"]);
+		$("#start_btn").on("click", this.executes["submit_player_names"]);
 	};
 	Controller.prototype.play_card = function (val_and_suit) { 
 		var hand = this.game.current_player.hand;
@@ -178,7 +179,6 @@
 	},
 	Controller.prototype.display_info_msg = function (callback, that = this) {
 		$("#prompt").append(this.view.renders["ok_button_template"]);
-		// this.toggle_prompt_class(true);
 		$("#warning").on("click", this.executes[callback].bind(that));
 	}
 	Controller.prototype.discard_card = function (val_and_suit) {
@@ -198,8 +198,8 @@
 		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
 		$("#" + this.game.current_player.id).on("click", ".card", this.executes[callback]);
 	};
-	Controller.prototype.create_game = function (player_names) {
-		this.game = new CRIBBAGE.Game(player_names, controller);
+	Controller.prototype.create_game = function (player_names, duration) {
+		this.game = new CRIBBAGE.Game(player_names, duration, controller);
 
 		this.game.deck.add_52_cards();
 		this.game.deck.shuffle();

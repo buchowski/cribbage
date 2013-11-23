@@ -1,18 +1,11 @@
-/*.card {
-	width: 28px;
-	height: 40px;
-	padding-top: 10px;
-	padding-left: 5px;
-	margin: 5px;
-	float: left;
-}
-.clear {
-	clear: both;
-}*/
-
 #cribbage {
 	padding-top: 60px;
-	/*font-family: 'Volkhov', serif;*/
+}
+.duration_btn {
+	width: 100%;
+}
+#start_btn {
+	width: 100%;
 }
 .hidden {
 	visibility: hidden;
@@ -35,7 +28,6 @@
 }
 .card:hover {
 	cursor: pointer;
-	/*background-color: #FF00BB;*/
 }
 .card {
 	margin-top: 10px;
@@ -49,31 +41,17 @@
 	-khtml-border-radius: 10px; /* Linux browsers */
 }
 .S {
-/*	border: 2px solid black;
-*/	color: black;
+	color: black;
 }
 .H {
-	/*border: 2px solid red;*/
 	color: red;
 }
 .C {
-	/*border: 2px solid black;*/
 	color: black;
 }
 .D {
-	/*border: 2px solid red;*/
 	color: red;
 }
-/*div.name {
-	border: 1px solid black;
-}
-#game_prompt {
-	color: #FB0FBF;
-}
-#error {
-	color: red;
-	font-weight: bold;
-}*/
 #player1_score span{
 	padding-right: 5px;
 }
