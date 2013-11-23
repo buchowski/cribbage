@@ -4,6 +4,9 @@
 .duration_btn {
 	width: 100%;
 }
+#error {
+	color: red;
+}
 #start_btn {
 	width: 100%;
 }

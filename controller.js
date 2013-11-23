@@ -11,9 +11,13 @@
 				var player1_name = $("#player1_name").val();
 				var player2_name = $("#player2_name").val();
 				var duration = $(".btn-success").val();
+				if (player1_name.length == 0 || player2_name.length == 0) {
+					controller.username_error();
+				} else {
 				$('#create_players').hide(400, function () {
 					controller.create_game([player1_name, player2_name], duration);
-				})
+				})					
+				}
 			},
 			discard: function (e) {
 				var val_and_suit = Controller.get_val_suit($(this));
@@ -220,6 +224,10 @@
 		var val = ( val == '1') ? '10' : val;
 		var suit = ( val == '10') ? $el.attr('id')[2] : $el.attr('id')[1];
 		return [val, suit];
+	};
+	Controller.prototype.username_error = function () {
+		$("#error").remove();
+		$("#player1_name").before("<h4 id='error'>You must enter a name for both users!</h4>");
 	};
 	Controller.prototype.play_msg = function () {
 		return this.game.current_player.name + ", slap a card down on the battlefield!";
