@@ -1,6 +1,9 @@
 #cribbage {
 	padding-top: 60px;
 }
+#board {
+	border: 1px black solid;
+}
 .duration_btn {
 	width: 100%;
 }

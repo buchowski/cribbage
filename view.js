@@ -70,6 +70,7 @@
 									"<p>Pile Score: " + game.pile.score + "</p>" +
 									"<p>Pile Cards:</p>" +
 									view.renders["hand_template"].call(game.pile) +
+									"<canvas id='board' width='' height=''>Your browser cannot display the game board!</canvas>" +
 							"</div>" +
 							"<div class='col-md-4' id='" + game.players[1].id +"'>" +
 									view.renders["player_template"].call(game.players[1]) +

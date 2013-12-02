@@ -121,9 +121,17 @@
 		this.players = [new CRIBBAGE.Player(player_names[0], "player1", this), new CRIBBAGE.Player(player_names[1], "player2", this)];
 		this.dealer = this.players[0];
 		this.current_player = this.players[1];
-		this.duration = duration;
 		this.cut_card = null;
 		this.discard_count = 0;
+
+		// duration determines the number of holes we draw on the board.
+		if (duration == "short") {
+			this.duration = 10;
+		} else if (duration == "medium") {
+			this.duration = 20;
+		} else { // duration == long
+			this.duration = 30;
+		}
 	};
 	Game.prototype.deal = function () {
 		var game = this;
