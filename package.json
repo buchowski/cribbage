@@ -4,7 +4,7 @@
   "description": "a cribbage game",
   "main": "controller.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "babel": "babel controller.js > web/js/controller.js"
   },
   "repository": {
     "type": "git",
@@ -23,9 +23,14 @@
   "homepage": "https://github.com/buchowski/cribbage",
   "devDependencies": {
     "babel-eslint": "^5.0.0-beta4",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
     "eslint": "^1.10.3",
     "eslint-config-defaults": "^7.1.1",
     "eslint-plugin-filenames": "^0.2.0",
     "eslint-plugin-react": "^3.11.3"
+  },
+  "babel": {
+    "presets": ["es2015"]
   }
 }

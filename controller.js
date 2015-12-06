@@ -256,33 +256,34 @@
 		$("#player1_name").before("<h4 id='error'>You must enter a name for both users!</h4><br>");
 	};
 	Controller.prototype.play_msg = function () {
-		return this.game.current_player.name + ", slap a card down on the battlefield!";
+		return `${this.game.current_player.name}, slap a card down on the battlefield!`;
 	};
 	Controller.prototype.discard_msg = function () {
-		return this.game.current_player.name + ", rid thyself of a card!";
+		return `${this.game.current_player.name}, rid thyself of a card!`;
 	};
 	Controller.prototype.fifteen_msg = function () {
-		return this.game.current_player.name + " gets 2 points for 15!";
+		return `${this.game.current_player.name} gets 2 points for 15!`;
 	};
 	Controller.prototype.thirtyone_msg = function () {
-		return this.game.current_player.name + " gets 2 points for 31!";
+		return `${this.game.current_player.name} gets 2 points for 31!`;
 	};
 	Controller.prototype.point_for_last_card_msg = function () {
-		return this.game.current_player.name + " gets 1 point for last card.";
+		return `${this.game.current_player.name} gets 1 point for last card.`;
 	};
 	Controller.prototype.still_your_turn_msg = function () {
-		return this.game.current_player.name + " it's still your turn. " + this.game.other_player().name + "can't play a card.";
+		return `${this.game.current_player.name} it's still your turn. ${this.game.other_player().name} can't play a card.`;
 	};
 	Controller.prototype.both_hands_empty_msg = function () {
-		return  "both players' hands are empty. Let's score " + this.game.current_player.name + "'s hand.";
+		return `both players' hands are empty. Let's score ${this.game.current_player.name}'s hand.`;
 	};
 	Controller.prototype.invalid_card_msg = function () {
-		return this.game.current_player.name + ", you cannot play that card!";
+		return `${this.game.current_player.name}, you cannot play that card!`;
 	};
 	Controller.prototype.scoring_hand = function (hand) {
-		return "scoring " + this.game.current_player.name + "'s " + hand + "...";
+		return `scoring ${this.game.current_player.name}'s ${hand}...`;
 	};
 	Controller.prototype.points_scored_msg = function (points, hand) {
-		return this.game.current_player.name + "'s " + hand + " is worth " + points + " points.";
+		return `${this.game.current_player.name}'s ${hand} is worth ${points} points.`;
 	};
-})(this);
+
+})(window);
