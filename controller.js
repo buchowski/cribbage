@@ -6,7 +6,7 @@
 		var controller = this;
 		controller.view = new CRIBBAGE.View();
 		controller.executes = {
-			submit_player_names: function (e) {
+			submit_player_names(e) {
 				e.preventDefault();
 				var player1_name = $("#player1_name").val();
 				var player2_name = $("#player2_name").val();
@@ -15,38 +15,38 @@
 				if (player1_name.length === 0 || player2_name.length === 0) {
 					controller.username_error();
 				} else {
-					$('#create_players').hide(400, function () {
+					$('#create_players').hide(400, () => {
 						controller.create_game([player1_name, player2_name], duration);
 					});
 				}
 			},
-			discard: function () {
+			discard() {
 				var val_and_suit = Controller.get_val_suit($(this));
 				controller.discard_card(val_and_suit);
 			},
-			play: function () {
+			play() {
 				var val_and_suit = Controller.get_val_suit($(this));
 				controller.play_card(val_and_suit);
 			},
-			close_warning: function () {
+			close_warning() {
 				$("#cribbage").empty().append(controller.view.renders["game_template"].call(controller.game, [controller.play_msg()]));
 				$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
 				$("#" + controller.game.current_player.id).on("click", ".card", this.executes["play"]);
 				// this.executes["draw_board"].call(this);
 			},
-			set_duration: function (e) {
+			set_duration(e) {
 				e.preventDefault();
 				$(".duration_btn").toggleClass("btn-success", false);
 				$(this).toggleClass("btn-success", true);
 			},
-			return_cards: function (e) {
+			return_cards() {
 				this.game.pile.return_cards_to_players();
 				$("#cribbage").empty().append(controller.view.renders["game_template"].call(this.game, []));
 				$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
 				// this.executes["draw_board"].call(this);
 				this.executes["score_hand"].call(this);
 			},
-			new_round: function () {
+			new_round() {
 				var game = controller.game;
 
 				game.discard_count = 0;
@@ -65,7 +65,7 @@
 				// this.executes["draw_board"].call(this);
 				$("#" + game.current_player.id).on("click", ".card", this.executes["discard"]);
 			},
-			score_hand: function () {
+			score_hand() {
 				var player = controller.game.current_player;
 				var scores;
 				var el_id;
@@ -83,9 +83,9 @@
 				$("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>").insertBefore("#" + el_id + " > .card");
 				this.executes["append_scores"](el_id, scores, 0);
 			},
-			append_scores: function (el_id, scores, index) {
+			append_scores(el_id, scores, index) {
 				var total_score = CRIBBAGE.Hand.total_score(scores);
-				root.setTimeout(function () {
+				root.setTimeout(() => {
 					var score_template = (scores.length === 0) ? "bummer_template" : "score_row_template";
 					$("#" + el_id + "_score_table").append(controller.view.renders[score_template].call(controller, scores[index]));
 
@@ -93,20 +93,20 @@
 						controller.executes["append_scores"](controller, el_id, scores, index + 1);
 					} else {
 						var new_score = controller.game.current_player.score + total_score;
-						var fn_name = (scores.length != 0) ? "score_animation": "display_score_msg";
+						var fn_name = (scores.length !== 0) ? "score_animation" : "display_score_msg";
 						controller.executes[fn_name](controller, ["+", total_score, "=", new_score], 0);
 					}
 				}, 1800);
 			},
-			score_animation: function (controller, new_score_array, index) {
-				root.setTimeout(function () {
+			score_animation(controller, new_score_array, index) {
+				root.setTimeout(() => {
 					var fn_name = (index < new_score_array.length - 1) ? "score_animation" : "slide_score";
 
 					$("#" + controller.game.current_player.id + "_score").append(" <span>" + new_score_array[index] + "</span>");
 					controller.executes[fn_name](controller, new_score_array, index + 1);
 				}, 1000);
 			},
-			display_score_msg: function (controller, new_score_array) {
+			display_score_msg(controller, new_score_array) {
 				var fn_name = ($("#crib > table").length === 0) ? "score_hand" : "new_round";
 				var hand_name = ($("#crib > table").length === 0) ? "hand" : "crib";
 
@@ -118,8 +118,8 @@
 					controller.game.switch_player();
 				}
 			},
-			slide_score: function (controller, new_score_array) {
-				root.setTimeout(function () {
+			slide_score(controller, new_score_array) {
+				root.setTimeout(() => {
 					var player = controller.game.current_player;
 					$("#" + player.id + "_score").empty();
 					$("#" + player.id + "_score").append(player.name + "'s Score: " + new_score_array[3]);
