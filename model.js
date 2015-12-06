@@ -8,10 +8,16 @@
 		this.holder = null;
 		this.suit = suit;
 		this.val = val;
-	}
+	};
 	Card.int_val = function (val) {
 		var num = Number(val);
-		return ( isNaN(num) ) ? ((val == 'A') ? 1 : 10 ): num;
+		if (isNaN(num) && val === 'A') {
+			return 1;
+		} else if (isNaN(num)) {
+			return 10;
+		} else {
+			return num;
+		}
 	};
 
 	var Card_Collection = CRIBBAGE.Card_Collection = function () {};
@@ -21,12 +27,14 @@
 	Card_Collection.prototype.get_card_index = function (val_and_suit) {
 		for (var i = 0; i < this.cards.length; i++) {
 			var card = this.cards[i];
-			if (card.val == val_and_suit[0] && card.suit == val_and_suit[1]) return i;
+			if (card.val === val_and_suit[0] && card.suit === val_and_suit[1]) {
+				return i;
+			}
 		}
 	};
 	Card_Collection.prototype.splice_card = function (index) {
 		return this.cards.splice(index, 1)[0];
-	}
+	};
 	Card_Collection.prototype.cut_card = function () {
 		// you may eventually add functionality so the user can determine where the deck's cut
 		var index = Math.floor(Math.random() * this.cards.length);
@@ -36,7 +44,7 @@
 		this.cards = _.shuffle(this.cards);
 	};
 	Card_Collection.prototype.return_cards_to_deck = function (deck) {
-		while (this.cards.length != 0) {
+		while (this.cards.length !== 0) {
 			deck.push(this.cards.pop());
 		}
 	};
@@ -46,8 +54,8 @@
 	};
 	Deck.prototype = Card_Collection.prototype;
 	Deck.prototype.add_52_cards = function () {
-		for (var i = 0; i < SUITS.length; i++ ) {
-			for (var j = 0; j < VALS.length; j++ ) {
+		for (var i = 0; i < SUITS.length; i++) {
+			for (var j = 0; j < VALS.length; j++) {
 				this.cards.push(new Card(SUITS[i], VALS[j]));
 			}
 		}
@@ -63,27 +71,27 @@
 		return _.some(this.cards, function (card) {
 			var val_and_suit = [card.val, card.suit];
 			return pile.is_valid_push(val_and_suit);
-		})
+		});
 	};
 	Hand.prototype.score_cards = function () {
-		var scores = [];	
+		var scores = [];
 		for (var i = 0; i < this.cards.length; i++) {
 			for (var j = i + 1; j < this.cards.length; j++) {
 				var sum = Card.int_val(this.cards[i].val) + Card.int_val(this.cards[j].val);
-				if (sum == 15) {
+				if (sum === 15) {
 					scores.push([this.cards[i], this.cards[j], sum, 2]);
-				} 
+				}
 			}
-		}	
+		}
 		return scores;
 	};
 	Hand.total_score = function (scores) {
 		var total = 0;
 		_.each(scores, function (score) {
 			total += score[3]; // the points is a score is worth is stored in the last element of a score array
-		})
+		});
 		return total;
-	}
+	};
 
 	var Pile = CRIBBAGE.Pile = function () {
 		this.cards = [];
@@ -92,14 +100,14 @@
 	Pile.prototype = Card_Collection.prototype;
 	Pile.prototype.is_valid_push = function (val_and_suit) {
 		var val = val_and_suit[0];
-		return ( this.score + Card.int_val(val) <= 31 );
-	}
+		return (this.score + Card.int_val(val) <= 31);
+	};
 	Pile.prototype.update_score = function (card) {
 		this.score += Card.int_val(card.val);
 	};
 	Pile.prototype.return_cards_to_players = function () {
 		var pile = this;
-		while (pile.cards.length != 0) {
+		while (pile.cards.length !== 0) {
 			var card = pile.cards.pop();
 			card.holder.hand.push(card);
 		}
@@ -113,7 +121,7 @@
 		this.crib = new Hand();
 		this.score = 0;
 	};
-	
+
 	var Game = CRIBBAGE.Game = function (player_names, duration, controller) {
 		this.controller = controller;
 		this.deck = new CRIBBAGE.Deck(this);
@@ -125,9 +133,9 @@
 		this.discard_count = 0;
 
 		// duration determines the number of holes we draw on the board.
-		if (duration == "short") {
+		if (duration === "short") {
 			this.duration = 10;
-		} else if (duration == "medium") {
+		} else if (duration === "medium") {
 			this.duration = 20;
 		} else { // duration == long
 			this.duration = 30;
@@ -139,16 +147,16 @@
 			var card = game.deck.cards.pop();
 			card.holder = game.players[ n % 2 ];
 			game.players[ n % 2 ].hand.push(card);
-		})
+		});
 	};
 	Game.prototype.any_playable_cards = function () {
-		 return (this.players[0].hand.has_playable_card(this.pile) || this.players[1].hand.has_playable_card(this.pile));
+		return (this.players[0].hand.has_playable_card(this.pile) || this.players[1].hand.has_playable_card(this.pile));
 	};
 	Game.prototype.are_both_hands_empty = function () {
-		return (this.players[0].hand.cards.length == 0 && this.players[1].hand.cards.length == 0);
-	}
+		return (this.players[0].hand.cards.length === 0 && this.players[1].hand.cards.length === 0);
+	};
 	Game.prototype.other_player = function () {
-		return (this.current_player == this.players[0]) ? this.players[1] : this.players[0];
+		return (this.current_player === this.players[0]) ? this.players[1] : this.players[0];
 	};
 	Game.prototype.switch_player = function () {
 		this.current_player = this.other_player();
@@ -158,13 +166,8 @@
 		_.each(game.players, function (player) {
 			player.hand.return_cards_to_deck(game.deck);
 			player.crib.return_cards_to_deck(game.deck);
-		})
+		});
 		game.deck.push(game.cut_card);
 	};
 
 })(this);
-
-
-
-
-

@@ -1,0 +1,31 @@
+{
+  "name": "cribbage",
+  "version": "2.0.0",
+  "description": "a cribbage game",
+  "main": "controller.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/buchowski/cribbage.git"
+  },
+  "keywords": [
+    "cribbage",
+    "react",
+    "javascript"
+  ],
+  "author": "buchowski",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/buchowski/cribbage/issues"
+  },
+  "homepage": "https://github.com/buchowski/cribbage",
+  "devDependencies": {
+    "babel-eslint": "^5.0.0-beta4",
+    "eslint": "^1.10.3",
+    "eslint-config-defaults": "^7.1.1",
+    "eslint-plugin-filenames": "^0.2.0",
+    "eslint-plugin-react": "^3.11.3"
+  }
+}

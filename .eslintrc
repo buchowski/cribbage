@@ -1,0 +1,23 @@
+{
+    "extends": "eslint-config-defaults/configurations/walmart/es6-react",
+    "env": {
+        "browser": true
+    },
+    "rules": {
+        "max-statements": [0, 2],
+        "no-var": [0],
+        "indent": [1, "tab"],
+        "consistent-this": [0],
+        "quotes": [0, "single"],
+        "camelcase": [0],
+        "dot-notation": [0],
+        "max-params": [0],
+        "max-len": [0]
+    },
+    "globals": {
+        "$": true,
+        "React": true,
+        "ReactDom": true,
+        "_": true
+    }
+}
