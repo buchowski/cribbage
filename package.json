@@ -4,7 +4,10 @@
   "description": "a cribbage game",
   "main": "controller.js",
   "scripts": {
-    "babel": "babel controller.js > web/js/controller.js"
+    "babel": "npm run controller model view",
+    "controller": "babel controller.js > web/js/controller.js",
+    "model": "babel model.js > web/js/model.js",
+    "view": "babel view.js > web/js/view.js"
   },
   "repository": {
     "type": "git",
