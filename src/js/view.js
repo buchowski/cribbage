@@ -21,6 +21,24 @@
 			return "<div id='" + player.id + "_score'>" + player.name + "'s Score: <span>" + player.score + "</span></div>" +
 					"<p>" + player.name + "'s Cards:</p>";
 		}
+		CreateGame() {
+			return React.createClass({
+				render: () => {
+					return (
+						<div>
+							<h4>Please Enter Two Player Names</h4>
+							<input type="text" id="player1_name" placeholder="Player One" />
+							<input type="text" id="player1_name" placeholder="Player Two" />
+							<h4>Please Select a Game Length</h4>
+							<button value="short">Short</button>
+							<button value="medium">Medium</button>
+							<button value="long">Long</button>
+							<button type="submit">Start Game</button>
+						</div>
+					);
+				}
+			});
+		}
 		newPlayerTemplate() {
 			return 	"<div class='col-md-4'></div>" +
 					"<div class='col-md-4'>" +

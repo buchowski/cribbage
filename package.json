@@ -3,12 +3,6 @@
   "version": "2.0.0",
   "description": "a cribbage game",
   "main": "controller.js",
-  "scripts": {
-    "babel": "npm run controller model view",
-    "controller": "babel controller.js > web/js/controller.js",
-    "model": "babel model.js > web/js/model.js",
-    "view": "babel view.js > web/js/view.js"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/buchowski/cribbage.git"
@@ -31,9 +25,10 @@
     "eslint": "^1.10.3",
     "eslint-config-defaults": "^7.1.1",
     "eslint-plugin-filenames": "^0.2.0",
-    "eslint-plugin-react": "^3.11.3"
-  },
-  "babel": {
-    "presets": ["es2015"]
+    "eslint-plugin-react": "^3.11.3",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^6.1.1",
+    "gulp-copy": "0.0.2",
+    "gulp-flatten": "^0.2.0"
   }
 }

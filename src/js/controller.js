@@ -6,7 +6,14 @@
 		constructor() {
 			this.view = new CRIBBAGE.View();
 
-			$("#cribbage").empty().append(this.view.newPlayerTemplate());
+			var CreateGame = this.view.CreateGame();
+
+			ReactDOM.render(
+				<CreateGame />,
+				document.getElementById('cribbage')
+			);
+
+			// $("#cribbage").empty().append(this.view.newPlayerTemplate());
 			$(".duration_btn").on("click", this.setDuration.bind(this));
 			$("#start_btn").on("click", this.submitPlayerNames.bind(this));
 		}
