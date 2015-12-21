@@ -9,21 +9,9 @@
 			var CreateGame = this.view.getReactComponents();
 
 			ReactDOM.render(
-				<CreateGame submitPlayerNames={ this.submitPlayerNames.bind(this) } />,
+				<CreateGame createGame={ this.createGame.bind(this) } />,
 				document.getElementById('cribbage')
 			);
-		}
-		submitPlayerNames(e) {
-			e.preventDefault();
-			var player1Name = $("#player1_name").val();
-			var player2Name = $("#player2_name").val();
-			var duration = $(".btn-success").val();
-
-			if (player1Name.length === 0 || player2Name.length === 0) {
-				this.usernameError();
-			} else {
-				this.createGame([player1Name, player2Name], duration);
-			}
 		}
 		discard(e) {
 			var valAndSuit = this.getValSuit($(e.target));
@@ -239,10 +227,6 @@
 			val = val === '1' ? '10' : val;
 			var suit = val === '10' ? $el.attr('id')[2] : $el.attr('id')[1];
 			return [val, suit];
-		}
-		usernameError() {
-			$("#error").remove();
-			$("#player1_name").before("<h4 id='error'>You must enter a name for both users!</h4><br>");
 		}
 		playMsg() {
 			return `${this.game.currentPlayer.name}, slap a card down on the battlefield!`;

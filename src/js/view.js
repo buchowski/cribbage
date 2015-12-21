@@ -66,59 +66,61 @@
 				},
 				getInitialState: function () {
 					return {
-						duration: 'short'
+						duration: 'short',
+						playerOneName: '',
+						playerTwoName: '',
+						isError: false
 					};
 				},
 				setDuration: function (duration) {
 					this.setState({ duration: duration });
 				},
+				startGame: function () {
+					let playerOneName = this.state.playerOneName;
+					let playerTwoName = this.state.playerTwoName;
+
+					if (!playerOneName.length || !playerTwoName.length) {
+						this.setState({ isError: true });
+					} else {
+						this.props.createGame([playerOneName, playerTwoName], this.state.duration);
+					}
+
+				},
+				setPlayerName: function (event) {
+					let playerOneName = this.state.playerOneName;
+					let playerTwoName = this.state.playerTwoName;
+					let player = event.target.name;
+					let name = event.target.value;
+					let otherPlayerName = this.state[player] === playerOneName ? playerTwoName : playerOneName;
+					let playerObject = {};
+
+					if (name.length && otherPlayerName.length) {
+						playerObject.isError = false;
+					}
+
+					playerObject[player] = name;
+					this.setState(playerObject);
+				},
 				render: function () {
+					let error = this.state.isError ? <h4 className='error'>You must enter a name for both users!</h4> : null;
+
 					return (
 						<div>
 							<h4>Please Enter Two Player Names</h4>
-							<input type="text" id="player1_name" placeholder="Player One" />
-							<input type="text" id="player2_name" placeholder="Player Two" />
+							{ error }
+							<input onChange={ this.setPlayerName } type="text" name="playerOneName" placeholder="Player One" />
+							<input onChange={ this.setPlayerName } type="text" name="playerTwoName" placeholder="Player Two" />
 							
 							<h4>Please Select a Game Length</h4>
 							<DurationButtons duration={ this.state.duration } setDuration={ this.setDuration } />
 
-							<button onClick={ this.props.submitPlayerNames }>Start Game</button>
+							<button onClick={ this.startGame }>Start Game</button>
 						</div>
 					);
 				}
 			});
 
 			return CreateGame;
-		}
-		newPlayerTemplate() {
-			return 	"<div class='col-md-4'></div>" +
-					"<div class='col-md-4'>" +
-					"<form id='create_players' class='form-horizontal' role='form'>" +
-					"<h4>Please Enter Two Player Names</h4>" +
-					"<div class='form-group'>" +
-					"<div class='col-md-12'>" +
-					"<input type='text' class='form-control' id='player1_name' maxlength='20' placeholder='Player One'>" +
-					"</div>" +
-					"</div>" +
-					"<div class='form-group'>" +
-					"<div class='col-md-12'>" +
-					"<input type='text' class='form-control' id='player2_name' maxlength='20' placeholder='Player Two'>" +
-					"</div>" +
-					"</div>" +
-					"<h4>Please Select a Game Length</h4>" +
-					"<div class='form-group'>" +
-					"<div class='col-md-4'><button class='btn duration_btn btn-success' value='short'>Short</button></div>" +
-					"<div class='col-md-4'><button class='btn duration_btn' value='medium'>Medium</button></div>" +
-					"<div class='col-md-4'><button class='btn duration_btn' value='long'>Long</button></div>" +
-					"</div>" +
-					"<div class='form-group'>" +
-					"<div class='col-md-12'>" +
-					"<button id='start_btn' type='submit' class='btn btn-info'>Start Game</button>" +
-					"</div>" +
-					"</div>" +
-					"</form>" +
-					"</div>" +
-					"<div class='col-md-4'></div>";
 		}
 		gameTemplate(game, messages) {
 			return "<div id='prompt'>" +
