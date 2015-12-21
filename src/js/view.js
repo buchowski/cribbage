@@ -21,23 +21,74 @@
 			return "<div id='" + player.id + "_score'>" + player.name + "'s Score: <span>" + player.score + "</span></div>" +
 					"<p>" + player.name + "'s Cards:</p>";
 		}
-		CreateGame() {
-			return React.createClass({
-				render: () => {
+		getReactComponents() {
+			var DurationButton = React.createClass({
+				propTypes: {
+					label: React.PropTypes.string,
+					duration: React.PropTypes.string,
+					setDuration: React.PropTypes.func
+				},
+				render () {
+					let label = this.props.label;
+					let setDuration = this.props.setDuration.bind(null, label)
+					let className = this.props.duration === label ? 'btn-success': null;
+
+					return (
+						<button className={ className } onClick={ setDuration }>{ this.props.children }</button>
+					);
+				}
+			});
+
+			var DurationButtons = React.createClass({
+				propTypes: {
+					setDuration: React.PropTypes.func,
+					duration: React.PropTypes.string
+				},
+				render () {
+					let setDuration = this.props.setDuration;
+					let duration = this.props.duration;
+
 					return (
 						<div>
-							<h4>Please Enter Two Player Names</h4>
-							<input type="text" id="player1_name" placeholder="Player One" />
-							<input type="text" id="player1_name" placeholder="Player Two" />
-							<h4>Please Select a Game Length</h4>
-							<button value="short">Short</button>
-							<button value="medium">Medium</button>
-							<button value="long">Long</button>
-							<button type="submit">Start Game</button>
+							<DurationButton label="short" duration={ duration} setDuration={ setDuration }>Short</DurationButton>
+							<DurationButton label="medium" duration={ duration} setDuration={ setDuration }>Medium</DurationButton>
+							<DurationButton label="long" duration={ duration} setDuration={ setDuration }>Long</DurationButton>
 						</div>
 					);
 				}
 			});
+
+			var CreateGame = React.createClass({
+				propTypes: {
+					submitPlayerNames: React.PropTypes.func,
+					setDuration: React.PropTypes.func,
+					duration: React.PropTypes.string
+				},
+				getInitialState: function () {
+					return {
+						duration: 'short'
+					};
+				},
+				setDuration: function (duration) {
+					this.setState({ duration: duration });
+				},
+				render: function () {
+					return (
+						<div>
+							<h4>Please Enter Two Player Names</h4>
+							<input type="text" id="player1_name" placeholder="Player One" />
+							<input type="text" id="player2_name" placeholder="Player Two" />
+							
+							<h4>Please Select a Game Length</h4>
+							<DurationButtons duration={ this.state.duration } setDuration={ this.setDuration } />
+
+							<button onClick={ this.props.submitPlayerNames }>Start Game</button>
+						</div>
+					);
+				}
+			});
+
+			return CreateGame;
 		}
 		newPlayerTemplate() {
 			return 	"<div class='col-md-4'></div>" +

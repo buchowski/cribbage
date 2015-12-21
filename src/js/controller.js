@@ -6,16 +6,12 @@
 		constructor() {
 			this.view = new CRIBBAGE.View();
 
-			var CreateGame = this.view.CreateGame();
+			var CreateGame = this.view.getReactComponents();
 
 			ReactDOM.render(
-				<CreateGame />,
+				<CreateGame submitPlayerNames={ this.submitPlayerNames.bind(this) } />,
 				document.getElementById('cribbage')
 			);
-
-			// $("#cribbage").empty().append(this.view.newPlayerTemplate());
-			$(".duration_btn").on("click", this.setDuration.bind(this));
-			$("#start_btn").on("click", this.submitPlayerNames.bind(this));
 		}
 		submitPlayerNames(e) {
 			e.preventDefault();
@@ -26,9 +22,7 @@
 			if (player1Name.length === 0 || player2Name.length === 0) {
 				this.usernameError();
 			} else {
-				$('#create_players').hide(400, () => {
-					this.createGame([player1Name, player2Name], duration);
-				});
+				this.createGame([player1Name, player2Name], duration);
 			}
 		}
 		discard(e) {
@@ -43,11 +37,6 @@
 			$("#cribbage").empty().append(this.view.gameTemplate(this.game, [this.playMsg()]));
 			$("#" + this.game.dealer.id).append(this.view.cribTemplate(this.game));
 			$("#" + this.game.currentPlayer.id).on("click", ".card", this.play.bind(this));
-		}
-		setDuration(e) {
-			e.preventDefault();
-			$(".duration_btn").toggleClass("btn-success", false);
-			$(this).toggleClass("btn-success", true);
 		}
 		returnCards() {
 			this.game.pile.returnCardsToPlayers();
