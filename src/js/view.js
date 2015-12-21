@@ -60,9 +60,7 @@
 
 			var CreateGame = React.createClass({
 				propTypes: {
-					submitPlayerNames: React.PropTypes.func,
-					setDuration: React.PropTypes.func,
-					duration: React.PropTypes.string
+					createGame: React.PropTypes.func
 				},
 				getInitialState: function () {
 					return {
