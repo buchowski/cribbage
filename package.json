@@ -1,0 +1,33 @@
+{
+  "name": "cribbage",
+  "version": "1.0.0",
+  "description": "A JavaScript cribbage game two users can play over the web.",
+  "main": "app.js",
+  "dependencies": {},
+  "devDependencies": {
+    "browserify": "13.1.1",
+    "concurrently": "3.1.0",
+    "typescript": "2.1.4",
+    "watchify": "3.8.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "concurrently \"npm run prepFolders\" \"tsc\" && npm run browserify && npm run watchify",
+    "prepFolders": "rm -rf dist && mkdir dist && mkdir dist/js",
+    "browserify": "browserify purgatory/js/app.js -o dist/js/app.js",
+    "watchify": "concurrently \"tsc -w\" \"watchify purgatory/js/app.js -o dist/js/app.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/buchowski/cribbage.git"
+  },
+  "keywords": [
+    "cribbage"
+  ],
+  "author": "buchowski",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/buchowski/cribbage/issues"
+  },
+  "homepage": "https://github.com/buchowski/cribbage#readme"
+}
