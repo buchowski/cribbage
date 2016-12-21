@@ -2,27 +2,11 @@
 	var CRIBBAGE = root.CRIBBAGE = (root.CRIBBAGE || {});
 
 	CRIBBAGE.View = class {
-		cardTemplate(card) {
-			return "<div class='card " + card.suit + "' id='" + card.val + card.suit + "'>"
-						+ card.val + card.suit +
-					"</div>";
-		}
 		okButtonTemplate() {
 			return "<input id='warning' class='btn btn-info' type='button' value='Okee Dokee' />";
 		}
-		handTemplate(hand) {
-			var htmlString = "";
-			_.each(hand.cards, (card) => {
-				htmlString += this.cardTemplate(card);
-			});
-			return (hand.cards.length === 0) ? "<h3>empty, no cards</h3>" : htmlString;
-		}
-		playerTemplate(player) {
-			return "<div id='" + player.id + "_score'>" + player.name + "'s Score: <span>" + player.score + "</span></div>" +
-					"<p>" + player.name + "'s Cards:</p>";
-		}
 		getReactComponents() {
-			var DurationButton = React.createClass({
+			let DurationButton = React.createClass({
 				propTypes: {
 					label: React.PropTypes.string,
 					duration: React.PropTypes.string,
@@ -39,7 +23,7 @@
 				}
 			});
 
-			var DurationButtons = React.createClass({
+			let DurationButtons = React.createClass({
 				propTypes: {
 					setDuration: React.PropTypes.func,
 					duration: React.PropTypes.string
@@ -58,7 +42,7 @@
 				}
 			});
 
-			var CreateGame = React.createClass({
+			let CreateGame = React.createClass({
 				propTypes: {
 					createGame: React.PropTypes.func
 				},
@@ -118,36 +102,110 @@
 				}
 			});
 
-			return CreateGame;
+			let Card = React.createClass({
+				render: function () {
+					let { card, discard } = this.props;
+
+					return (
+						<div id={ card.val + card.suit }
+							className={ `card ${ card.suit }` }
+							onClick={ discard.bind(null, card.val, card.suit) }>
+							{ card.val + card.suit }
+						</div>
+					);
+				}
+			});
+
+			let Cards = React.createClass({
+				render: function () {
+					let discard = this.props.discard;
+					var hand = this.props.cards.map((card, i) => {
+						return <Card key={ i } card={ card } discard={ discard } />
+					});
+
+					hand = hand && hand.length ? hand : <h3>empty, no cards</h3>;
+
+					return <section>{ hand }</section>;
+				}
+			});
+
+			let Player = React.createClass({
+				render: function () {
+					var game = this.props.game;
+					var player = this.props.player;
+					var crib = game.dealer === player ? <Crib game={ game } /> : null;
+
+					return (
+						<div id={ player.id } className="col-md-4">
+							<span id={ `${ player.id }_score`}>
+								{ player.name }'s Score:
+							</span>
+							<span>{ player.score }</span>
+							<p>{ player.name }'s Cards:</p>
+							<Cards cards={ player.hand.cards } discard={ this.props.discard } />
+							{ crib }
+						</div>
+					)
+				}
+			});
+
+			let Pile = React.createClass({
+				render: function () {
+					var pile = this.props.pile;
+
+					return (
+						<div id="pile" className="col-md-4">
+							<p>Pile Score: { pile.score }</p>
+							<p>Pile Cards:</p>
+							<Cards cards={ pile.cards } />
+						</div>
+					)
+				}
+			});
+
+			let Crib = React.createClass({
+				render: function () {
+					var game = this.props.game;
+
+					return (
+						<div id="crib">
+							<p>{ `${ game.dealer.name }'s Crib:` }</p>
+							<Cards cards={ game.dealer.crib.cards } />
+						</div>
+					);
+				}
+			});
+
+			let Game = React.createClass({
+				getInitialState: function () {
+					return { game: this.props.game };
+				},
+				discard: function (val, suit) {
+					this.props.discard(val, suit);
+				},
+				render: function () {
+					let game = this.state.game;
+					let playerOne = game.players[0];
+					let playerTwo = game.players[1];
+
+					return (
+						<section>
+							<div id="prompt">
+								<h3>{ this.props.messages }</h3>
+							</div>
+							<div id="game">
+								<Player player={ playerOne } game={ game } discard={ this.discard } />
+								<Pile pile={ game.pile } />
+								<Player player={ playerTwo } game={ game } discard={ this.discard } />
+							</div>
+						</section>
+					);
+				}
+			});
+
+			return { Game, CreateGame, Crib };
 		}
-		gameTemplate(game, messages) {
-			return "<div id='prompt'>" +
-						"<h3>" +
-							messages.join(" ") +
-						"</h3>" +
-					"</div>" +
-					"<div id='game'>" +
-						"<div class='col-md-4' id='" + game.players[0].id + "'>" +
-								this.playerTemplate(game.players[0]) +
-								this.handTemplate(game.players[0].hand) +
-						"</div>" +
-						"<div class='col-md-4' id='pile'>" +
-								"<p>Pile Score: " + game.pile.score + "</p>" +
-								"<p>Pile Cards:</p>" +
-								this.handTemplate(game.pile) +
-								"<canvas id='board' width='' height=''>Your browser cannot display the game board!</canvas>" +
-						"</div>" +
-						"<div class='col-md-4' id='" + game.players[1].id + "'>" +
-								this.playerTemplate(game.players[1]) +
-								this.handTemplate(game.players[1].hand) +
-						"</div>" +
-					"</div>";
-		}
-		cribTemplate(game) {
-			return "<div id='crib'><p>" + game.dealer.name + "'s Crib: </p>" +
-				this.handTemplate(game.dealer.crib) +
-			"</div>";
-		}
+
 		scoreTableTemplate(scores, elId) {
 			var view = this;
 			var $table = $("<table id='" + elId + "_score_table' class='table table-striped table-condensed'></table>");

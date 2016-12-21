@@ -1,20 +1,45 @@
-(function (root) {
+(funtion (root) {
 
 	var CRIBBAGE = root.CRIBBAGE = (root.CRIBBAGE || {});
 
 	var Controller = CRIBBAGE.Controller = class {
 		constructor() {
 			this.view = new CRIBBAGE.View();
+			this.ReactComponents = this.view.getReactComponents();
 
-			var CreateGame = this.view.getReactComponents();
+			var CreateGame = this.ReactComponents.CreateGame;
+
+			// ReactDOM.render(
+			// 	<CreateGame createGame={ this.createGame.bind(this) } />,
+			// 	document.getElementById('cribbage')
+			// );
+
+			this.createGame(['spiderman', 'cool d00d'], 'short');
+		}
+		createGame(playerNames, duration) {
+			this.game = new CRIBBAGE.Game(playerNames, duration, this);
+
+			this.game.deck.add52Cards();
+			this.game.deck.shuffle();
+			this.game.cutCard = this.game.deck.cutCard();
+			this.game.deal();
+
+			var Game = this.ReactComponents.Game;
 
 			ReactDOM.render(
-				<CreateGame createGame={ this.createGame.bind(this) } />,
+				<Game game={ this.game }
+					messages={ this.discardMsg() }
+					discard={ this.discard.bind(this) } />,
 				document.getElementById('cribbage')
 			);
+
+			// $("#cribbage").empty().append(this.view.gameTemplate(this.game, [this.discardMsg()]));
+
+			// $("#" + this.game.dealer.id).append(this.view.cribTemplate(this.game));
+			// $("#" + this.game.currentPlayer.id).on("click", ".card", this.discard.bind(this));
 		}
-		discard(e) {
-			var valAndSuit = this.getValSuit($(e.target));
+		discard(val, suit) {
+			var valAndSuit = [val, suit];
 			this.discardCard(valAndSuit);
 		}
 		play(e) {
@@ -202,21 +227,9 @@
 			var callback = (count < 3) ? this.discard : this.play;
 			var message = (count < 3) ? this.discardMsg : this.playMsg;
 
-			$("#cribbage").empty().append(this.view.gameTemplate(this.game, [message.call(this)]));
-			$("#" + this.game.dealer.id).append(this.view.cribTemplate(this.game));
-			$("#" + this.game.currentPlayer.id).on("click", ".card", callback.bind(this));
-		}
-		createGame(playerNames, duration) {
-			this.game = new CRIBBAGE.Game(playerNames, duration, this);
-
-			this.game.deck.add52Cards();
-			this.game.deck.shuffle();
-			this.game.cutCard = this.game.deck.cutCard();
-			this.game.deal();
-
-			$("#cribbage").empty().append(this.view.gameTemplate(this.game, [this.discardMsg()]));
-			$("#" + this.game.dealer.id).append(this.view.cribTemplate(this.game));
-			$("#" + this.game.currentPlayer.id).on("click", ".card", this.discard.bind(this));
+			// $("#cribbage").empty().append(this.view.gameTemplate(this.game, [message.call(this)]));
+			// $("#" + this.game.dealer.id).append(this.view.cribTemplate(this.game));
+			// $("#" + this.game.currentPlayer.id).on("click", ".card", callback.bind(this));
 		}
 		togglePromptClass(display) {
 			$("body").toggleClass("gray", display);

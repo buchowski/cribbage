@@ -12,12 +12,15 @@
         "camelcase": [0],
         "dot-notation": [0],
         "max-params": [0],
-        "max-len": [0]
+        "max-len": [0],
+        "prefer-const": [0],
+        "eol-last": [0]
     },
     "globals": {
         "$": true,
         "React": true,
         "ReactDom": true,
-        "_": true
+        "_": true,
+        "EventEmitter": true
     }
 }
