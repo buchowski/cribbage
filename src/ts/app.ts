@@ -1,1 +1,3 @@
-console.log('welcome to the house of food');
+import { Controller } from './controller';
+
+$(() => new Controller())
