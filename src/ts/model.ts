@@ -1,5 +1,3 @@
-import { Controller } from './controller';
-
 const VALS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 const SUITS = ['H', 'C', 'S', 'D'];
 
@@ -143,7 +141,7 @@ export class Game {
 	current_player: Player;
 	cut_card: Card;
 	discard_count: number;
-	constructor(player_names: string[], public duration: any, controller: Controller) {
+	constructor(player_names: string[], public duration: any) {
 		this.deck = new Deck();
 		this.pile = new Pile();
 		this.players = [new Player(player_names[0], "player1", this), new Player(player_names[1], "player2", this)];

@@ -266,7 +266,7 @@ export class Controller {
 	create_game(player_names : string[], duration : any) : void {
 		let view = this.view;
 
-		this.game = new Game(player_names, duration, this);
+		this.game = new Game(player_names, duration);
 		this.game.deck.add_52_cards();
 		this.game.deck.shuffle();
 		this.game.cut_card = this.game.deck.cut_card();
