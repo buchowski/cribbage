@@ -141,7 +141,7 @@ export class Game {
 	current_player: Player;
 	cut_card: Card;
 	discard_count: number;
-	constructor(player_names: string[], public duration: any) {
+	constructor(player_names: string[]) {
 		this.deck = new Deck();
 		this.pile = new Pile();
 		this.players = [new Player(player_names[0], "player1", this), new Player(player_names[1], "player2", this)];
@@ -149,7 +149,6 @@ export class Game {
 		this.current_player = this.players[1];
 		this.cut_card = null;
 		this.discard_count = 0;
-		this.duration = (duration == 'short') ? 10 : (duration == 'medium') ? 20 : 30;
 	}
 	deal() : void {
 		for (let i = 0; i < 12; i++) {

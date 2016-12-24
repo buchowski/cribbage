@@ -3,7 +3,6 @@ import { Game, Hand } from './model';
 export class Controller {
 	game: Game;
 	player_names: string[];
-	duration: any;
 
 	static get_val_suit($el : JQuery) : any[] {
 		let val = $el.attr('id')[0];
@@ -14,9 +13,8 @@ export class Controller {
 	submit_player_names(e : Event) : void {
 		let player1_name = $("#player1_name").val();
 		let player2_name = $("#player2_name").val();
-		let duration = $(".btn-success").val();
 
-		this.create_game([player1_name, player2_name], duration);
+		this.create_game([player1_name, player2_name]);
 	}
 	discard(e : Event) : void {
 		var val_and_suit = Controller.get_val_suit($(e.target));
@@ -125,8 +123,8 @@ export class Controller {
 		this.game.discard_count++;
 		this.game.switch_player();
 	}
-	create_game(player_names : string[], duration : any) : void {
-		this.game = new Game(player_names, duration);
+	create_game(player_names : string[]) : void {
+		this.game = new Game(player_names);
 		this.game.deck.add_52_cards();
 		this.game.deck.shuffle();
 		this.game.cut_card = this.game.deck.cut_card();
