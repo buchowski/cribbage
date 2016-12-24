@@ -157,6 +157,22 @@ export class Game {
 			this.players[ i % 2 ].hand.push(card);
 		}
 	}
+	begin_new_round() : void {
+		let dealer = this.dealer;
+		let players = this.players;
+
+		this.discard_count = 0;
+		this.return_cards_to_deck();
+		this.deck.shuffle();
+		this.cut_card = this.deck.cut_card();
+		this.deal();
+
+		dealer = (dealer == players[0]) ? players[1] : players[0];
+
+		if (this.current_player == dealer) {
+			this.switch_player();
+		}
+	}
 	any_playable_cards() : boolean {
 		 return (this.players[0].hand.has_playable_card(this.pile) || this.players[1].hand.has_playable_card(this.pile));
 	}
@@ -175,6 +191,57 @@ export class Game {
 			player.crib.return_cards_to_deck(this.deck);
 		}
 		this.deck.push(this.cut_card);
+	}
+	get_cut_card() : void {
+		this.cut_card = this.deck.cut_card();
+	}
+	update_current_player_score(points : number) : void {
+		this.current_player.score += points;
+	}
+	discard_current_player_card(val_and_suit : string[]) : void {
+		let hand = this.current_player.hand;
+		let count = this.discard_count;
+		let card_index = hand.get_card_index(val_and_suit);
+		let card = hand.splice_card(card_index);
+
+		this.dealer.crib.push(card);
+		this.discard_count++;
+	}
+	play_current_player_card(val_and_suit : string[]) : void { 
+		let hand = this.current_player.hand;
+		let pile = this.pile;
+		let reset_score = false;
+
+		if (pile.is_valid_push(val_and_suit)) {
+			let card_index = hand.get_card_index(val_and_suit);
+			let card = hand.splice_card(card_index);
+
+			pile.push(card);
+			pile.update_score(card);
+
+			if (pile.score === 15) {
+				this.update_current_player_score(2);
+			}
+
+			if (this.other_player().hand.has_playable_card(pile)) {
+				this.switch_player();
+			} else if (!this.current_player.hand.has_playable_card(pile)) {
+				reset_score = true;
+				this.update_current_player_score(1);
+
+				if (pile.score === 31) {
+					this.update_current_player_score(1);
+				}
+
+				if (this.are_both_hands_empty() && (this.current_player == this.dealer) || this.other_player().hand.cards.length !== 0) {
+					this.switch_player();
+				}
+			}
+		}
+
+		if (reset_score) {
+			pile.score = 0;
+		}
 	}
 }
 
