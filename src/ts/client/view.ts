@@ -1,4 +1,4 @@
-import { Card, Card_Collection, Player, Game } from './model';
+import { Card, Card_Collection, Player, Game } from '../shared/model';
 
 export class View {
 	constructor() {}

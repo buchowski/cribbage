@@ -8,13 +8,14 @@
     "experimentalDecorators": true,
     "noImplicitAny": true,
     "suppressImplicitAnyIndexErrors": true,
-    "outDir": "purgatory/js"
+    "outDir": "purgatory"
   },
-  "files": [
-    "src/ts/app.ts"
+  "include": [
+    "src/ts/**/*",
+    "test/specs/**/*"
   ],
   "exclude": [
-    "node_modules/**/*",
+    "node_modules",
     "**/*-aot.ts"
   ]
 }

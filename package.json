@@ -5,18 +5,23 @@
   "main": "app.js",
   "dependencies": {},
   "devDependencies": {
+    "@types/chai": "^3.4.34",
     "@types/jquery": "2.0.34",
     "browserify": "13.1.1",
+    "chai": "3.5.0",
     "concurrently": "3.1.0",
+    "mocha": "3.2.0",
     "typescript": "2.1.4",
     "watchify": "3.8.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "concurrently \"npm run prepFolders\" \"tsc\" && npm run browserify && npm run watchify",
-    "prepFolders": "rm -rf dist && mkdir dist && mkdir dist/js",
-    "browserify": "browserify -d purgatory/js/app.js -o dist/js/app.js",
-    "watchify": "concurrently \"tsc -w\" \"watchify -d purgatory/js/app.js -o dist/js/app.js\""
+    "test": "mocha",
+    "build": "concurrently \"npm run prepFolders\" \"tsc\" && npm run browserify && npm run test && npm run watchify",
+    "prepFolders": "rm -rf dist && mkdir dist && mkdir dist/client && mkdir dist/client/js",
+    "browserify": "concurrently \"npm run browserifyClient\" \"npm run browserifyTest\"",
+    "browserifyClient": "browserify -d purgatory/src/ts/client/index.js -o dist/client/js/app.js",
+    "browserifyTest": "browserify -d purgatory/test/specs/index.js -o test/test-app.js",
+    "watchify": "concurrently \"tsc -w\" \"watchify -d purgatory/src/ts/client/index.js -o dist/client/js/app.js\""
   },
   "repository": {
     "type": "git",
