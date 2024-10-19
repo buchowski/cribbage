@@ -1,169 +1,179 @@
 import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
 
-	const root = window;
+export class Controller {
 
-	export class Controller {
-		view = new CRIBBAGE.View();
+	constructor() {
+		this.view = new CRIBBAGE.View();
+	}
 
-		submit_player_names = (e) => {
-			e.preventDefault();
-			var player1_name = $("#player1_name").val();
-			var player2_name = $("#player2_name").val();
-			var duration = $(".btn-success").val();
-			if (player1_name.length == 0 || player2_name.length == 0) {
-				this.username_error();
+	static get_val_suit ($el) {
+		const val_and_suit = $el?.target?.id;
+		if (!val_and_suit) throw Error(`no val_and_suit`);
+		const val = val_and_suit.slice(0, -1);
+		const suit = val_and_suit.slice(-1);
+
+		return [val, suit];
+	}
+
+	submit_player_names = (e) => {
+		e.preventDefault();
+		var player1_name = $("#player1_name").val();
+		var player2_name = $("#player2_name").val();
+		var duration = $(".btn-success").val();
+		if (player1_name.length == 0 || player2_name.length == 0) {
+			this.username_error();
+		} else {
+			$('#create_players').hide(400, () => {
+				this.create_game([player1_name, player2_name], duration);
+			})
+		}
+	}
+
+	set_duration (e) {
+		e.preventDefault();
+		$(".duration_btn").toggleClass("btn-success", false);
+		$(this).toggleClass("btn-success", true);
+	}
+
+	close_warning = (e) => {
+		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, [this.play_msg()]));
+		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
+		this.on_card_click(this.play_card);
+		this.draw_board();
+	}
+
+	return_cards = (e) => {
+		this.game.pile.return_cards_to_players();
+		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, []));
+		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
+		this.draw_board();
+		this.score_hand();
+	}
+
+	new_round = () => {
+		var game = this.game;
+
+		game.discard_count = 0;
+		game.return_cards_to_deck();
+		game.deck.shuffle();
+		game.cut_card = game.deck.cut_card();
+		game.deal();
+
+		game.dealer = (game.dealer == game.players[0]) ? game.players[1] : game.players[0];
+		if (game.current_player == game.dealer) game.switch_player();
+
+		$("#cribbage").empty().append(this.view.renders["game_template"].call(game, [this.discard_msg()]));
+		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
+		this.draw_board();
+		this.on_card_click(this.discard_card);
+	}
+
+	score_hand = () => {
+		var player = this.game.current_player;
+
+		if ($("#" + player.id + " > table").length == 0) {
+			var scores = player.hand.score_cards(); //scores[0] contains the scores array. scores[1] contains the score sum
+			var el_id = player.id;
+			$("#prompt").empty().append("<h3>" + this.scoring_hand("hand") + "</h3>");
+		} else {
+			var scores = player.crib.score_cards();
+			var el_id = "crib";
+			$("#prompt").empty().append("<h3>" + this.scoring_hand("crib") + "</h3>");
+		}
+
+		$("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>").insertBefore("#" + el_id + " > .card");
+		this.append_scores(el_id, scores, 0);
+	}
+
+	append_scores = (el_id, scores, index) => {
+		var total_score = CRIBBAGE.Hand.total_score(scores);
+		setTimeout(() => {
+			var score_template = (scores.length == 0) ? "bummer_template" : "score_row_template";
+			$("#" + el_id + "_score_table").append(this.view.renders[score_template].call(this, scores[index]));
+
+			if (index < scores.length - 1) {
+				this.append_scores(el_id, scores, index + 1);
 			} else {
-				$('#create_players').hide(400, () => {
-					this.create_game([player1_name, player2_name], duration);
-				})
+				var new_score = this.game.current_player.score + total_score;
+				var callback = (scores.length != 0) ? this.score_animation: this.display_score_msg;
+				callback(["+", total_score, "=", new_score], 0);
 			}
-		}
+		}, 1800)
+	}
 
-		set_duration (e) {
-			e.preventDefault();
-			$(".duration_btn").toggleClass("btn-success", false);
-			$(this).toggleClass("btn-success", true);
-		}
+	score_animation = (new_score_array, index) => {
+		setTimeout(() => {
+			var callback = (index < new_score_array.length - 1) ? this.score_animation: this.slide_score;
 
-		close_warning = (e) => {
-			$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, [this.play_msg()]));
-			$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
-			this.on_card_click(this.play_card);
-			this.draw_board();
-		}
+			$("#" + this.game.current_player.id + "_score").append(" <span>" + new_score_array[index] + "</span>");
+			callback(new_score_array, index + 1);
+		}, 1000)
+	}
 
-		return_cards = (e) => {
-			this.game.pile.return_cards_to_players();
-			$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, []));
-			$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
-			this.draw_board();
-			this.score_hand();
-		}
+	display_score_msg = (new_score_array) => {
+		var callback = ($("#crib > table").length == 0) ? this.score_hand: this.new_round;
+		var hand_name = ($("#crib > table").length == 0) ? "hand": "crib";
 
-		new_round = () => {
-			var game = this.game;
+		$("#prompt").empty().append("<h3>" + this.points_scored_msg(new_score_array[1], hand_name) + "</h3>");
+		this.display_info_msg(callback);
 
-			game.discard_count = 0;
-			game.return_cards_to_deck();
-			game.deck.shuffle();
-			game.cut_card = game.deck.cut_card();
-			game.deal();
+		this.game.current_player.score = new_score_array[3];
+		if (this.game.current_player != this.game.dealer) this.game.switch_player();
+	}
 
-			game.dealer = (game.dealer == game.players[0]) ? game.players[1] : game.players[0];
-			if (game.current_player == game.dealer) game.switch_player();
-
-			$("#cribbage").empty().append(this.view.renders["game_template"].call(game, [this.discard_msg()]));
-			$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
-			this.draw_board();
-			this.on_card_click(this.discard_card);
-		}
-
-		score_hand = () => {
+	slide_score = (new_score_array) => {
+		setTimeout(() => {
 			var player = this.game.current_player;
+			$("#" + player.id + "_score").empty();
+			$("#" + player.id + "_score").append(player.name + "'s Score: " + new_score_array[3]);
+			this.display_score_msg(new_score_array);
+		}, 700)
+	}
 
-			if ($("#" + player.id + " > table").length == 0) {
-				var scores = player.hand.score_cards(); //scores[0] contains the scores array. scores[1] contains the score sum
-				var el_id = player.id;
-				$("#prompt").empty().append("<h3>" + this.scoring_hand("hand") + "</h3>");
-			} else {
-				var scores = player.crib.score_cards();
-				var el_id = "crib";
-				$("#prompt").empty().append("<h3>" + this.scoring_hand("crib") + "</h3>");
-			}
+	draw_board = () => {
+		// var canvas = $("#board"); Why doesn't JQuery select the canvas?
+		var canvas = document.getElementById("board");
+		var ctx = canvas.getContext("2d");
+		var game = this.game;
 
-			$("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>").insertBefore("#" + el_id + " > .card");
-			this.append_scores(el_id, scores, 0);
-		}
+		canvas.height = canvas.width * 1.5;
 
-		append_scores = (el_id, scores, index) => {
-			var total_score = CRIBBAGE.Hand.total_score(scores);
-			root.setTimeout(() => {
-				var score_template = (scores.length == 0) ? "bummer_template" : "score_row_template";
-				$("#" + el_id + "_score_table").append(this.view.renders[score_template].call(this, scores[index]));
+		ctx.fillStyle = "rgb(125,80,20)";
+		ctx.beginPath();
+		ctx.moveTo(10, canvas.height - 10);
+		ctx.lineTo(10, 10);
+		ctx.lineTo(canvas.width - 10, 10);
+		ctx.lineTo(canvas.width - 10, canvas.height - 10);
+		ctx.lineTo((canvas.width / 2) - 20, canvas.height - 10);
+		ctx.lineTo((canvas.width / 2) - 20, canvas.height / 2);
+		ctx.lineTo((canvas.width /2), canvas.height / 2);
+		ctx.lineTo((canvas.width /2), canvas.height - 30);
+		ctx.lineTo(canvas.width - 30, canvas.height - 30);
+		ctx.lineTo(canvas.width - 30, 30);
+		ctx.lineTo(30, 30);
+		ctx.lineTo(30, canvas.height - 10);
+		ctx.fill();
 
-				if (index < scores.length - 1) {
-					this.append_scores(el_id, scores, index + 1);
-				} else {
-					var new_score = this.game.current_player.score + total_score;
-					var callback = (scores.length != 0) ? this.score_animation: this.display_score_msg;
-					callback(["+", total_score, "=", new_score], 0);
-				}
-			}, 1800)
-		}
+		ctx.fillStyle = "rgb(175,130,70)";
+		ctx.beginPath();
+		ctx.moveTo(30, canvas.height - 10);
+		ctx.lineTo(30, 30);
+		ctx.lineTo(canvas.width - 30, 30);
+		ctx.lineTo(canvas.width - 30, canvas.height - 30);
+		ctx.lineTo((canvas.width / 2), canvas.height - 30);
+		ctx.lineTo((canvas.width / 2), canvas.height / 2);
+		ctx.lineTo((canvas.width /2) + 20, canvas.height / 2);
+		ctx.lineTo((canvas.width /2) + 20, canvas.height - 50);
+		ctx.lineTo(canvas.width - 50, canvas.height - 50);
+		ctx.lineTo(canvas.width - 50, 50);
+		ctx.lineTo(50, 50);
+		ctx.lineTo(50, canvas.height - 10);
+		ctx.fill();
 
-		score_animation = (new_score_array, index) => {
-			root.setTimeout(() => {
-				var callback = (index < new_score_array.length - 1) ? this.score_animation: this.slide_score;
-
-				$("#" + this.game.current_player.id + "_score").append(" <span>" + new_score_array[index] + "</span>");
-				callback(new_score_array, index + 1);
-			}, 1000)
-		}
-
-		display_score_msg = (new_score_array) => {
-			var callback = ($("#crib > table").length == 0) ? this.score_hand: this.new_round;
-			var hand_name = ($("#crib > table").length == 0) ? "hand": "crib";
-
-			$("#prompt").empty().append("<h3>" + this.points_scored_msg(new_score_array[1], hand_name) + "</h3>");
-			this.display_info_msg(callback);
-
-			this.game.current_player.score = new_score_array[3];
-			if (this.game.current_player != this.game.dealer) this.game.switch_player();
-		}
-
-		slide_score = (new_score_array) => {
-			root.setTimeout(() => {
-				var player = this.game.current_player;
-				$("#" + player.id + "_score").empty();
-				$("#" + player.id + "_score").append(player.name + "'s Score: " + new_score_array[3]);
-				this.display_score_msg(new_score_array);
-			}, 700)
-		}
-
-		draw_board = () => {
-			// var canvas = $("#board"); Why doesn't JQuery select the canvas?
-			var canvas = document.getElementById("board");
-			var ctx = canvas.getContext("2d");
-			var game = this.game;
-
-			canvas.height = canvas.width * 1.5;
-
-			ctx.fillStyle = "rgb(125,80,20)";
-			ctx.beginPath();
-			ctx.moveTo(10, canvas.height - 10);
-			ctx.lineTo(10, 10);
-			ctx.lineTo(canvas.width - 10, 10);
-			ctx.lineTo(canvas.width - 10, canvas.height - 10);
-			ctx.lineTo((canvas.width / 2) - 20, canvas.height - 10);
-			ctx.lineTo((canvas.width / 2) - 20, canvas.height / 2);
-			ctx.lineTo((canvas.width /2), canvas.height / 2);
-			ctx.lineTo((canvas.width /2), canvas.height - 30);
-			ctx.lineTo(canvas.width - 30, canvas.height - 30);
-			ctx.lineTo(canvas.width - 30, 30);
-			ctx.lineTo(30, 30);
-			ctx.lineTo(30, canvas.height - 10);
-			ctx.fill();
-
-			ctx.fillStyle = "rgb(175,130,70)";
-			ctx.beginPath();
-			ctx.moveTo(30, canvas.height - 10);
-			ctx.lineTo(30, 30);
-			ctx.lineTo(canvas.width - 30, 30);
-			ctx.lineTo(canvas.width - 30, canvas.height - 30);
-			ctx.lineTo((canvas.width / 2), canvas.height - 30);
-			ctx.lineTo((canvas.width / 2), canvas.height / 2);
-			ctx.lineTo((canvas.width /2) + 20, canvas.height / 2);
-			ctx.lineTo((canvas.width /2) + 20, canvas.height - 50);
-			ctx.lineTo(canvas.width - 50, canvas.height - 50);
-			ctx.lineTo(canvas.width - 50, 50);
-			ctx.lineTo(50, 50);
-			ctx.lineTo(50, canvas.height - 10);
-			ctx.fill();
-
-			ctx.fillText("Cut Card: " + game.cut_card.val + game.cut_card.suit, 70, 70);
-			ctx.fillText("Start", 60, canvas.height - 20);
-			ctx.fillText("Finish", canvas.width / 2 - 30, canvas.height / 2 - 20);
-		}
+		ctx.fillText("Cut Card: " + game.cut_card.val + game.cut_card.suit, 70, 70);
+		ctx.fillText("Start", 60, canvas.height - 20);
+		ctx.fillText("Finish", canvas.width / 2 - 30, canvas.height / 2 - 20);
+	}
 
 	play_card = (val_and_suit) => {
 		var hand = this.game.current_player.hand;
@@ -271,15 +281,6 @@ import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com
 	toggle_prompt_class (display) {
 		$("body").toggleClass("gray", display);
 		$("#prompt").toggleClass("white", display);
-	}
-
-	static get_val_suit ($el) {
-		const val_and_suit = $el?.target?.id;
-		if (!val_and_suit) throw Error(`no val_and_suit`);
-		const val = val_and_suit.slice(0, -1);
-		const suit = val_and_suit.slice(-1);
-
-		return [val, suit];
 	}
 
 	username_error = () => {
