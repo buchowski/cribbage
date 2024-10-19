@@ -258,7 +258,7 @@ export class Controller {
 	}
 
 	create_game = (player_names, duration) => {
-		this.game = new CRIBBAGE.Game(player_names, duration, this);
+		this.game = new Game(player_names, duration, this);
 
 		this.game.deck.add_52_cards();
 		this.game.deck.shuffle();
