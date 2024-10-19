@@ -133,7 +133,7 @@ class Player {
 	}
 };
 
-class Game {
+export class Game {
 	constructor(player_names, duration, controller) {
 		this.controller = controller;
 		this.deck = new Deck(this);
