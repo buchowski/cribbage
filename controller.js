@@ -25,18 +25,10 @@ import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com
 			$(this).toggleClass("btn-success", true);
 		}
 
-		discard = (val_and_suit) => {
-			this.discard_card(val_and_suit);
-		}
-
-		play = (val_and_suit) =>  {
-			this.play_card(val_and_suit);
-		}
-
 		close_warning = (e) => {
 			$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, [this.play_msg()]));
 			$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
-			$("#" + this.game.current_player.id).on("click", ".card", this.play);
+			this.on_card_click(this.play_card);
 			this.draw_board();
 		}
 
@@ -63,7 +55,7 @@ import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com
 			$("#cribbage").empty().append(this.view.renders["game_template"].call(game, [this.discard_msg()]));
 			$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
 			this.draw_board();
-			$("#" + game.current_player.id).on("click", ".card", this.discard);
+			this.on_card_click(this.discard_card);
 		}
 
 		score_hand = () => {
@@ -175,7 +167,6 @@ import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com
 
 	play_card = (val_and_suit) => {
 		var hand = this.game.current_player.hand;
-		var renders = this.view.renders;
 		var pile = this.game.pile;
 		var callback = this.close_warning;
 		var reset_score = false;
@@ -216,7 +207,7 @@ import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com
 		if (messages.length == 0) messages = [this.play_msg()];
 		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, messages));
 		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
-		(messages[0] == this.play_msg()) ? this.play_bind() : this.display_info_msg(callback);
+		(messages[0] == this.play_msg()) ? this.on_card_click(this.play_card) : this.display_info_msg(callback);
 		this.draw_board();
 
 		if (reset_score) pile.score = 0;
@@ -225,10 +216,6 @@ import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com
 	fifteen = () => {
 		this.game.current_player.score += 2;
 		return this.fifteen_msg();
-	}
-
-	play_bind = () => {
-		$("#" + this.game.current_player.id).on("click", ".card", this.play);
 	}
 
 	thirtyone = () => {
@@ -251,13 +238,13 @@ import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com
 		this.game.discard_count++;
 		this.game.switch_player();
 
-		var callback = (count < 3) ? this.discard : this.play;
+		var callback = (count < 3) ? this.discard_card : this.play_card;
 		var message = (count < 3) ? this.discard_msg : this.play_msg;
 
 		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, [message.call(this)]));
 		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
 		this.draw_board();
-		$("#" + this.game.current_player.id).on("click", ".card", callback);
+		this.on_card_click(callback)
 	}
 
 	create_game = (player_names, duration) => {
@@ -271,7 +258,14 @@ import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com
 		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, [this.discard_msg()]));
 		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
 		this.draw_board();
-		$("#" + this.game.current_player.id).on("click", ".card", this.discard);
+		this.on_card_click(this.discard_card)
+	}
+
+	on_card_click = (callback) => {
+		$("#" + this.game.current_player.id).on("click", ".card", (e) => {
+			const val_and_suit = Controller.get_val_suit(e);
+			callback(val_and_suit);
+		});
 	}
 
 	toggle_prompt_class (display) {
@@ -280,9 +274,11 @@ import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com
 	}
 
 	static get_val_suit ($el) {
-		var val = $el.attr('id')[0];
-		var val = ( val == '1') ? '10' : val;
-		var suit = ( val == '10') ? $el.attr('id')[2] : $el.attr('id')[1];
+		const val_and_suit = $el?.target?.id;
+		if (!val_and_suit) throw Error(`no val_and_suit`);
+		const val = val_and_suit.slice(0, -1);
+		const suit = val_and_suit.slice(-1);
+
 		return [val, suit];
 	}
 
