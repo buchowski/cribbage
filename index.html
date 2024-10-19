@@ -7,10 +7,9 @@
 		<link rel="stylesheet" href="css/bootstrap.min.css" />
 		<script type='text/javascript' src='jquery-1.10.2.min.js'></script>
 		<script type='text/javascript' src='underscore.js'></script>
-		<script type-'text/javascript' src='js/bootstrap.min.js'></script>
+		<script type='text/javascript' src='js/bootstrap.min.js'></script>
 		<script type='text/javascript' src='model.js'></script>
 		<script type='text/javascript' src='view.js'></script>
-		<script type='text/javascript' src='controller.js'></script>
 	</head>
 	<body>
 		<div id="wrap">
@@ -24,15 +23,21 @@
 			<div class="container">
 				<div id="cribbage"></div>
 			</div>
-		</div> 
+		</div>
 		<div class="navbar navbar-fixed-bottom">
 			<div class="container">
 				<p class="text-muted credit">Cribbage by Adam Bucholz</p>
 			</div>
-		</div> 
- 	<script type="text/javascript">
- 		$( 
- 			function () { new CRIBBAGE.Controller(); } 
+		</div>
+ 	<script type="module">
+		import {Controller} from "./controller.js";
+ 		$(
+ 			function () {
+				const controller = new Controller();
+				$("#cribbage").empty().append(controller.view.renders["new_player_template"]);
+				$(".duration_btn").on("click", controller.set_duration);
+				$("#start_btn").on("click", controller.submit_player_names);
+			}
  		)
  	</script>
 	</body>
