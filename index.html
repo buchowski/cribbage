@@ -33,7 +33,7 @@
  		$(
  			function () {
 				const controller = new Controller();
-				$("#cribbage").empty().append(controller.view.renders["new_player_template"]);
+				$("#cribbage").empty().append(controller.view.renders()["new_player_template"]);
 				$(".duration_btn").on("click", controller.set_duration);
 				$("#start_btn").on("click", controller.submit_player_names);
 			}

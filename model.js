@@ -61,7 +61,7 @@ class Deck extends Card_Collection {
 	}
 }
 
-class Hand extends Card_Collection {
+export class Hand extends Card_Collection {
 	constructor(owner) {
 		super();
 		this.owner = owner;
@@ -88,7 +88,7 @@ class Hand extends Card_Collection {
 		return scores;
 	}
 
-	total_score = (scores) => {
+	static total_score = (scores) => {
 		var total = 0;
 		_.each(scores, function (score) {
 			total += score[3]; // the points is a score is worth is stored in the last element of a score array

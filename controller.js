@@ -1,10 +1,11 @@
 import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
-import {Game} from './model.js';
+import {Game, Hand} from './model.js';
+import {View} from './view.js';
 
 export class Controller {
 
 	constructor() {
-		this.view = new CRIBBAGE.View();
+		this.view = new View();
 	}
 
 	static get_val_suit ($el) {
@@ -37,16 +38,16 @@ export class Controller {
 	}
 
 	close_warning = (e) => {
-		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, [this.play_msg()]));
-		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
+		$("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, [this.play_msg()]));
+		$("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
 		this.on_card_click(this.play_card);
 		this.draw_board();
 	}
 
 	return_cards = (e) => {
 		this.game.pile.return_cards_to_players();
-		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, []));
-		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
+		$("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, []));
+		$("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
 		this.draw_board();
 		this.score_hand();
 	}
@@ -63,8 +64,8 @@ export class Controller {
 		game.dealer = (game.dealer == game.players[0]) ? game.players[1] : game.players[0];
 		if (game.current_player == game.dealer) game.switch_player();
 
-		$("#cribbage").empty().append(this.view.renders["game_template"].call(game, [this.discard_msg()]));
-		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
+		$("#cribbage").empty().append(this.view.renders()["game_template"].call(game, [this.discard_msg()]));
+		$("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
 		this.draw_board();
 		this.on_card_click(this.discard_card);
 	}
@@ -87,10 +88,10 @@ export class Controller {
 	}
 
 	append_scores = (el_id, scores, index) => {
-		var total_score = CRIBBAGE.Hand.total_score(scores);
+		var total_score = Hand.total_score(scores);
 		setTimeout(() => {
 			var score_template = (scores.length == 0) ? "bummer_template" : "score_row_template";
-			$("#" + el_id + "_score_table").append(this.view.renders[score_template].call(this, scores[index]));
+			$("#" + el_id + "_score_table").append(this.view.renders()[score_template].call(this, scores[index]));
 
 			if (index < scores.length - 1) {
 				this.append_scores(el_id, scores, index + 1);
@@ -216,8 +217,8 @@ export class Controller {
 		}
 
 		if (messages.length == 0) messages = [this.play_msg()];
-		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, messages));
-		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
+		$("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, messages));
+		$("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
 		(messages[0] == this.play_msg()) ? this.on_card_click(this.play_card) : this.display_info_msg(callback);
 		this.draw_board();
 
@@ -235,7 +236,7 @@ export class Controller {
 	}
 
 	display_info_msg = (callback) => {
-		$("#prompt").append(this.view.renders["ok_button_template"]);
+		$("#prompt").append(this.view.renders()["ok_button_template"]);
 		$("#warning").on("click", callback);
 	}
 
@@ -252,8 +253,8 @@ export class Controller {
 		var callback = (count < 3) ? this.discard_card : this.play_card;
 		var message = (count < 3) ? this.discard_msg : this.play_msg;
 
-		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, [message.call(this)]));
-		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
+		$("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, [message.call(this)]));
+		$("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
 		this.draw_board();
 		this.on_card_click(callback)
 	}
@@ -266,8 +267,8 @@ export class Controller {
 		this.game.cut_card = this.game.deck.cut_card();
 		this.game.deal();
 
-		$("#cribbage").empty().append(this.view.renders["game_template"].call(this.game, [this.discard_msg()]));
-		$("#" + this.game.dealer.id).append(this.view.renders["crib_template"].call(this.game));
+		$("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, [this.discard_msg()]));
+		$("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
 		this.draw_board();
 		this.on_card_click(this.discard_card)
 	}
