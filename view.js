@@ -44,12 +44,12 @@ export class View {
 									"<h4>Please Enter Two Player Names</h4>" +
 									"<div class='form-group'>" +
 											"<div class='col-md-12'>" +
-												"<input type='text' class='form-control' id='player1_name' maxlength='20' placeholder='Player One'>" +
+												"<input type='text' class='form-control' id='player1_name' maxlength='20' placeholder='Player One' value='Ralph'>" +
 											"</div>" +
 									"</div>" +
 									"<div class='form-group'>" +
 											"<div class='col-md-12'>" +
-												"<input type='text' class='form-control' id='player2_name' maxlength='20' placeholder='Player Two'>" +
+												"<input type='text' class='form-control' id='player2_name' maxlength='20' placeholder='Player Two' value='Stevie'>" +
 											"</div>" +
 									"</div>" +
 									"<h4>Please Select a Game Length</h4>" +

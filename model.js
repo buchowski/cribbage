@@ -1,70 +1,8 @@
 import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
+import { returnCardsToDeck, getCardIntVal, getDeck } from "./utils.js";
 
-var VALS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-var SUITS = ['H', 'C', 'S', 'D'];
-
-class Card {
-	constructor(suit, val) {
-		this.holder = null;
-		this.suit = suit;
-		this.val = val;
-	}
-	static int_val = (val) => {
-		var num = Number(val);
-		return ( isNaN(num) ) ? ((val == 'A') ? 1 : 10 ): num;
-	}
-}
-
-class Card_Collection {
-	push = (card) => {
-		this.cards.push(card);
-	}
-
-	get_card_index = (val_and_suit) => {
-		for (var i = 0; i < this.cards.length; i++) {
-			var card = this.cards[i];
-			if (card.val == val_and_suit[0] && card.suit == val_and_suit[1]) return i;
-		}
-	}
-
-	splice_card = (index) => {
-		return this.cards.splice(index, 1)[0];
-	}
-
-	cut_card = () => {
-		// you may eventually add functionality so the user can determine where the deck's cut
-		var index = Math.floor(Math.random() * this.cards.length);
-		return this.splice_card(index);
-	}
-
-	shuffle = () => {
-		this.cards = _.shuffle(this.cards);
-	}
-
-	return_cards_to_deck = (deck) => {
-		while (this.cards.length != 0) {
-			deck.push(this.cards.pop());
-		}
-	}
-}
-
-class Deck extends Card_Collection {
-	constructor() {
-		super();
-		this.cards = [];
-	}
-	add_52_cards = () =>  {
-		for (var i = 0; i < SUITS.length; i++ ) {
-			for (var j = 0; j < VALS.length; j++ ) {
-				this.cards.push(new Card(SUITS[i], VALS[j]));
-			}
-		}
-	}
-}
-
-export class Hand extends Card_Collection {
+export class Hand {
 	constructor(owner) {
-		super();
 		this.owner = owner;
 		this.cards = [];
 		this.score = 0;
@@ -80,7 +18,7 @@ export class Hand extends Card_Collection {
 		var scores = [];
 		for (var i = 0; i < this.cards.length; i++) {
 			for (var j = i + 1; j < this.cards.length; j++) {
-				var sum = Card.int_val(this.cards[i].val) + Card.int_val(this.cards[j].val);
+				var sum = getCardIntVal(this.cards[i].val) + getCardIntVal(this.cards[j].val);
 				if (sum == 15) {
 					scores.push([this.cards[i], this.cards[j], sum, 2]);
 				}
@@ -98,20 +36,19 @@ export class Hand extends Card_Collection {
 	}
 }
 
-class Pile extends Card_Collection {
+class Pile {
 	constructor() {
-		super();
 		this.cards = [];
 		this.score = 0;
 	}
 
 	is_valid_push = (val_and_suit) => {
 		var val = val_and_suit[0];
-		return ( this.score + Card.int_val(val) <= 31 );
+		return ( this.score + getCardIntVal(val) <= 31 );
 	}
 
 	update_score = (card) => {
-		this.score += Card.int_val(card.val);
+		this.score += getCardIntVal(card.val);
 	}
 
 	return_cards_to_players = () => {
@@ -136,7 +73,7 @@ class Player {
 export class Game {
 	constructor(controller) {
 		this.controller = controller;
-		this.deck = new Deck();
+		this.deck = getDeck();
 		this.pile = new Pile();
 		this.players = [];
 		this.dealer = null;
@@ -151,13 +88,6 @@ export class Game {
 			setDuration: action,
 			setPlayers: action,
 		})
-
-		// set all this stuff so we can skip inputting the usernames
-		// this.players = [new Player('kron', "player1", this), new Player('spookey', "player2", this)];
-		// this.deck.add_52_cards();
-		// this.deck.shuffle();
-		// this.cut_card = this.deck.cut_card();
-		// this.deal();
 	}
 
 	setDuration(duration) {
@@ -173,7 +103,7 @@ export class Game {
 		_.times(12, function (n) {
 			var card = game.deck.cards.pop();
 			card.holder = game.players[ n % 2 ];
-			game.players[ n % 2 ].hand.push(card);
+			game.players[ n % 2 ].hand.cards.push(card);
 		})
 	}
 
@@ -196,10 +126,10 @@ export class Game {
 	return_cards_to_deck = () => {
 		var game = this;
 		_.each(game.players, function (player) {
-			player.hand.return_cards_to_deck(game.deck);
-			player.crib.return_cards_to_deck(game.deck);
+			returnCardsToDeck(game.deck, player.hand.cards);
+			returnCardsToDeck(game.deck, player.crib.cards);
 		})
-		game.deck.push(game.cut_card);
+		game.deck.cards.push(game.cut_card);
 	}
 }
 

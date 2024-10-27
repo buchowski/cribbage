@@ -1,5 +1,6 @@
 import {Game, Hand} from './model.js';
 import {View} from './view.js';
+import {getCardIndex, getCutCard, getDeck} from './utils.js';
 
 export class Controller {
 
@@ -52,8 +53,8 @@ export class Controller {
 
 		game.discard_count = 0;
 		game.return_cards_to_deck();
-		game.deck.shuffle();
-		game.cut_card = game.deck.cut_card();
+		game.deck.cards = _.shuffle(game.deck.cards);
+		game.cut_card = getCutCard(game.deck.cards);
 		game.deal();
 
 		game.dealer = (game.dealer == game.players[0]) ? game.players[1] : game.players[0];
@@ -180,7 +181,7 @@ export class Controller {
 		var messages = [];
 
 		if (pile.is_valid_push(val_and_suit)) {
-			var card_index = hand.get_card_index(val_and_suit);
+			var card_index = getCardIndex(val_and_suit, hand.cards);
 			var card = hand.splice_card(card_index);
 
 			pile.push(card);
@@ -238,7 +239,7 @@ export class Controller {
 	discard_card = (val_and_suit) => {
 		var hand = this.game.current_player.hand;
 		var count = this.game.discard_count;
-		var card_index = hand.get_card_index(val_and_suit);
+		var card_index = getCardIndex(val_and_suit, hand.cards);
 		var card = hand.splice_card(card_index);
 
 		this.game.dealer.crib.push(card);
@@ -255,11 +256,12 @@ export class Controller {
 	}
 
 	create_game = (player_names, duration) => {
-		this.game.setPlayers(player_names);
-		this.game.deck.add_52_cards();
-		this.game.deck.shuffle();
-		this.game.cut_card = this.game.deck.cut_card();
-		this.game.deal();
+		const game = this.game
+		game.setPlayers(player_names);
+		game.deck = getDeck();
+		game.deck.cards = _.shuffle(game.deck.cards);
+		game.cut_card = getCutCard(game.deck.cards);
+		game.deal();
 
 		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, [this.discard_msg()]));
 		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
