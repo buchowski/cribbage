@@ -5,10 +5,12 @@
 		<link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Volkhov' type='text/css' />
 		<link rel="stylesheet" href="cribbage.css" />
 		<link rel="stylesheet" href="css/bootstrap.min.css" />
+		<!-- <script src="https://cdn.tailwindcss.com"></script> -->
 		<script type='text/javascript' src='jquery-1.10.2.min.js'></script>
 		<script type='text/javascript' src='underscore.js'></script>
-		<script type='text/javascript' src='js/bootstrap.min.js'></script>
-		<script type='text/javascript' src='view.js'></script>
+		<!-- <script type='text/javascript' src='js/bootstrap.min.js'></script> -->
+		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/mithril/2.2.8/mithril.js" integrity="sha512-lUbh0FQKh58/xz0dTeHIVscVjf+ojZmvHqTWFnNxYo/xlUGmVgWFgjmrf735QshYsJYwswdOlHtjrxsuypHTQw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> -->
 	</head>
 	<body>
 		<div id="wrap">
@@ -29,15 +31,25 @@
 			</div>
 		</div>
  	<script type="module">
+		import { autorun } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
 		import {Controller} from "./controller.js";
- 		$(
- 			function () {
-				const controller = new Controller();
-				$("#cribbage").empty().append(controller.view.renders()["new_player_template"]);
-				$(".duration_btn").on("click", controller.set_duration);
-				$("#start_btn").on("click", controller.submit_player_names);
+		const controller = new Controller();
+
+		// our click handlers need access to controller
+		window.controller = controller;
+
+		autorun(() => {
+			const {duration, players} = controller.game;
+			const hasGameStarted = duration && players.length === 2;
+			let ui;
+
+			if (hasGameStarted) {
+				ui = controller.view.renders()["game_template"]({game: controller.game, messages: []});
+			} else {
+				ui = controller.view.renders()["new_player_template"]({duration});
 			}
- 		)
+			$('#cribbage').empty().append(ui);
+		})
  	</script>
 	</body>
 </html>

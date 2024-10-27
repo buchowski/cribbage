@@ -1,11 +1,11 @@
-import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
 import {Game, Hand} from './model.js';
 import {View} from './view.js';
 
 export class Controller {
 
 	constructor() {
-		this.view = new View();
+		this.game = new Game(this);
+		this.view = new View(this);
 	}
 
 	static get_val_suit ($el) {
@@ -17,24 +17,19 @@ export class Controller {
 		return [val, suit];
 	}
 
-	submit_player_names = (e) => {
-		e.preventDefault();
+	submit_player_names = () => {
 		var player1_name = $("#player1_name").val();
 		var player2_name = $("#player2_name").val();
-		var duration = $(".btn-success").val();
+
 		if (player1_name.length == 0 || player2_name.length == 0) {
 			this.username_error();
 		} else {
-			$('#create_players').hide(400, () => {
-				this.create_game([player1_name, player2_name], duration);
-			})
+			this.create_game([player1_name, player2_name]);
 		}
 	}
 
-	set_duration (e) {
-		e.preventDefault();
-		$(".duration_btn").toggleClass("btn-success", false);
-		$(this).toggleClass("btn-success", true);
+	set_duration (duration) {
+		this.game.setDuration(duration)
 	}
 
 	close_warning = (e) => {
@@ -260,17 +255,16 @@ export class Controller {
 	}
 
 	create_game = (player_names, duration) => {
-		this.game = new Game(player_names, duration, this);
-
+		this.game.setPlayers(player_names);
 		this.game.deck.add_52_cards();
 		this.game.deck.shuffle();
 		this.game.cut_card = this.game.deck.cut_card();
 		this.game.deal();
 
-		$("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, [this.discard_msg()]));
-		$("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
-		this.draw_board();
-		this.on_card_click(this.discard_card)
+		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, [this.discard_msg()]));
+		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
+		// this.draw_board();
+		// this.on_card_click(this.discard_card)
 	}
 
 	on_card_click = (callback) => {

@@ -1,3 +1,4 @@
+import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
 
 var VALS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 var SUITS = ['H', 'C', 'S', 'D'];
@@ -123,10 +124,9 @@ class Pile extends Card_Collection {
 }
 
 class Player {
-	constructor(name, id, game) {
+	constructor(name, id) {
 		this.name = name;
 		this.id = id;
-		this.game = game;
 		this.hand = new Hand();
 		this.crib = new Hand();
 		this.score = 0;
@@ -134,24 +134,38 @@ class Player {
 };
 
 export class Game {
-	constructor(player_names, duration, controller) {
+	constructor(controller) {
 		this.controller = controller;
-		this.deck = new Deck(this);
+		this.deck = new Deck();
 		this.pile = new Pile();
-		this.players = [new Player(player_names[0], "player1", this), new Player(player_names[1], "player2", this)];
-		this.dealer = this.players[0];
-		this.current_player = this.players[1];
+		this.players = [];
+		this.dealer = null;
+		this.current_player = null;
 		this.cut_card = null;
 		this.discard_count = 0;
+		this.duration = 'long';
 
-		// duration determines the number of holes we draw on the board.
-		if (duration == "short") {
-			this.duration = 10;
-		} else if (duration == "medium") {
-			this.duration = 20;
-		} else { // duration == long
-			this.duration = 30;
-		}
+		makeObservable(this, {
+			duration: observable,
+			players: observable,
+			setDuration: action,
+			setPlayers: action,
+		})
+
+		// set all this stuff so we can skip inputting the usernames
+		// this.players = [new Player('kron', "player1", this), new Player('spookey', "player2", this)];
+		// this.deck.add_52_cards();
+		// this.deck.shuffle();
+		// this.cut_card = this.deck.cut_card();
+		// this.deal();
+	}
+
+	setDuration(duration) {
+		this.duration = duration ?? 'long';
+	}
+
+	setPlayers(player_names) {
+		this.players = [new Player(player_names[0], "player1", this), new Player(player_names[1], "player2", this)];
 	}
 
 	deal = () => {

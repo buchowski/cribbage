@@ -1,5 +1,10 @@
 
 export class View {
+
+	constructor(controller) {
+		this.controller = controller;
+	}
+
 	renders = () => {
 		const view = this;
 		return {
@@ -22,11 +27,20 @@ export class View {
 				return "<div id='" + this.id + "_score'>" + this.name + "'s Score: <span>" + this.score + "</span></div>" +
 						"<p>" + this.name + "'s Cards:" + "</p>";
 			},
-			new_player_template: function () {
-				// $("#cribbage").empty();
-				return 	"<div class='col-md-4'></div>" +
+			new_player_template: function ({duration}) {
+				const startGame = `controller.submit_player_names()`;
+				const getUpdateDuration = (d) => `controller.set_duration('${d}')`;
+				const durationButtons = ['short', 'medium', 'long'].map(d => {
+					const onclick = getUpdateDuration(d);
+					let className = 'btn duration_btn';
+					className += duration === d ? ' btn-success' : '';
+
+					return `<button onclick="${onclick}" class='${className}' value='${d}'>${d}</button>`;
+				})
+				return (
+					"<div class='col-md-4'></div>" +
 						"<div class='col-md-4'>" +
-							"<form id='create_players' class='form-horizontal' role='form'>" +
+							"<div>" +
 									"<h4>Please Enter Two Player Names</h4>" +
 									"<div class='form-group'>" +
 											"<div class='col-md-12'>" +
@@ -39,22 +53,21 @@ export class View {
 											"</div>" +
 									"</div>" +
 									"<h4>Please Select a Game Length</h4>" +
+									`<div>${duration}</div>` +
 									"<div class='form-group'>" +
-										"<div class='col-md-4'><button class='btn duration_btn btn-success' value='short'>Short</button></div>" +
-											"<div class='col-md-4'><button class='btn duration_btn' value='medium'>Medium</button></div>" +
-										"<div class='col-md-4'><button class='btn duration_btn' value='long'>Long</button></div>" +
+										durationButtons.join(' ') +
 									"</div>" +
 									"<div class='form-group'>" +
 										"<div class='col-md-12'>" +
-											"<button id='start_btn' type='submit' class='btn btn-info'>Start Game</button>" +
+											`<button id='start_btn' onclick="${startGame}" class='btn btn-info'>Start Game</button>` +
 											"</div>" +
 									"</div>" +
-							"</form>" +
+							"</div>" +
 						"</div>" +
-						"<div class='col-md-4'></div>";
+						"<div class='col-md-4'></div>"
+				);
 			},
-			game_template: function (messages) {
-				var game = this;
+			game_template: function ({game, messages}) {
 				return 	"<div id='prompt'>" +
 							"<h3>" +
 								messages.join(" ") +
