@@ -1,4 +1,4 @@
-import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
+import { makeObservable, computed, makeAutoObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
 import { returnCardsToDeck, getCardIntVal, getDeck } from "./utils.js";
 
 export class Hand {
@@ -6,13 +6,21 @@ export class Hand {
 		this.owner = owner;
 		this.cards = [];
 		this.score = 0;
+		makeObservable(this, {
+			cards: observable,
+		})
 	}
+
 	has_playable_card = (pile) => {
 		return _.some(this.cards, function (card) {
 			var val_and_suit = [card.val, card.suit];
 			return pile.is_valid_push(val_and_suit);
 		})
 	}
+
+	remove_card = action((index) => {
+		return this.cards.splice(index, 1)[0];
+	})
 
 	score_cards = () => {
 		var scores = [];
@@ -40,6 +48,10 @@ class Pile {
 	constructor() {
 		this.cards = [];
 		this.score = 0;
+		makeObservable(this, {
+			cards: observable,
+			score: observable
+		});
 	}
 
 	is_valid_push = (val_and_suit) => {
@@ -47,17 +59,21 @@ class Pile {
 		return ( this.score + getCardIntVal(val) <= 31 );
 	}
 
-	update_score = (card) => {
+	update_score = action((card) => {
 		this.score += getCardIntVal(card.val);
-	}
+	})
 
-	return_cards_to_players = () => {
+	resetScore = action(() => this.score = 0)
+
+	pushCard = action((card) => this.cards.push(card))
+
+	return_cards_to_players = action(() => {
 		var pile = this;
 		while (pile.cards.length != 0) {
 			var card = pile.cards.pop();
 			card.holder.hand.push(card);
 		}
-	}
+	})
 }
 
 class Player {
@@ -67,7 +83,15 @@ class Player {
 		this.hand = new Hand();
 		this.crib = new Hand();
 		this.score = 0;
+
+		makeObservable(this, {
+			hand: observable,
+			crib: observable,
+			score: observable
+		})
 	}
+
+	addToScore = action(points => this.score += points)
 };
 
 export class Game {
@@ -85,27 +109,47 @@ export class Game {
 		makeObservable(this, {
 			duration: observable,
 			players: observable,
-			setDuration: action,
-			setPlayers: action,
+			current_player: observable
 		})
 	}
 
-	setDuration(duration) {
+	get isDiscarding() {
+		return this.players.length === 2 &&
+			(this.players[0]?.hand?.cards?.length > 4 ||
+			this.players[1]?.hand?.cards?.length > 4);
+	}
+
+	setDuration = action((duration) => {
 		this.duration = duration ?? 'long';
-	}
+	})
 
-	setPlayers(player_names) {
+	setPlayers = action((player_names) => {
 		this.players = [new Player(player_names[0], "player1", this), new Player(player_names[1], "player2", this)];
-	}
+		this.current_player = this.players[0]
+		this.dealer = this.players[1]
+	})
 
-	deal = () => {
+	deal = action(() => {
 		var game = this;
 		_.times(12, function (n) {
 			var card = game.deck.cards.pop();
 			card.holder = game.players[ n % 2 ];
 			game.players[ n % 2 ].hand.cards.push(card);
 		})
-	}
+	})
+
+	switch_player = action(() => {
+		this.current_player = this.other_player();
+	})
+
+	return_cards_to_deck = action(() => {
+		var game = this;
+		_.each(game.players, function (player) {
+			returnCardsToDeck(game.deck, player.hand.cards);
+			returnCardsToDeck(game.deck, player.crib.cards);
+		})
+		game.deck.cards.push(game.cut_card);
+	})
 
 	any_playable_cards = () => {
 			return (this.players[0].hand.has_playable_card(this.pile) || this.players[1].hand.has_playable_card(this.pile));
@@ -117,19 +161,6 @@ export class Game {
 
 	other_player = () => {
 		return (this.current_player == this.players[0]) ? this.players[1] : this.players[0];
-	}
-
-	switch_player = () => {
-		this.current_player = this.other_player();
-	}
-
-	return_cards_to_deck = () => {
-		var game = this;
-		_.each(game.players, function (player) {
-			returnCardsToDeck(game.deck, player.hand.cards);
-			returnCardsToDeck(game.deck, player.crib.cards);
-		})
-		game.deck.cards.push(game.cut_card);
 	}
 }
 

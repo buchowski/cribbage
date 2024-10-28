@@ -180,11 +180,16 @@ export class Controller {
 		var reset_score = false;
 		var messages = [];
 
+		if (getCardIndex(val_and_suit, hand.cards) === -1) {
+			console.log(`card ${val_and_suit} does not belong to player ${this.game.current_player.name}`)
+			return;
+		}
+
 		if (pile.is_valid_push(val_and_suit)) {
 			var card_index = getCardIndex(val_and_suit, hand.cards);
-			var card = hand.splice_card(card_index);
+			var card = hand.remove_card(card_index);
 
-			pile.push(card);
+			pile.pushCard(card);
 			pile.update_score(card);
 
 			if (pile.score == 15) messages.push(this.fifteen());
@@ -195,7 +200,7 @@ export class Controller {
 				messages.push(this.still_your_turn_msg());
 			} else {
 				reset_score = true;
-				this.game.current_player.score += 1;
+				this.game.current_player.addToScore(1);
 				(pile.score == 31) ? messages.push(this.thirtyone()): messages.push(this.point_for_last_card_msg());
 
 				if (this.game.are_both_hands_empty()) {
@@ -213,12 +218,12 @@ export class Controller {
 		}
 
 		if (messages.length == 0) messages = [this.play_msg()];
-		$("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, messages));
-		$("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
-		(messages[0] == this.play_msg()) ? this.on_card_click(this.play_card) : this.display_info_msg(callback);
-		this.draw_board();
+		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, messages));
+		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
+		// (messages[0] == this.play_msg()) ? this.on_card_click(this.play_card) : this.display_info_msg(callback);
+		// this.draw_board();
 
-		if (reset_score) pile.score = 0;
+		if (reset_score) pile.resetScore();
 	}
 
 	fifteen = () => {
@@ -238,24 +243,28 @@ export class Controller {
 
 	discard_card = (val_and_suit) => {
 		var hand = this.game.current_player.hand;
-		var count = this.game.discard_count;
+		// var count = this.game.discard_count;
 		var card_index = getCardIndex(val_and_suit, hand.cards);
-		var card = hand.splice_card(card_index);
+		if (card_index === -1) {
+			console.log(`card ${val_and_suit} does not belong to player ${this.game.current_player.name}`)
+			return;
+		}
+		var card = hand.remove_card(card_index);
 
-		this.game.dealer.crib.push(card);
-		this.game.discard_count++;
+		this.game.dealer.crib.cards.push(card);
+		// this.game.discard_count++;
 		this.game.switch_player();
 
-		var callback = (count < 3) ? this.discard_card : this.play_card;
-		var message = (count < 3) ? this.discard_msg : this.play_msg;
+		// var callback = (count < 3) ? this.discard_card : this.play_card;
+		// var message = (count < 3) ? this.discard_msg : this.play_msg;
 
-		$("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, [message.call(this)]));
-		$("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
-		this.draw_board();
-		this.on_card_click(callback)
+		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, [message.call(this)]));
+		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
+		// this.draw_board();
+		// this.on_card_click(callback)
 	}
 
-	create_game = (player_names, duration) => {
+	create_game = (player_names) => {
 		const game = this.game
 		game.setPlayers(player_names);
 		game.deck = getDeck();

@@ -8,18 +8,19 @@ export class View {
 	renders = () => {
 		const view = this;
 		return {
-			card_template: function () {
-				return "<div class='card " + this.suit + "' id='" + this.val + this.suit + "'>"
+			card_template: function (onCardClick) {
+				const onclick = `${onCardClick}('${this.val}${this.suit}')`
+				return `<div onclick="${onclick}" class='card ${this.suit}' id="${this.val}${this.suit}">`
 							+ this.val + this.suit +
 						"</div>";
 			},
 			ok_button_template: function () {
 				return "<input id='warning' class='btn btn-info' type='button' value='Okee Dokee' />";
 			},
-			hand_template: function () {
+			hand_template: function (onCardClick) {
 				var html_string = "";
 				_.each(this.cards, function (card) {
-					html_string += view.renders()["card_template"].call(card);
+					html_string += view.renders()["card_template"].call(card, onCardClick);
 				})
 				return (this.cards.length == 0) ? "<h3>empty, no cards</h3>" : html_string;
 			},
@@ -67,7 +68,9 @@ export class View {
 						"<div class='col-md-4'></div>"
 				);
 			},
-			game_template: function ({game, messages}) {
+			game_template: function ({game}) {
+				const onCardClick = game.isDiscarding ? 'controller.discard_card' : 'controller.play_card';
+				const messages = game.isDiscarding ? [view.controller.discard_msg()] : [view.controller.play_msg()]
 				return 	"<div id='prompt'>" +
 							"<h3>" +
 								messages.join(" ") +
@@ -76,7 +79,7 @@ export class View {
 						"<div id='game'>" +
 							"<div class='col-md-4' id='" + game.players[0].id + "'>" +
 									view.renders()["player_template"].call(game.players[0]) +
-									view.renders()["hand_template"].call(game.players[0].hand) +
+									view.renders()["hand_template"].call(game.players[0].hand, onCardClick) +
 							"</div>" +
 							"<div class='col-md-4' id='pile'>" +
 									"<p>Pile Score: " + game.pile.score + "</p>" +
@@ -86,7 +89,7 @@ export class View {
 							"</div>" +
 							"<div class='col-md-4' id='" + game.players[1].id +"'>" +
 									view.renders()["player_template"].call(game.players[1]) +
-									view.renders()["hand_template"].call(game.players[1].hand) +
+									view.renders()["hand_template"].call(game.players[1].hand, onCardClick) +
 							"</div>" +
 						"</div>";
 			},

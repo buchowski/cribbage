@@ -8,10 +8,9 @@ export const getCardIntVal = (val) => {
 }
 
 export const getCardIndex = (val_and_suit, cards) => {
-	for (var i = 0; i < cards.length; i++) {
-		var card = cards[i];
-		if (card.val == val_and_suit[0] && card.suit == val_and_suit[1]) return i;
-	}
+  const val = val_and_suit.slice(0, val_and_suit.length - 1)
+  const suit = val_and_suit.slice(val_and_suit.length - 1)
+  return cards.findIndex(card => card.val == val && card.suit == suit)
 }
 
 export const getCutCard = (cards) => {

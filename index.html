@@ -44,7 +44,7 @@
 			let ui;
 
 			if (hasGameStarted) {
-				ui = controller.view.renders()["game_template"]({game: controller.game, messages: []});
+				ui = controller.view.renders()["game_template"]({ game: controller.game });
 			} else {
 				ui = controller.view.renders()["new_player_template"]({duration});
 			}
