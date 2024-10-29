@@ -33,18 +33,21 @@
  	<script type="module">
 		import { autorun } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
 		import {Controller} from "./controller.js";
+		import {STATE} from "./utils.js";
 		const controller = new Controller();
+		const game = controller.game;
 
 		// our click handlers need access to controller
 		window.controller = controller;
 
 		autorun(() => {
-			const {duration, players} = controller.game;
-			const hasGameStarted = duration && players.length === 2;
+			const {duration} = game;
+			const hasGameStarted = game.state !== STATE.waiting;
 			let ui;
 
 			if (hasGameStarted) {
-				ui = controller.view.renders()["game_template"]({ game: controller.game });
+				ui = controller.view.renders()["game_template"]({ game });
+				ui += controller.view.renders()["crib_template"]({ game });
 			} else {
 				ui = controller.view.renders()["new_player_template"]({duration});
 			}

@@ -1,3 +1,4 @@
+import { VALS, SUITS, STATE } from "./utils.js";
 
 export class View {
 
@@ -11,7 +12,7 @@ export class View {
 			card_template: function (onCardClick) {
 				const onclick = `${onCardClick}('${this.val}${this.suit}')`
 				return `<div onclick="${onclick}" class='card ${this.suit}' id="${this.val}${this.suit}">`
-							+ this.val + this.suit +
+							+ VALS[this.val] + SUITS[this.suit] +
 						"</div>";
 			},
 			ok_button_template: function () {
@@ -69,8 +70,9 @@ export class View {
 				);
 			},
 			game_template: function ({game}) {
-				const onCardClick = game.isDiscarding ? 'controller.discard_card' : 'controller.play_card';
-				const messages = game.isDiscarding ? [view.controller.discard_msg()] : [view.controller.play_msg()]
+				const isDiscarding = game.state === STATE.discarding;
+				const onCardClick = isDiscarding ? 'controller.discard_card' : 'controller.play_card';
+				const messages = isDiscarding ? [view.controller.discard_msg()] : [view.controller.play_msg()]
 				return 	"<div id='prompt'>" +
 							"<h3>" +
 								messages.join(" ") +
@@ -93,9 +95,10 @@ export class View {
 							"</div>" +
 						"</div>";
 			},
-			crib_template: function () {
-				return "<div id='crib'><p>" + this.dealer.name + "'s Crib: </p>" +
-					view.renders()["hand_template"].call(this.dealer.crib) +
+			crib_template: function ({ game }) {
+				const onCardClick = 'controller.noop';
+				return "<div id='crib'><p>" + game.dealer.name + "'s Crib: </p>" +
+					view.renders()["hand_template"].call(game.dealer.crib, onCardClick ) +
 				"</div>";
 			},
 			score_table_template: function (scores, el_id){

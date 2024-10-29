@@ -1,6 +1,13 @@
 
 export const VALS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 export const SUITS = ['H', 'C', 'S', 'D'];
+export const STATE = {
+  waiting: 'waiting',
+  dealing: 'dealing',
+  discarding: 'discarding',
+  playing: 'playing',
+  scoring: 'scoring',
+}
 
 export const getCardIntVal = (val) => {
 	var num = Number(val);
@@ -34,4 +41,6 @@ export const getDeck = () => {
 	}
 	return { cards };
 }
+
+export const isEmpty = (hand) => hand?.cards?.length === 0;
 

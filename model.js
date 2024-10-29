@@ -1,5 +1,5 @@
 import { makeObservable, computed, makeAutoObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
-import { returnCardsToDeck, getCardIntVal, getDeck } from "./utils.js";
+import { returnCardsToDeck, getCardIntVal, getDeck, STATE, isEmpty } from "./utils.js";
 
 export class Hand {
 	constructor(owner) {
@@ -21,6 +21,8 @@ export class Hand {
 	remove_card = action((index) => {
 		return this.cards.splice(index, 1)[0];
 	})
+
+	pushCard = action((card) => this.cards.push(card))
 
 	score_cards = () => {
 		var scores = [];
@@ -117,6 +119,27 @@ export class Game {
 		return this.players.length === 2 &&
 			(this.players[0]?.hand?.cards?.length > 4 ||
 			this.players[1]?.hand?.cards?.length > 4);
+	}
+
+	get state() {
+		if (this.players.length < 2) {
+			return STATE.waiting
+		}
+		const [p1, p2] = this.players;
+
+		if (isEmpty(p1.hand) && isEmpty(p1.crib) && isEmpty(p2.hand) && isEmpty(p2.crib)) {
+			return STATE.dealing;
+		}
+
+		if (p1.hand.cards.length > 4 || p2.hand.cards.length > 4) {
+			return STATE.discarding;
+		}
+
+		if (isEmpty(p1.hand) && isEmpty(p2.hand)) {
+			return STATE.scoring;
+		}
+
+		return STATE.playing;
 	}
 
 	setDuration = action((duration) => {
