@@ -1,5 +1,5 @@
 import { makeObservable, computed, makeAutoObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
-import { returnCardsToDeck, getCardIntVal, getDeck, STATE, isEmpty } from "./utils.js";
+import { getCardIntVal, getDeck, STATE, isEmpty } from "./utils.js";
 
 export class Hand {
 	constructor(owner) {
@@ -25,6 +25,7 @@ export class Hand {
 
 	pushCard = action((card) => this.cards.push(card))
 	pushCards = action((cards) => this.cards = [...cards])
+	reset = action(() => this.cards = []);
 
 	score_cards = action(() => {
 		for (var i = 0; i < this.cards.length; i++) {
@@ -66,6 +67,10 @@ class Pile {
 	})
 
 	resetScore = action(() => this.score = 0)
+	reset = action(() => {
+		this.cards = [];
+		this.score = 0;
+	});
 
 	pushCard = action((card) => this.cards.push(card))
 
@@ -108,7 +113,7 @@ export class Game {
 		this.dealer = null;
 		this.current_player = null;
 		this.cut_card = null;
-		this.discard_count = 0;
+		// this.discard_count = 0;
 		this.duration = 'long';
 
 		makeObservable(this, {
@@ -169,13 +174,26 @@ export class Game {
 		this.current_player = this.other_player;
 	})
 
-	return_cards_to_deck = action(() => {
+	new_round = action(() => {
 		var game = this;
-		_.each(game.players, function (player) {
-			returnCardsToDeck(game.deck, player.hand.cards);
-			returnCardsToDeck(game.deck, player.crib.cards);
-		})
-		game.deck.cards.push(game.cut_card);
+		game.deck = getDeck();
+		game.current_player.hand.reset();
+		game.current_player.crib.reset();
+		game.other_player.hand.reset();
+		game.other_player.crib.reset();
+		game.pile.reset();
+
+		game.deck.cards = _.shuffle(game.deck.cards);
+		game.cut_card = getCutCard(game.deck.cards);
+		game.deal();
+
+		game.dealer = this.nonDealer;
+		if (game.current_player == game.dealer) game.switch_player();
+		// _.each(game.players, function (player) {
+		// 	returnCardsToDeck(game.deck, player.hand.cards);
+		// 	returnCardsToDeck(game.deck, player.crib.cards);
+		// })
+		// game.deck.cards.push(game.cut_card);
 	})
 
 	any_playable_cards = () => {

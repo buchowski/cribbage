@@ -53,16 +53,20 @@ export class Controller {
 	// }
 
 	new_round = () => {
-		var game = this.game;
+		this.game.new_round();
 
-		game.discard_count = 0;
-		game.return_cards_to_deck();
-		game.deck.cards = _.shuffle(game.deck.cards);
-		game.cut_card = getCutCard(game.deck.cards);
-		game.deal();
+		// game.discard_count = 0;
+		// game.return_cards_to_deck();
+		// game.deck.cards = _.shuffle(game.deck.cards);
+		// game.cut_card = getCutCard(game.deck.cards);
+		// game.deal();
+		// game.deck = getDeck();
+		// game.deck.cards = _.shuffle(game.deck.cards);
+		// game.cut_card = getCutCard(game.deck.cards);
+		// game.deal();
 
-		game.dealer = (game.dealer == game.players[0]) ? game.players[1] : game.players[0];
-		if (game.current_player == game.dealer) game.switch_player();
+		// game.dealer = (game.dealer == game.players[0]) ? game.players[1] : game.players[0];
+		// if (game.current_player == game.dealer) game.switch_player();
 
 		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(game, [this.discard_msg()]));
 		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
