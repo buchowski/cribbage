@@ -44,13 +44,13 @@ export class Controller {
 	// 	this.draw_board();
 	// }
 
-	return_cards = (e) => {
-		this.game.pile.return_cards_to_players();
+	// return_cards = (e) => {
+		// this.game.pile.return_cards_to_players();
 		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, []));
 		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
 		// this.draw_board();
-		this.score_hand();
-	}
+	// 	this.score_hand();
+	// }
 
 	new_round = () => {
 		var game = this.game;
@@ -70,21 +70,25 @@ export class Controller {
 		// this.on_card_click(this.discard_card);
 	}
 
-	score_hand = () => {
-		var player = this.game.current_player;
+	score_hands_and_crib = () => {
+		const { dealer, nonDealer } = this.game || {};
 
-		if ($("#" + player.id + " > table").length == 0) {
-			var scores = player.hand.score_cards(); //scores[0] contains the scores array. scores[1] contains the score sum
-			var el_id = player.id;
-			$("#prompt").empty().append("<h3>" + this.scoring_hand("hand") + "</h3>");
-		} else {
-			var scores = player.crib.score_cards();
-			var el_id = "crib";
-			$("#prompt").empty().append("<h3>" + this.scoring_hand("crib") + "</h3>");
-		}
+		dealer.handCopy.score_cards();
+		dealer.crib.score_cards();
+		nonDealer.handCopy.score_cards();
 
-		$("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>").insertBefore("#" + el_id + " > .card");
-		this.append_scores(el_id, scores, 0);
+		// if ($("#" + player.id + " > table").length == 0) {
+		// 	var scores = player.hand.score_cards(); //scores[0] contains the scores array. scores[1] contains the score sum
+		// 	var el_id = player.id;
+		// 	$("#prompt").empty().append("<h3>" + this.scoring_hand("hand") + "</h3>");
+		// } else {
+		// 	var scores = player.crib.score_cards();
+		// 	var el_id = "crib";
+		// 	$("#prompt").empty().append("<h3>" + this.scoring_hand("crib") + "</h3>");
+		// }
+
+		// $("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>").insertBefore("#" + el_id + " > .card");
+		// this.append_scores(el_id, scores, 0);
 	}
 
 	append_scores = (el_id, scores, index) => {
@@ -198,7 +202,7 @@ export class Controller {
 
 			if (pile.score == 15) messages.push(this.fifteen());
 
-			if (this.game.other_player().hand.has_playable_card(pile)) {
+			if (this.game.other_player.hand.has_playable_card(pile)) {
 				this.game.switch_player();
 			} else if (this.game.current_player.hand.has_playable_card(pile)) {
 				messages.push(this.still_your_turn_msg());
@@ -211,7 +215,8 @@ export class Controller {
 					if (this.game.current_player == this.game.dealer) this.game.switch_player();
 					messages.push(this.both_hands_empty_msg());
 					// callback = this.return_cards;
-				} else if (this.game.other_player().hand.cards.length == 0) {
+					this.score_hands_and_crib();
+				} else if (this.game.other_player.hand.cards.length == 0) {
 					messages.push(this.still_your_turn_msg());
 				} else {
 					this.game.switch_player();
@@ -255,8 +260,12 @@ export class Controller {
 		}
 		var card = hand.remove_card(card_index);
 
+		// we want a copy of the hand state after discarding so we can use it later for scoring
+		this.game.current_player.copyHand(hand);
+
 		this.game.dealer.crib.pushCard(card);
 		// this.game.discard_count++;
+		// TODO 10-30-24 players shouldn't have to take turns discarding
 		this.game.switch_player();
 
 		// var callback = (count < 3) ? this.discard_card : this.play_card;
@@ -289,10 +298,10 @@ export class Controller {
 	// 	});
 	// }
 
-	toggle_prompt_class (display) {
-		$("body").toggleClass("gray", display);
-		$("#prompt").toggleClass("white", display);
-	}
+	// toggle_prompt_class (display) {
+	// 	$("body").toggleClass("gray", display);
+	// 	$("#prompt").toggleClass("white", display);
+	// }
 
 	username_error = () => {
 		$("#error").remove();
@@ -320,7 +329,7 @@ export class Controller {
 	}
 
 	still_your_turn_msg = () => {
-		return this.game.current_player.name + " it's still your turn. " + this.game.other_player().name + "can't play a card.";
+		return this.game.current_player.name + " it's still your turn. " + this.game.other_player.name + "can't play a card.";
 	}
 
 	both_hands_empty_msg = () => {

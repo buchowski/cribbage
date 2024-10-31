@@ -6,6 +6,7 @@ export class Hand {
 		this.owner = owner;
 		this.cards = [];
 		this.score = 0;
+		this.scores = [];
 		makeObservable(this, {
 			cards: observable,
 		})
@@ -23,19 +24,18 @@ export class Hand {
 	})
 
 	pushCard = action((card) => this.cards.push(card))
+	pushCards = action((cards) => this.cards = [...cards])
 
-	score_cards = () => {
-		var scores = [];
+	score_cards = action(() => {
 		for (var i = 0; i < this.cards.length; i++) {
 			for (var j = i + 1; j < this.cards.length; j++) {
-				var sum = getCardIntVal(this.cards[i].val) + getCardIntVal(this.cards[j].val);
+				var sum = this.cards[i].val + this.cards[j].val;
 				if (sum == 15) {
-					scores.push([this.cards[i], this.cards[j], sum, 2]);
+					this.scores.push([this.cards[i], this.cards[j], sum, 2]);
 				}
 			}
 		}
-		return scores;
-	}
+	})
 
 	static total_score = (scores) => {
 		var total = 0;
@@ -69,13 +69,13 @@ class Pile {
 
 	pushCard = action((card) => this.cards.push(card))
 
-	return_cards_to_players = action(() => {
-		var pile = this;
-		while (pile.cards.length != 0) {
-			var card = pile.cards.pop();
-			card.holder.hand.push(card);
-		}
-	})
+	// return_cards_to_players = action(() => {
+	// 	var pile = this;
+	// 	while (pile.cards.length != 0) {
+	// 		var card = pile.cards.pop();
+	// 		card.holder.hand.push(card);
+	// 	}
+	// })
 }
 
 class Player {
@@ -83,6 +83,7 @@ class Player {
 		this.name = name;
 		this.id = id;
 		this.hand = new Hand();
+		this.handCopy = new Hand();
 		this.crib = new Hand();
 		this.score = 0;
 
@@ -92,6 +93,8 @@ class Player {
 			score: observable
 		})
 	}
+
+	copyHand = action((hand) => this.handCopy.pushCards(hand.cards));
 
 	addToScore = action(points => this.score += points)
 };
@@ -111,7 +114,8 @@ export class Game {
 		makeObservable(this, {
 			duration: observable,
 			players: observable,
-			current_player: observable
+			current_player: observable,
+			dealer: observable,
 		})
 	}
 
@@ -162,7 +166,7 @@ export class Game {
 	})
 
 	switch_player = action(() => {
-		this.current_player = this.other_player();
+		this.current_player = this.other_player;
 	})
 
 	return_cards_to_deck = action(() => {
@@ -182,7 +186,11 @@ export class Game {
 		return (this.players[0].hand.cards.length == 0 && this.players[1].hand.cards.length == 0);
 	}
 
-	other_player = () => {
+	get nonDealer() {
+		return (this.dealer == this.players[0]) ? this.players[1] : this.players[0];
+	}
+
+	get other_player() {
 		return (this.current_player == this.players[0]) ? this.players[1] : this.players[0];
 	}
 }

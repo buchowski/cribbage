@@ -36,7 +36,7 @@ export const getDeck = () => {
 	const cards = []
 	for (var i = 0; i < SUITS.length; i++ ) {
 		for (var j = 0; j < VALS.length; j++ ) {
-			cards.push({suit: i, val: j});
+			cards.push({suit: SUITS[i], val: getCardIntVal(VALS[j]), displayVal: VALS[j] });
 		}
 	}
 	return { cards };

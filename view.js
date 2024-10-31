@@ -1,4 +1,4 @@
-import { VALS, SUITS, STATE } from "./utils.js";
+import { STATE } from "./utils.js";
 
 export class View {
 
@@ -12,7 +12,7 @@ export class View {
 			card_template: function (onCardClick) {
 				const onclick = `${onCardClick}('${this.val}${this.suit}')`
 				return `<div onclick="${onclick}" class='card ${this.suit}' id="${this.val}${this.suit}">`
-							+ VALS[this.val] + SUITS[this.suit] +
+							+ this.displayVal + this.suit +
 						"</div>";
 			},
 			ok_button_template: function () {
