@@ -52,6 +52,7 @@
 				ui = controller.view.renders()["new_player_template"]({duration});
 			}
 			$('#cribbage').empty().append(ui);
+			controller.view.renders()["draw_board"]({ game });
 		})
  	</script>
 	</body>

@@ -120,6 +120,49 @@ export class View {
 			},
 			bummer_template: function () {
 				return "<tr><td>bummer. nothing scored.</td></tr>";
+			},
+			draw_board: function ({game}) {
+				var canvas = document.getElementById("board");
+				if (!canvas) return null;
+				var ctx = canvas.getContext("2d");
+
+				canvas.height = canvas.width * 1.5;
+
+				ctx.fillStyle = "rgb(125,80,20)";
+				ctx.beginPath();
+				ctx.moveTo(10, canvas.height - 10);
+				ctx.lineTo(10, 10);
+				ctx.lineTo(canvas.width - 10, 10);
+				ctx.lineTo(canvas.width - 10, canvas.height - 10);
+				ctx.lineTo((canvas.width / 2) - 20, canvas.height - 10);
+				ctx.lineTo((canvas.width / 2) - 20, canvas.height / 2);
+				ctx.lineTo((canvas.width /2), canvas.height / 2);
+				ctx.lineTo((canvas.width /2), canvas.height - 30);
+				ctx.lineTo(canvas.width - 30, canvas.height - 30);
+				ctx.lineTo(canvas.width - 30, 30);
+				ctx.lineTo(30, 30);
+				ctx.lineTo(30, canvas.height - 10);
+				ctx.fill();
+
+				ctx.fillStyle = "rgb(175,130,70)";
+				ctx.beginPath();
+				ctx.moveTo(30, canvas.height - 10);
+				ctx.lineTo(30, 30);
+				ctx.lineTo(canvas.width - 30, 30);
+				ctx.lineTo(canvas.width - 30, canvas.height - 30);
+				ctx.lineTo((canvas.width / 2), canvas.height - 30);
+				ctx.lineTo((canvas.width / 2), canvas.height / 2);
+				ctx.lineTo((canvas.width /2) + 20, canvas.height / 2);
+				ctx.lineTo((canvas.width /2) + 20, canvas.height - 50);
+				ctx.lineTo(canvas.width - 50, canvas.height - 50);
+				ctx.lineTo(canvas.width - 50, 50);
+				ctx.lineTo(50, 50);
+				ctx.lineTo(50, canvas.height - 10);
+				ctx.fill();
+
+				ctx.fillText("Cut Card: " + game.cut_card?.val + game.cut_card?.suit, 70, 70);
+				ctx.fillText("Start", 60, canvas.height - 20);
+				ctx.fillText("Finish", canvas.width / 2 - 30, canvas.height / 2 - 20);
 			}
 		}
 	};
