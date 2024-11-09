@@ -72,8 +72,10 @@ export class View {
 			game_template: function ({game}) {
 				const isDiscarding = game.state === STATE.discarding;
 				const onCardClick = isDiscarding ? 'controller.discard_card' : 'controller.play_card';
-				const playerOneCardClick = `${onCardClick}('${game.players[0].id}'`;
-				const playerTwoCardClick = `${onCardClick}('${game.players[1].id}'`;
+				const playerOne = game.players[0];
+				const playerTwo = game.players[1];
+				const playerOneCardClick = `${onCardClick}('${playerOne.id}'`;
+				const playerTwoCardClick = `${onCardClick}('${playerTwo.id}'`;
 
 				return 	"<div id='prompt'>" +
 							"<h3>" +
@@ -81,24 +83,30 @@ export class View {
 							"</h3>" +
 						"</div>" +
 						"<div id='game'>" +
-							"<div class='col-md-4' id='" + game.players[0].id + "'>" +
-									view.renders()["player_template"].call(game.players[0]) +
-									view.renders()["hand_template"].call(game.players[0].hand, playerOneCardClick) +
+							"<div class='' id='" + playerOne.id + "'>" +
+									view.renders()["player_template"].call(playerOne) +
+									view.renders()["hand_template"].call(playerOne.hand, playerOneCardClick) +
+									view.renders()["crib_template"]({ game, player: playerOne }) +
 							"</div>" +
-							"<div class='col-md-4' id='pile'>" +
+							"<div class='' id='pile'>" +
 									"<p>Pile Score: " + game.pile.score + "</p>" +
 									"<p>Pile Cards:</p>" +
 									view.renders()["hand_template"].call(game.pile) +
 									"<canvas id='board' width='' height=''>Your browser cannot display the game board!</canvas>" +
 							"</div>" +
-							"<div class='col-md-4' id='" + game.players[1].id +"'>" +
-									view.renders()["player_template"].call(game.players[1]) +
-									view.renders()["hand_template"].call(game.players[1].hand, playerTwoCardClick) +
+							"<div class='' id='" + playerTwo.id +"'>" +
+									view.renders()["player_template"].call(playerTwo) +
+									view.renders()["hand_template"].call(playerTwo.hand, playerTwoCardClick) +
+									view.renders()["crib_template"]({ game, player: playerTwo }) +
 							"</div>" +
 						"</div>";
 			},
-			crib_template: function ({ game }) {
+			crib_template: function ({ game, player }) {
+				const isPlayerDealer = player.id === game.dealer.id;
 				const onCardClick = 'controller.noop';
+
+				if (!isPlayerDealer) return '';
+
 				return "<div id='crib'><p>" + game.dealer.name + "'s Crib: </p>" +
 					view.renders()["hand_template"].call(game.dealer.crib, onCardClick ) +
 				"</div>";

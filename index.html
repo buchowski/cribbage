@@ -47,7 +47,6 @@
 
 			if (hasGameStarted) {
 				ui = controller.view.renders()["game_template"]({ game });
-				ui += controller.view.renders()["crib_template"]({ game });
 			} else {
 				ui = controller.view.renders()["new_player_template"]({duration});
 			}

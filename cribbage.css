@@ -18,7 +18,7 @@
 }
 .gray {
 	background-color: #F8F8F8;
-}	
+}
 .white {
 	background-color: #FFFFFF;
 }
@@ -63,4 +63,8 @@
 }
 #player2_score span{
 	padding-right: 5px;
+}
+#game {
+	display: flex;
+	justify-content: space-between;
 }
