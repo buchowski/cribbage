@@ -185,12 +185,17 @@ export class Controller {
 		ctx.fillText("Finish", canvas.width / 2 - 30, canvas.height / 2 - 20);
 	}
 
-	play_card = (val_and_suit) => {
+	play_card = (player_id, val_and_suit) => {
 		var hand = this.game.current_player.hand;
 		var pile = this.game.pile;
 		// var callback = this.close_warning;
 		var reset_score = false;
 		var messages = [];
+
+		if (this.game.current_player.id !== player_id) {
+			console.log('it is not your turn');
+			return;
+		}
 
 		if (getCardIndex(val_and_suit, hand.cards) === -1) {
 			console.log(`card ${val_and_suit} does not belong to player ${this.game.current_player.name}`)
@@ -240,12 +245,12 @@ export class Controller {
 	}
 
 	fifteen = () => {
-		this.game.current_player.score += 2;
+		this.game.current_player.addToScore(2);
 		return this.fifteen_msg();
 	}
 
 	thirtyone = () => {
-		this.game.current_player.score += 1; // player already received 1 point for last card
+		this.game.current_player.addToScore(1); // player already received 1 point for last card
 		return this.thirtyone_msg();
 	}
 
@@ -254,23 +259,30 @@ export class Controller {
 		$("#warning").on("click", callback);
 	}
 
-	discard_card = (val_and_suit) => {
-		var hand = this.game.current_player.hand;
+	discard_card = (player_id, val_and_suit) => {
+		const [playerOne, playerTwo] = this.game.players;
+		const isPlayerOne = player_id === playerOne.id;
+		const player = isPlayerOne ? playerOne : playerTwo;
+		var hand = player.hand;
 		// var count = this.game.discard_count;
 		var card_index = getCardIndex(val_and_suit, hand.cards);
 		if (card_index === -1) {
-			console.log(`card ${val_and_suit} does not belong to player ${this.game.current_player.name}`)
+			console.log(`card ${val_and_suit} does not belong to player ${player.name}`)
+			return;
+		}
+		if (hand.cards.length <= 4) {
+			console.log("cannot discard anymore cards. you're all out")
 			return;
 		}
 		var card = hand.remove_card(card_index);
 
 		// we want a copy of the hand state after discarding so we can use it later for scoring
-		this.game.current_player.copyHand(hand);
+		player.copyHand(hand);
 
 		this.game.dealer.crib.pushCard(card);
 		// this.game.discard_count++;
 		// TODO 10-30-24 players shouldn't have to take turns discarding
-		this.game.switch_player();
+		// this.game.switch_player();
 
 		// var callback = (count < 3) ? this.discard_card : this.play_card;
 		// var message = (count < 3) ? this.discard_msg : this.play_msg;

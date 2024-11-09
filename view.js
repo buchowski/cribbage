@@ -10,7 +10,7 @@ export class View {
 		const view = this;
 		return {
 			card_template: function (onCardClick) {
-				const onclick = `${onCardClick}('${this.val}${this.suit}')`
+				const onclick = onCardClick ? `${onCardClick}, '${this.val}${this.suit}')` : '';
 				return `<div onclick="${onclick}" class='card ${this.suit}' id="${this.val}${this.suit}">`
 							+ this.displayVal + this.suit +
 						"</div>";
@@ -72,6 +72,8 @@ export class View {
 			game_template: function ({game}) {
 				const isDiscarding = game.state === STATE.discarding;
 				const onCardClick = isDiscarding ? 'controller.discard_card' : 'controller.play_card';
+				const playerOneCardClick = `${onCardClick}('${game.players[0].id}'`;
+				const playerTwoCardClick = `${onCardClick}('${game.players[1].id}'`;
 				const messages = isDiscarding ? [view.controller.discard_msg()] : [view.controller.play_msg()]
 				return 	"<div id='prompt'>" +
 							"<h3>" +
@@ -81,7 +83,7 @@ export class View {
 						"<div id='game'>" +
 							"<div class='col-md-4' id='" + game.players[0].id + "'>" +
 									view.renders()["player_template"].call(game.players[0]) +
-									view.renders()["hand_template"].call(game.players[0].hand, onCardClick) +
+									view.renders()["hand_template"].call(game.players[0].hand, playerOneCardClick) +
 							"</div>" +
 							"<div class='col-md-4' id='pile'>" +
 									"<p>Pile Score: " + game.pile.score + "</p>" +
@@ -91,7 +93,7 @@ export class View {
 							"</div>" +
 							"<div class='col-md-4' id='" + game.players[1].id +"'>" +
 									view.renders()["player_template"].call(game.players[1]) +
-									view.renders()["hand_template"].call(game.players[1].hand, onCardClick) +
+									view.renders()["hand_template"].call(game.players[1].hand, playerTwoCardClick) +
 							"</div>" +
 						"</div>";
 			},
