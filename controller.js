@@ -33,6 +33,11 @@ export class Controller {
 		}
 	}
 
+	username_error = () => {
+		$("#error").remove();
+		$("#player1_name").before("<h4 id='error'>You must enter a name for both users!</h4><br>");
+	}
+
 	set_duration (duration) {
 		this.game.setDuration(duration)
 	}
@@ -273,11 +278,6 @@ export class Controller {
 	// 	$("body").toggleClass("gray", display);
 	// 	$("#prompt").toggleClass("white", display);
 	// }
-
-	username_error = () => {
-		$("#error").remove();
-		$("#player1_name").before("<h4 id='error'>You must enter a name for both users!</h4><br>");
-	}
 
 	play_msg = () => {
 		return this.game.current_player.name + ", slap a card down on the battlefield!";

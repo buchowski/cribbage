@@ -124,11 +124,11 @@ export class Game {
 		})
 	}
 
-	get isDiscarding() {
-		return this.players.length === 2 &&
-			(this.players[0]?.hand?.cards?.length > 4 ||
-			this.players[1]?.hand?.cards?.length > 4);
-	}
+	// get isDiscarding() {
+	// 	return this.players.length === 2 &&
+	// 		(this.players[0]?.hand?.cards?.length > 4 ||
+	// 		this.players[1]?.hand?.cards?.length > 4);
+	// }
 
 	get state() {
 		if (this.players.length < 2) {
@@ -149,6 +149,18 @@ export class Game {
 		}
 
 		return STATE.playing;
+	}
+
+	// view model
+	get pagePrompt() {
+		if (this.state === STATE.discarding) {
+			return this.controller.discard_msg();
+		} else if (this.state === STATE.playing) {
+			return this.controller.play_msg();
+		} else if (this.state === STATE.scoring) {
+			// TODO render prompt when scoring crib
+			return this.controller.scoring_hand('hand');
+		}
 	}
 
 	setDuration = action((duration) => {

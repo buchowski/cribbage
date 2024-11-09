@@ -74,10 +74,10 @@ export class View {
 				const onCardClick = isDiscarding ? 'controller.discard_card' : 'controller.play_card';
 				const playerOneCardClick = `${onCardClick}('${game.players[0].id}'`;
 				const playerTwoCardClick = `${onCardClick}('${game.players[1].id}'`;
-				const messages = isDiscarding ? [view.controller.discard_msg()] : [view.controller.play_msg()]
+
 				return 	"<div id='prompt'>" +
 							"<h3>" +
-								messages.join(" ") +
+								game.pagePrompt +
 							"</h3>" +
 						"</div>" +
 						"<div id='game'>" +
