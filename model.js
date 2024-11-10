@@ -118,6 +118,7 @@ export class Game {
 		this.cut_card = null;
 		// this.discard_count = 0;
 		this.duration = 'long';
+		this.messages = [];
 
 		makeObservable(this, {
 			duration: observable,
@@ -166,6 +167,15 @@ export class Game {
 		}
 	}
 
+	// view model
+	pushMessages = action((messages) => {
+		const msgs = Array.isArray(messages) ? messages : [messages];
+		this.messages = [...this.messages, ...msgs]
+	})
+
+	// view model
+	clearMessages = action(() => this.messages = []);
+
 	setDuration = action((duration) => {
 		this.duration = duration ?? 'long';
 	})
@@ -191,6 +201,7 @@ export class Game {
 
 	new_round = action(() => {
 		var game = this;
+		game.clearMessages();
 		game.deck = getDeck();
 		game.current_player.hand.reset();
 		game.current_player.handCopy.reset();

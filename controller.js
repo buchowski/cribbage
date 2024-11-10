@@ -151,6 +151,7 @@ export class Controller {
 		// var callback = this.close_warning;
 		var reset_score = false;
 		var messages = [];
+		this.game.clearMessages();
 
 		if (this.game.current_player.id !== player_id) {
 			console.log('it is not your turn');
@@ -195,12 +196,13 @@ export class Controller {
 			messages.push(this.invalid_card_msg());
 		}
 
-		if (messages.length == 0) messages = [this.play_msg()];
+		// if (messages.length == 0) messages = [this.play_msg()];
 		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, messages));
 		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
 		// (messages[0] == this.play_msg()) ? this.on_card_click(this.play_card) : this.display_info_msg(callback);
 		// this.draw_board();
 
+		this.game.pushMessages(messages);
 		if (reset_score) pile.resetScore();
 	}
 

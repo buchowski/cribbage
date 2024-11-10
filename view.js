@@ -81,11 +81,13 @@ export class View {
 				const playerTwo = game.players[1];
 				const playerOneCardClick = `${onCardClick}('${playerOne.id}'`;
 				const playerTwoCardClick = `${onCardClick}('${playerTwo.id}'`;
+				const messages = game.messages ? `<h4>${game.messages.join(' ')}</h4>` : '';
 
 				return 	"<div id='prompt'>" +
 							"<h3>" +
 								game.pagePrompt +
 							"</h3>" +
+							messages +
 							view.renders()["ok_button_template"](game) +
 						"</div>" +
 						"<div id='game'>" +
