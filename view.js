@@ -10,7 +10,8 @@ export class View {
 		const view = this;
 		return {
 			card_template: function (onCardClick) {
-				const onclick = onCardClick ? `${onCardClick}, '${this.val}${this.suit}')` : '';
+				const isNoop = !onCardClick || onCardClick.includes('noop');
+				const onclick = isNoop ? 'controller.noop()' : `${onCardClick}, '${this.val}${this.suit}')`;
 				return `<div onclick="${onclick}" class='card ${this.suit}' id="${this.val}${this.suit}">`
 							+ this.displayVal + this.suit +
 						"</div>";

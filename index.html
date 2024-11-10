@@ -25,34 +25,29 @@
 				<div id="cribbage"></div>
 			</div>
 		</div>
-		<div class="navbar navbar-fixed-bottom">
-			<div class="container">
-				<p class="text-muted credit">Cribbage by Adam Bucholz</p>
-			</div>
-		</div>
- 	<script type="module">
-		import { autorun } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
-		import {Controller} from "./controller.js";
-		import {STATE} from "./utils.js";
-		const controller = new Controller();
-		const game = controller.game;
+		<script type="module">
+			import { autorun } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
+			import {Controller} from "./controller.js";
+			import {STATE} from "./utils.js";
+			const controller = new Controller();
+			const game = controller.game;
 
-		// our click handlers need access to controller
-		window.controller = controller;
+			// our click handlers need access to controller
+			window.controller = controller;
 
-		autorun(() => {
-			const {duration} = game;
-			const hasGameStarted = game.state !== STATE.waiting;
-			let ui;
+			autorun(() => {
+				const {duration} = game;
+				const hasGameStarted = game.state !== STATE.waiting;
+				let ui;
 
-			if (hasGameStarted) {
-				ui = controller.view.renders()["game_template"]({ game });
-			} else {
-				ui = controller.view.renders()["new_player_template"]({duration});
-			}
-			$('#cribbage').empty().append(ui);
-			controller.view.renders()["draw_board"]({ game });
-		})
- 	</script>
+				if (hasGameStarted) {
+					ui = controller.view.renders()["game_template"]({ game });
+				} else {
+					ui = controller.view.renders()["new_player_template"]({duration});
+				}
+				$('#cribbage').empty().append(ui);
+				controller.view.renders()["draw_board"]({ game });
+			})
+		</script>
 	</body>
 </html>
