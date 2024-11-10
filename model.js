@@ -5,7 +5,6 @@ export class Hand {
 	constructor(owner) {
 		this.owner = owner;
 		this.cards = [];
-		this.score = 0;
 		this.scores = [];
 		makeObservable(this, {
 			cards: observable,
@@ -41,9 +40,9 @@ export class Hand {
 		this.scores.push([this.cards[0], this.cards[2], 33, 2]);
 	})
 
-	static total_score = (scores) => {
+	get total_score() {
 		var total = 0;
-		_.each(scores, function (score) {
+		_.each(this.scores, function (score) {
 			total += score[3]; // the points is a score is worth is stored in the last element of a score array
 		})
 		return total;
@@ -105,6 +104,16 @@ class Player {
 	copyHand = action((hand) => this.handCopy.pushCards(hand.cards));
 
 	addToScore = action(points => this.score += points)
+
+	scoreHand = action(() => {
+		this.handCopy.score_cards();
+		this.addToScore(this.handCopy.total_score)
+	})
+
+	scoreCrib = action(() => {
+		this.crib.score_cards();
+		this.addToScore(this.crib.total_score)
+	})
 };
 
 export class Game {

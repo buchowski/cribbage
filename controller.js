@@ -82,9 +82,9 @@ export class Controller {
 	score_hands_and_crib = () => {
 		const { dealer, nonDealer } = this.game || {};
 
-		dealer.handCopy.score_cards();
-		dealer.crib.score_cards();
-		nonDealer.handCopy.score_cards();
+		dealer.scoreHand();
+		dealer.scoreCrib();
+		nonDealer.scoreHand();
 
 		// if ($("#" + player.id + " > table").length == 0) {
 		// 	var scores = player.hand.score_cards(); //scores[0] contains the scores array. scores[1] contains the score sum
