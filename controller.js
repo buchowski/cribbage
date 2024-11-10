@@ -100,50 +100,50 @@ export class Controller {
 		// this.append_scores(el_id, scores, 0);
 	}
 
-	append_scores = (el_id, scores, index) => {
-		var total_score = Hand.total_score(scores);
-		setTimeout(() => {
-			var score_template = (scores.length == 0) ? "bummer_template" : "score_row_template";
-			$("#" + el_id + "_score_table").append(this.view.renders()[score_template].call(this, scores[index]));
+	// append_scores = (el_id, scores, index) => {
+	// 	var total_score = Hand.total_score(scores);
+	// 	setTimeout(() => {
+	// 		var score_template = (scores.length == 0) ? "bummer_template" : "score_row_template";
+	// 		$("#" + el_id + "_score_table").append(this.view.renders()[score_template].call(this, scores[index]));
 
-			if (index < scores.length - 1) {
-				this.append_scores(el_id, scores, index + 1);
-			} else {
-				var new_score = this.game.current_player.score + total_score;
-				var callback = (scores.length != 0) ? this.score_animation: this.display_score_msg;
-				callback(["+", total_score, "=", new_score], 0);
-			}
-		}, 1800)
-	}
+	// 		if (index < scores.length - 1) {
+	// 			this.append_scores(el_id, scores, index + 1);
+	// 		} else {
+	// 			var new_score = this.game.current_player.score + total_score;
+	// 			var callback = (scores.length != 0) ? this.score_animation: this.display_score_msg;
+	// 			callback(["+", total_score, "=", new_score], 0);
+	// 		}
+	// 	}, 1800)
+	// }
 
-	score_animation = (new_score_array, index) => {
-		setTimeout(() => {
-			var callback = (index < new_score_array.length - 1) ? this.score_animation: this.slide_score;
+	// score_animation = (new_score_array, index) => {
+	// 	setTimeout(() => {
+	// 		var callback = (index < new_score_array.length - 1) ? this.score_animation: this.slide_score;
 
-			$("#" + this.game.current_player.id + "_score").append(" <span>" + new_score_array[index] + "</span>");
-			callback(new_score_array, index + 1);
-		}, 1000)
-	}
+	// 		$("#" + this.game.current_player.id + "_score").append(" <span>" + new_score_array[index] + "</span>");
+	// 		callback(new_score_array, index + 1);
+	// 	}, 1000)
+	// }
 
-	display_score_msg = (new_score_array) => {
-		var callback = ($("#crib > table").length == 0) ? this.score_hand: this.new_round;
-		var hand_name = ($("#crib > table").length == 0) ? "hand": "crib";
+	// display_score_msg = (new_score_array) => {
+	// 	var callback = ($("#crib > table").length == 0) ? this.score_hand: this.new_round;
+	// 	var hand_name = ($("#crib > table").length == 0) ? "hand": "crib";
 
-		$("#prompt").empty().append("<h3>" + this.points_scored_msg(new_score_array[1], hand_name) + "</h3>");
-		this.display_info_msg(callback);
+	// 	$("#prompt").empty().append("<h3>" + this.points_scored_msg(new_score_array[1], hand_name) + "</h3>");
+	// 	this.display_info_msg(callback);
 
-		this.game.current_player.score = new_score_array[3];
-		if (this.game.current_player != this.game.dealer) this.game.switch_player();
-	}
+	// 	this.game.current_player.score = new_score_array[3];
+	// 	if (this.game.current_player != this.game.dealer) this.game.switch_player();
+	// }
 
-	slide_score = (new_score_array) => {
-		setTimeout(() => {
-			var player = this.game.current_player;
-			$("#" + player.id + "_score").empty();
-			$("#" + player.id + "_score").append(player.name + "'s Score: " + new_score_array[3]);
-			this.display_score_msg(new_score_array);
-		}, 700)
-	}
+	// slide_score = (new_score_array) => {
+	// 	setTimeout(() => {
+	// 		var player = this.game.current_player;
+	// 		$("#" + player.id + "_score").empty();
+	// 		$("#" + player.id + "_score").append(player.name + "'s Score: " + new_score_array[3]);
+	// 		this.display_score_msg(new_score_array);
+	// 	}, 700)
+	// }
 
 	play_card = (player_id, val_and_suit) => {
 		var hand = this.game.current_player.hand;

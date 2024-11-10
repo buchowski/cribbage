@@ -9,6 +9,7 @@ export class Hand {
 		this.scores = [];
 		makeObservable(this, {
 			cards: observable,
+			scores: observable
 		})
 	}
 
@@ -36,6 +37,8 @@ export class Hand {
 				}
 			}
 		}
+		// TODO remove this. added temporarily to guarantee a score
+		this.scores.push([this.cards[0], this.cards[2], 33, 2]);
 	})
 
 	static total_score = (scores) => {

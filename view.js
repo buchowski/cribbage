@@ -85,6 +85,8 @@ export class View {
 						"</div>" +
 						"<div id='game'>" +
 							"<div class='' id='" + playerOne.id + "'>" +
+									view.renders()["score_table_template"](game, playerOne, 'hand') +
+									view.renders()["score_table_template"](game, playerOne, 'crib') +
 									view.renders()["player_template"].call(playerOne) +
 									view.renders()["hand_template"].call(playerOne.hand, playerOneCardClick) +
 									view.renders()["crib_template"]({ game, player: playerOne }) +
@@ -96,6 +98,8 @@ export class View {
 									"<canvas id='board' width='' height=''>Your browser cannot display the game board!</canvas>" +
 							"</div>" +
 							"<div class='' id='" + playerTwo.id +"'>" +
+									view.renders()["score_table_template"](game, playerTwo, 'hand') +
+									view.renders()["score_table_template"](game, playerTwo, 'crib') +
 									view.renders()["player_template"].call(playerTwo) +
 									view.renders()["hand_template"].call(playerTwo.hand, playerTwoCardClick) +
 									view.renders()["crib_template"]({ game, player: playerTwo }) +
@@ -112,24 +116,32 @@ export class View {
 					view.renders()["hand_template"].call(game.dealer.crib, onCardClick ) +
 				"</div>";
 			},
-			score_table_template: function (scores, el_id){
-				var $table = $("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>");
-				if (scores.length == 0) {
-					$table.append("<tr><td>bummer. nothing scored.</td></tr>");
-				} else {
-					_.each(scores, function (score) {
-						$table.append(view.renders()["score_row_template"].call(this, score));
+			score_table_template: function (game, player, handType) {
+				const isCrib = handType === 'crib';
+
+				if (game.state !== STATE.scoring) return '';
+				if (isCrib && player !== game.dealer) return '';
+
+				const scores = isCrib ? player.crib.scores : player.handCopy.scores;
+				let content = `<h3>${player.name}'s ${handType}</h3>`;
+
+				if (scores.length) {
+					scores.forEach(score => {
+						content += view.renders()["score_row_template"].call(this, score);
 					})
+				} else {
+					content += '<tr><td>bummer. nothing scored.</td></tr>';
 				}
-				return $table;
+
+				return `<table class='table table-striped table-condensed'>${content}</table>`
 			},
 			score_row_template: function (score) {
-				return "<tr><td>" + score[0].val + score[0].suit + "</td><td>+</td><td>" + score[1].val + score[1].suit +
+				return "<tr><td>" + score[0].displayVal + score[0].suit + "</td><td>+</td><td>" + score[1].displayVal + score[1].suit +
 					"</td><td>=</td><td>" + score[2] + "</td><td>for</td><td>" + score[3] + "</td></tr>";
 			},
-			bummer_template: function () {
-				return "<tr><td>bummer. nothing scored.</td></tr>";
-			},
+			// bummer_template: function () {
+			// 	return "<tr><td>bummer. nothing scored.</td></tr>";
+			// },
 			draw_board: function ({game}) {
 				var canvas = document.getElementById("board");
 				if (!canvas) return null;
