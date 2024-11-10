@@ -214,10 +214,10 @@ export class Controller {
 		return this.thirtyone_msg();
 	}
 
-	display_info_msg = (callback) => {
-		$("#prompt").append(this.view.renders()["ok_button_template"]);
-		$("#warning").on("click", callback);
-	}
+	// display_info_msg = (callback) => {
+	// 	$("#prompt").append(this.view.renders()["ok_button_template"]);
+	// 	$("#warning").on("click", callback);
+	// }
 
 	discard_card = (player_id, val_and_suit) => {
 		const [playerOne, playerTwo] = this.game.players;

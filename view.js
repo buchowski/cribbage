@@ -16,8 +16,12 @@ export class View {
 							+ this.displayVal + this.suit +
 						"</div>";
 			},
-			ok_button_template: function () {
-				return "<input id='warning' class='btn btn-info' type='button' value='Okee Dokee' />";
+			ok_button_template: function (game) {
+				if (game.state !== STATE.scoring) return '';
+
+				const onclick = 'controller.new_round()';
+				const text = 'Begin Next Round';
+				return `<input onclick="${onclick}" id='warning' class='btn btn-info' type='button' value='${text}' />`;
 			},
 			hand_template: function (onCardClick) {
 				var html_string = "";
@@ -82,6 +86,7 @@ export class View {
 							"<h3>" +
 								game.pagePrompt +
 							"</h3>" +
+							view.renders()["ok_button_template"](game) +
 						"</div>" +
 						"<div id='game'>" +
 							"<div class='' id='" + playerOne.id + "'>" +

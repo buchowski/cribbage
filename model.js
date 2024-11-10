@@ -1,5 +1,5 @@
 import { makeObservable, computed, makeAutoObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
-import { getCardIntVal, getDeck, STATE, isEmpty } from "./utils.js";
+import { getCardIntVal, getCutCard, getDeck, STATE, isEmpty } from "./utils.js";
 
 export class Hand {
 	constructor(owner) {
@@ -193,8 +193,10 @@ export class Game {
 		var game = this;
 		game.deck = getDeck();
 		game.current_player.hand.reset();
+		game.current_player.handCopy.reset();
 		game.current_player.crib.reset();
 		game.other_player.hand.reset();
+		game.other_player.handCopy.reset();
 		game.other_player.crib.reset();
 		game.pile.reset();
 
