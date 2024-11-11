@@ -1,29 +1,32 @@
 import { STATE } from "./utils.js";
+import { Controller } from "./controller.js";
+import {Player, Game} from "./model.js";
+import { ScoreRecordType } from "./types.js";
 
 export class View {
-
-	constructor(controller) {
+	controller
+	constructor(controller: Controller) {
 		this.controller = controller;
 	}
 
 	renders = () => {
 		const view = this;
 		return {
-			card_template: function (onCardClick) {
+			card_template: function (onCardClick: string | null): string {
 				const isNoop = !onCardClick || onCardClick.includes('noop');
 				const onclick = isNoop ? 'controller.noop()' : `${onCardClick}, '${this.val}${this.suit}')`;
 				return `<div onclick="${onclick}" class='card ${this.suit}' id="${this.val}${this.suit}">`
 							+ this.displayVal + this.suit +
 						"</div>";
 			},
-			ok_button_template: function (game) {
+			ok_button_template: function (game: Game) {
 				if (game.state !== STATE.scoring) return '';
 
 				const onclick = 'controller.new_round()';
 				const text = 'Begin Next Round';
 				return `<input onclick="${onclick}" id='warning' class='btn btn-info' type='button' value='${text}' />`;
 			},
-			hand_template: function (onCardClick) {
+			hand_template: function (onCardClick: string | null) {
 				var html_string = "";
 				_.each(this.cards, function (card) {
 					html_string += view.renders()["card_template"].call(card, onCardClick);
@@ -34,10 +37,10 @@ export class View {
 				return "<div id='" + this.id + "_score'>" + this.name + "'s Score: <span>" + this.score + "</span></div>" +
 						"<p>" + this.name + "'s Cards:" + "</p>";
 			},
-			new_player_template: function ({ game }) {
+			new_player_template: function ({ game }: { game: Game}) {
 				const duration = game?.duration;
 				const startGame = `controller.submit_player_names()`;
-				const getUpdateDuration = (d) => `controller.set_duration('${d}')`;
+				const getUpdateDuration = (d: string) => `controller.set_duration('${d}')`;
 				const durationButtons = ['short', 'medium', 'long'].map(d => {
 					const onclick = getUpdateDuration(d);
 					let className = 'btn duration_btn';
@@ -76,7 +79,7 @@ export class View {
 						"<div class='col-md-4'></div>"
 				);
 			},
-			game_template: function ({game}) {
+			game_template: function ({ game }: { game: Game}) {
 				const isDiscarding = game.state === STATE.discarding;
 				const onCardClick = isDiscarding ? 'controller.discard_card' : 'controller.play_card';
 				const playerOne = game.players[0];
@@ -103,7 +106,7 @@ export class View {
 							"<div class='' id='pile'>" +
 									"<p>Pile Score: " + game.pile.score + "</p>" +
 									"<p>Pile Cards:</p>" +
-									view.renders()["hand_template"].call(game.pile) +
+									view.renders()["hand_template"].call(game.pile, null) +
 									"<canvas id='board' width='' height=''>Your browser cannot display the game board!</canvas>" +
 							"</div>" +
 							"<div class='' id='" + playerTwo.id +"'>" +
@@ -115,17 +118,17 @@ export class View {
 							"</div>" +
 						"</div>";
 			},
-			crib_template: function ({ game, player }) {
-				const isPlayerDealer = player.id === game.dealer.id;
+			crib_template: function ({ game, player }: { game: Game, player: Player}) {
+				const isPlayerDealer = player.id === game.dealer?.id;
 				const onCardClick = 'controller.noop';
 
 				if (!isPlayerDealer) return '';
 
-				return "<div id='crib'><p>" + game.dealer.name + "'s Crib: </p>" +
-					view.renders()["hand_template"].call(game.dealer.crib, onCardClick ) +
+				return "<div id='crib'><p>" + game.dealer?.name + "'s Crib: </p>" +
+					view.renders()["hand_template"].call(game.dealer?.crib, onCardClick ) +
 				"</div>";
 			},
-			score_table_template: function (game, player, handType) {
+			score_table_template: function (game: Game, player: Player, handType: string) {
 				const isCrib = handType === 'crib';
 
 				if (game.state !== STATE.scoring) return '';
@@ -144,11 +147,11 @@ export class View {
 
 				return `<table class='table table-striped table-condensed'>${content}</table>`
 			},
-			score_row_template: function (score) {
+			score_row_template: function (score: ScoreRecordType) {
 				return "<tr><td>" + score[0].displayVal + score[0].suit + "</td><td>+</td><td>" + score[1].displayVal + score[1].suit +
 					"</td><td>=</td><td>" + score[2] + "</td><td>for</td><td>" + score[3] + "</td></tr>";
 			},
-			draw_board: function ({game}) {
+			draw_board: function ({game}: { game: Game }) {
 				var canvas = document.getElementById("board");
 				if (!canvas) return null;
 				var ctx = canvas.getContext("2d");

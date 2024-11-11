@@ -1,9 +1,13 @@
 import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
 import { getCardIntVal, getCutCard, getDeck, STATE, isEmpty } from "./utils.js";
+import { Controller } from "./controller.js";
+import type { CardType, ScoreRecordType, ValAndSuitType } from "./types.js";
 
 export class Hand {
-	constructor(owner) {
-		this.owner = owner;
+	cards: CardType[];
+	scores: ScoreRecordType[];
+
+	constructor() {
 		this.cards = [];
 		this.scores = [];
 		makeObservable(this, {
@@ -12,19 +16,18 @@ export class Hand {
 		})
 	}
 
-	has_playable_card = (pile) => {
-		return _.some(this.cards, function (card) {
-			var val_and_suit = [card.val, card.suit];
-			return pile.is_valid_push(val_and_suit);
+	has_playable_card = (pile: Pile) => {
+		return _.some(this.cards, function (card: CardType) {
+			return pile.is_valid_push(card);
 		})
 	}
 
-	remove_card = action((index) => {
+	remove_card = action((index: number) => {
 		return this.cards.splice(index, 1)[0];
 	})
 
-	pushCard = action((card) => this.cards.push(card))
-	pushCards = action((cards) => this.cards = [...cards])
+	pushCard = action((card: CardType) => this.cards.push(card))
+	pushCards = action((cards: CardType[]) => this.cards = [...cards])
 	reset = action(() => this.cards = []);
 
 	score_cards = action(() => {
@@ -42,7 +45,7 @@ export class Hand {
 
 	get total_score() {
 		var total = 0;
-		_.each(this.scores, function (score) {
+		_.each(this.scores, function (score: ScoreRecordType) {
 			total += score[3]; // the points is a score is worth is stored in the last element of a score array
 		})
 		return total;
@@ -50,6 +53,9 @@ export class Hand {
 }
 
 class Pile {
+	cards: CardType[];
+	score
+
 	constructor() {
 		this.cards = [];
 		this.score = 0;
@@ -59,13 +65,12 @@ class Pile {
 		});
 	}
 
-	is_valid_push = (val_and_suit) => {
-		var val = val_and_suit[0];
-		return ( this.score + getCardIntVal(val) <= 31 );
+	is_valid_push = (card: CardType) => {
+		return ( this.score + card.val <= 31 );
 	}
 
-	update_score = action((card) => {
-		this.score += getCardIntVal(card.val);
+	update_score = action((card: CardType) => {
+		this.score += card.val;
 	})
 
 	resetScore = action(() => this.score = 0)
@@ -74,11 +79,18 @@ class Pile {
 		this.score = 0;
 	});
 
-	pushCard = action((card) => this.cards.push(card))
+	pushCard = action((card: CardType) => this.cards.push(card))
 }
 
-class Player {
-	constructor(name, id) {
+export class Player {
+	name
+	id
+	hand: Hand;
+	handCopy: Hand;
+	crib: Hand;
+	score
+
+	constructor(name: string, id: string) {
 		this.name = name;
 		this.id = id;
 		this.hand = new Hand();
@@ -93,9 +105,9 @@ class Player {
 		})
 	}
 
-	copyHand = action((hand) => this.handCopy.pushCards(hand.cards));
+	copyHand = action((hand: Hand) => this.handCopy.pushCards(hand.cards));
 
-	addToScore = action(points => this.score += points)
+	addToScore = action((points: number) => this.score += points)
 
 	scoreHand = action(() => {
 		this.handCopy.score_cards();
@@ -109,7 +121,17 @@ class Player {
 };
 
 export class Game {
-	constructor(controller) {
+		controller
+		deck
+		pile
+		players: Player[];
+		dealer: Player | null;
+		current_player: Player | null;
+		cut_card: CardType | null;
+		duration
+		messages: string[]
+
+	constructor(controller: Controller) {
 		this.controller = controller;
 		this.deck = getDeck();
 		this.pile = new Pile();
@@ -163,7 +185,7 @@ export class Game {
 	}
 
 	// view model
-	pushMessages = action((messages) => {
+	pushMessages = action((messages: string[] | string) => {
 		const msgs = Array.isArray(messages) ? messages : [messages];
 		this.messages = [...this.messages, ...msgs]
 	})
@@ -171,22 +193,23 @@ export class Game {
 	// view model
 	clearMessages = action(() => this.messages = []);
 
-	setDuration = action((duration) => {
+	setDuration = action((duration: string) => {
 		this.duration = duration ?? 'long';
 	})
 
-	setPlayers = action((player_names) => {
-		this.players = [new Player(player_names[0], "player1", this), new Player(player_names[1], "player2", this)];
+	setPlayers = action((player_names: string[]) => {
+		this.players = [new Player(player_names[0], "player1"), new Player(player_names[1], "player2")];
 		this.current_player = this.players[0]
 		this.dealer = this.players[1]
 	})
 
 	deal = action(() => {
 		var game = this;
-		_.times(12, function (n) {
+		_.times(12, function (n: number) {
 			var card = game.deck.cards.pop();
-			card.holder = game.players[ n % 2 ];
-			game.players[ n % 2 ].hand.cards.push(card);
+			if (card) {
+				game.players[ n % 2 ].hand.cards.push(card);
+			}
 		})
 	})
 
@@ -198,9 +221,9 @@ export class Game {
 		var game = this;
 		game.clearMessages();
 		game.deck = getDeck();
-		game.current_player.hand.reset();
-		game.current_player.handCopy.reset();
-		game.current_player.crib.reset();
+		game.current_player?.hand.reset();
+		game.current_player?.handCopy.reset();
+		game.current_player?.crib.reset();
 		game.other_player.hand.reset();
 		game.other_player.handCopy.reset();
 		game.other_player.crib.reset();
