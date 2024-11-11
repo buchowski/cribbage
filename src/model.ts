@@ -1,4 +1,4 @@
-import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
+import { makeObservable, observable, action } from "mobx";
 import { getDeck, STATE, isEmpty, removeRandomCard } from "./utils.js";
 import { Controller } from "./controller.js";
 import type { CardType, ScoreRecordType } from "./types.js";
@@ -39,8 +39,6 @@ export class Hand {
 				}
 			}
 		}
-		// TODO remove this. added temporarily to guarantee a score
-		this.scores.push([this.cards[0], this.cards[2], 33, 2]);
 	})
 
 	get total_score() {

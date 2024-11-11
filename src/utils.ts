@@ -29,7 +29,6 @@ export const getCard = (val_and_suit: ValAndSuitType, cards: CardType[] | undefi
 }
 
 export const removeRandomCard = (cards: CardType[]) => {
-  // you may eventually add functionality so the user can determine where the deck's cut
   var index = Math.floor(Math.random() * cards.length);
 	return cards.splice(index, 1)[0];
 }
