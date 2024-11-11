@@ -1,6 +1,6 @@
 import {Game, Hand} from './model.js';
 import {View} from './view.js';
-import {getCard, getCutCard, getDeck} from './utils.js';
+import {getCard, getDeck, removeRandomCard} from './utils.js';
 import { ValAndSuitType } from './types.js';
 
 export class Controller {
@@ -145,8 +145,7 @@ export class Controller {
 		game.clearMessages();
 		game.setPlayers(player_names);
 		game.deck = getDeck();
-		game.deck.cards = _.shuffle(game.deck.cards);
-		game.cut_card = getCutCard(game.deck.cards);
+		game.cut_card = removeRandomCard(game.deck.cards);
 		game.deal();
 	}
 

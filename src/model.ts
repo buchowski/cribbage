@@ -1,5 +1,5 @@
 import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
-import { getCutCard, getDeck, STATE, isEmpty } from "./utils.js";
+import { getDeck, STATE, isEmpty, removeRandomCard } from "./utils.js";
 import { Controller } from "./controller.js";
 import type { CardType, ScoreRecordType } from "./types.js";
 
@@ -17,7 +17,7 @@ export class Hand {
 	}
 
 	has_playable_card = (pile: Pile) => {
-		return _.some(this.cards, function (card: CardType) {
+		return this.cards.some(function (card: CardType) {
 			return pile.is_valid_push(card);
 		})
 	}
@@ -45,7 +45,7 @@ export class Hand {
 
 	get total_score() {
 		var total = 0;
-		_.each(this.scores, function (score: ScoreRecordType) {
+		this.scores.forEach(function (score: ScoreRecordType) {
 			total += score[3]; // the points is a score is worth is stored in the last element of a score array
 		})
 		return total;
@@ -205,12 +205,12 @@ export class Game {
 
 	deal = action(() => {
 		var game = this;
-		_.times(12, function (n: number) {
-			var card = game.deck.cards.pop();
-			if (card) {
-				game.players[ n % 2 ].hand.cards.push(card);
-			}
-		})
+		let count = 0;
+		while (count < 6) {
+			game.players[0].hand.pushCard(removeRandomCard(game.deck.cards))
+			game.players[1].hand.pushCard(removeRandomCard(game.deck.cards))
+			count++
+		}
 	})
 
 	switch_player = action(() => {
@@ -229,8 +229,7 @@ export class Game {
 		game.other_player.crib.reset();
 		game.pile.reset();
 
-		game.deck.cards = _.shuffle(game.deck.cards);
-		game.cut_card = getCutCard(game.deck.cards);
+		game.cut_card = removeRandomCard(game.deck.cards);
 		game.deal();
 
 		game.dealer = this.nonDealer;

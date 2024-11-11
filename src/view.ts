@@ -29,7 +29,7 @@ export class View {
 			hand_template: function (hand: Hand | Pile | undefined, onCardClick: string | null) {
 				const cards = hand?.cards ?? [];
 				var html_string = "";
-				_.each(cards, function (card: CardType) {
+				cards.forEach(function (card: CardType) {
 					html_string += view.renders()["card_template"](card, onCardClick);
 				})
 				return (cards.length == 0) ? "<h3>empty, no cards</h3>" : html_string;
