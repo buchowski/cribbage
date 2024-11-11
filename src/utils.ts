@@ -17,10 +17,15 @@ export const getCardIntVal = (val: string) => {
 }
 
 export const getCardIndex = (val_and_suit: ValAndSuitType, cards: CardType[] | undefined) => {
-  if (!cards) return -1;
+  if (!cards || !cards.length) return -1;
   const val = getCardIntVal(val_and_suit.slice(0, val_and_suit.length - 1));
   const suit = val_and_suit.slice(val_and_suit.length - 1)
   return cards.findIndex(card => card.val == val && card.suit == suit)
+}
+
+export const getCard = (val_and_suit: ValAndSuitType, cards: CardType[] | undefined): [CardType | undefined, number] => {
+  const index = getCardIndex(val_and_suit, cards);
+  return [cards?.[index], index];
 }
 
 export const getCutCard = (cards: CardType[]) => {

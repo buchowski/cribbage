@@ -1,7 +1,7 @@
 import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
-import { getCardIntVal, getCutCard, getDeck, STATE, isEmpty } from "./utils.js";
+import { getCutCard, getDeck, STATE, isEmpty } from "./utils.js";
 import { Controller } from "./controller.js";
-import type { CardType, ScoreRecordType, ValAndSuitType } from "./types.js";
+import type { CardType, ScoreRecordType } from "./types.js";
 
 export class Hand {
 	cards: CardType[];
@@ -52,7 +52,7 @@ export class Hand {
 	}
 }
 
-class Pile {
+export class Pile {
 	cards: CardType[];
 	score
 

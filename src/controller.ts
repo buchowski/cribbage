@@ -1,6 +1,6 @@
 import {Game, Hand} from './model.js';
 import {View} from './view.js';
-import {getCardIndex, getCutCard, getDeck} from './utils.js';
+import {getCard, getCutCard, getDeck} from './utils.js';
 import { ValAndSuitType } from './types.js';
 
 export class Controller {
@@ -10,15 +10,6 @@ export class Controller {
 	constructor() {
 		this.game = new Game(this);
 		this.view = new View(this);
-	}
-
-	static get_val_suit ($el) {
-		const val_and_suit = $el?.target?.id;
-		if (!val_and_suit) throw Error(`no val_and_suit`);
-		const val = val_and_suit.slice(0, -1);
-		const suit = val_and_suit.slice(-1);
-
-		return [val, suit];
 	}
 
 	noop = () => {
@@ -69,15 +60,16 @@ export class Controller {
 			return;
 		}
 
-		if (getCardIndex(val_and_suit, hand?.cards) === -1) {
+		const [card, cardIndex] = getCard(val_and_suit, hand?.cards);
+
+		if (!card) {
 			const notYourCardMsg = `card ${val_and_suit} does not belong to player ${this.game.current_player?.name}`;
 			this.game.pushMessages(notYourCardMsg);
 			return;
 		}
 
-		if (pile.is_valid_push(val_and_suit)) {
-			var card_index = getCardIndex(val_and_suit, hand?.cards);
-			var card = hand?.remove_card(card_index);
+		if (pile.is_valid_push(card)) {
+			hand?.remove_card(cardIndex);
 
 			pile.pushCard(card);
 			pile.update_score(card);
@@ -126,11 +118,11 @@ export class Controller {
 		const isPlayerOne = player_id === playerOne.id;
 		const player = isPlayerOne ? playerOne : playerTwo;
 		var hand = player.hand;
-		var card_index = getCardIndex(val_and_suit, hand.cards);
+		var [card, cardIndex] = getCard(val_and_suit, hand.cards);
 
 		this.game.clearMessages();
 
-		if (card_index === -1) {
+		if (!card) {
 			const notYourCardMsg = `card ${val_and_suit} does not belong to player ${player.name}`;
 			this.game.pushMessages(notYourCardMsg);
 			return;
@@ -140,7 +132,7 @@ export class Controller {
 			this.game.pushMessages(noMoreDiscardsMsg);
 			return;
 		}
-		var card = hand.remove_card(card_index);
+		hand.remove_card(cardIndex);
 
 		// we want a copy of the hand state after discarding so we can use it later for scoring
 		player.copyHand(hand);

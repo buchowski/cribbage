@@ -1,7 +1,7 @@
 import { STATE } from "./utils.js";
 import { Controller } from "./controller.js";
-import {Player, Game} from "./model.js";
-import { ScoreRecordType } from "./types.js";
+import {Player, Game, Hand, Pile} from "./model.js";
+import { CardType, ScoreRecordType } from "./types.js";
 
 export class View {
 	controller
@@ -12,11 +12,11 @@ export class View {
 	renders = () => {
 		const view = this;
 		return {
-			card_template: function (onCardClick: string | null): string {
+			card_template: function (card: CardType, onCardClick: string | null): string {
 				const isNoop = !onCardClick || onCardClick.includes('noop');
-				const onclick = isNoop ? 'controller.noop()' : `${onCardClick}, '${this.val}${this.suit}')`;
-				return `<div onclick="${onclick}" class='card ${this.suit}' id="${this.val}${this.suit}">`
-							+ this.displayVal + this.suit +
+				const onclick = isNoop ? 'controller.noop()' : `${onCardClick}, '${card.val}${card.suit}')`;
+				return `<div onclick="${onclick}" class='card ${card.suit}' id="${card.val}${card.suit}">`
+							+ card.displayVal + card.suit +
 						"</div>";
 			},
 			ok_button_template: function (game: Game) {
@@ -26,16 +26,17 @@ export class View {
 				const text = 'Begin Next Round';
 				return `<input onclick="${onclick}" id='warning' class='btn btn-info' type='button' value='${text}' />`;
 			},
-			hand_template: function (onCardClick: string | null) {
+			hand_template: function (hand: Hand | Pile | undefined, onCardClick: string | null) {
+				const cards = hand?.cards ?? [];
 				var html_string = "";
-				_.each(this.cards, function (card) {
-					html_string += view.renders()["card_template"].call(card, onCardClick);
+				_.each(cards, function (card: CardType) {
+					html_string += view.renders()["card_template"](card, onCardClick);
 				})
-				return (this.cards.length == 0) ? "<h3>empty, no cards</h3>" : html_string;
+				return (cards.length == 0) ? "<h3>empty, no cards</h3>" : html_string;
 			},
-			player_template: function () {
-				return "<div id='" + this.id + "_score'>" + this.name + "'s Score: <span>" + this.score + "</span></div>" +
-						"<p>" + this.name + "'s Cards:" + "</p>";
+			player_template: function (player: Player) {
+				return "<div id='" + player.id + "_score'>" + player.name + "'s Score: <span>" + player.score + "</span></div>" +
+						"<p>" + player.name + "'s Cards:" + "</p>";
 			},
 			new_player_template: function ({ game }: { game: Game}) {
 				const duration = game?.duration;
@@ -99,21 +100,21 @@ export class View {
 							"<div class='' id='" + playerOne.id + "'>" +
 									view.renders()["score_table_template"](game, playerOne, 'hand') +
 									view.renders()["score_table_template"](game, playerOne, 'crib') +
-									view.renders()["player_template"].call(playerOne) +
-									view.renders()["hand_template"].call(playerOne.hand, playerOneCardClick) +
+									view.renders()["player_template"](playerOne) +
+									view.renders()["hand_template"](playerOne.hand, playerOneCardClick) +
 									view.renders()["crib_template"]({ game, player: playerOne }) +
 							"</div>" +
 							"<div class='' id='pile'>" +
 									"<p>Pile Score: " + game.pile.score + "</p>" +
 									"<p>Pile Cards:</p>" +
-									view.renders()["hand_template"].call(game.pile, null) +
+									view.renders()["hand_template"](game.pile, null) +
 									"<canvas id='board' width='' height=''>Your browser cannot display the game board!</canvas>" +
 							"</div>" +
 							"<div class='' id='" + playerTwo.id +"'>" +
 									view.renders()["score_table_template"](game, playerTwo, 'hand') +
 									view.renders()["score_table_template"](game, playerTwo, 'crib') +
-									view.renders()["player_template"].call(playerTwo) +
-									view.renders()["hand_template"].call(playerTwo.hand, playerTwoCardClick) +
+									view.renders()["player_template"](playerTwo) +
+									view.renders()["hand_template"](playerTwo.hand, playerTwoCardClick) +
 									view.renders()["crib_template"]({ game, player: playerTwo }) +
 							"</div>" +
 						"</div>";
@@ -125,7 +126,7 @@ export class View {
 				if (!isPlayerDealer) return '';
 
 				return "<div id='crib'><p>" + game.dealer?.name + "'s Crib: </p>" +
-					view.renders()["hand_template"].call(game.dealer?.crib, onCardClick ) +
+					view.renders()["hand_template"](game.dealer?.crib, onCardClick ) +
 				"</div>";
 			},
 			score_table_template: function (game: Game, player: Player, handType: string) {
@@ -139,7 +140,7 @@ export class View {
 
 				if (scores.length) {
 					scores.forEach(score => {
-						content += view.renders()["score_row_template"].call(this, score);
+						content += view.renders()["score_row_template"](score);
 					})
 				} else {
 					content += '<tr><td>bummer. nothing scored.</td></tr>';
@@ -152,9 +153,10 @@ export class View {
 					"</td><td>=</td><td>" + score[2] + "</td><td>for</td><td>" + score[3] + "</td></tr>";
 			},
 			draw_board: function ({game}: { game: Game }) {
-				var canvas = document.getElementById("board");
+				var canvas = document.getElementById("board") as HTMLCanvasElement;
 				if (!canvas) return null;
 				var ctx = canvas.getContext("2d");
+				if (!ctx) return null;
 
 				canvas.height = canvas.width * 1.5;
 
