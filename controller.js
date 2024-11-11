@@ -23,19 +23,15 @@ export class Controller {
 	}
 
 	submit_player_names = () => {
-		var player1_name = $("#player1_name").val();
-		var player2_name = $("#player2_name").val();
+		var player1_name = document.getElementById("player1_name").value;
+		var player2_name = document.getElementById("player2_name").value;
+		this.game.clearMessages();
 
 		if (player1_name.length == 0 || player2_name.length == 0) {
-			this.username_error();
+			this.game.pushMessages('You must enter a name for both users!')
 		} else {
 			this.create_game([player1_name, player2_name]);
 		}
-	}
-
-	username_error = () => {
-		$("#error").remove();
-		$("#player1_name").before("<h4 id='error'>You must enter a name for both users!</h4><br>");
 	}
 
 	set_duration (duration) {
@@ -141,6 +137,7 @@ export class Controller {
 
 	create_game = (player_names) => {
 		const game = this.game
+		game.clearMessages();
 		game.setPlayers(player_names);
 		game.deck = getDeck();
 		game.deck.cards = _.shuffle(game.deck.cards);

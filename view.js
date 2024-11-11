@@ -34,7 +34,8 @@ export class View {
 				return "<div id='" + this.id + "_score'>" + this.name + "'s Score: <span>" + this.score + "</span></div>" +
 						"<p>" + this.name + "'s Cards:" + "</p>";
 			},
-			new_player_template: function ({duration}) {
+			new_player_template: function ({ game }) {
+				const duration = game?.duration;
 				const startGame = `controller.submit_player_names()`;
 				const getUpdateDuration = (d) => `controller.set_duration('${d}')`;
 				const durationButtons = ['short', 'medium', 'long'].map(d => {
@@ -44,11 +45,13 @@ export class View {
 
 					return `<button onclick="${onclick}" class='${className}' value='${d}'>${d}</button>`;
 				})
+				const errorMessage = Boolean(game.messages?.length) ? `<h4 id="error">${game.messages.join(' ')}</h4>` : '';
 				return (
 					"<div class='col-md-4'></div>" +
 						"<div class='col-md-4'>" +
 							"<div>" +
 									"<h4>Please Enter Two Player Names</h4>" +
+									errorMessage +
 									"<div class='form-group'>" +
 											"<div class='col-md-12'>" +
 												"<input type='text' class='form-control' id='player1_name' maxlength='20' placeholder='Player One' value='Ralph'>" +
@@ -60,7 +63,6 @@ export class View {
 											"</div>" +
 									"</div>" +
 									"<h4>Please Select a Game Length</h4>" +
-									`<div>${duration}</div>` +
 									"<div class='form-group'>" +
 										durationButtons.join(' ') +
 									"</div>" +
