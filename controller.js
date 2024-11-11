@@ -58,12 +58,14 @@ export class Controller {
 		this.game.clearMessages();
 
 		if (this.game.current_player.id !== player_id) {
-			console.log('it is not your turn');
+			const notYourTurnMsg = `it is not your turn, ${this.game.other_player.name}`;
+			this.game.pushMessages(notYourTurnMsg);
 			return;
 		}
 
 		if (getCardIndex(val_and_suit, hand.cards) === -1) {
-			console.log(`card ${val_and_suit} does not belong to player ${this.game.current_player.name}`)
+			const notYourCardMsg = `card ${val_and_suit} does not belong to player ${this.game.current_player.name}`;
+			this.game.pushMessages(notYourCardMsg);
 			return;
 		}
 
@@ -119,12 +121,17 @@ export class Controller {
 		const player = isPlayerOne ? playerOne : playerTwo;
 		var hand = player.hand;
 		var card_index = getCardIndex(val_and_suit, hand.cards);
+
+		this.game.clearMessages();
+
 		if (card_index === -1) {
-			console.log(`card ${val_and_suit} does not belong to player ${player.name}`)
+			const notYourCardMsg = `card ${val_and_suit} does not belong to player ${player.name}`;
+			this.game.pushMessages(notYourCardMsg);
 			return;
 		}
 		if (hand.cards.length <= 4) {
-			console.log("cannot discard anymore cards. you're all out")
+			const noMoreDiscardsMsg = "cannot discard anymore cards. you're all out";
+			this.game.pushMessages(noMoreDiscardsMsg);
 			return;
 		}
 		var card = hand.remove_card(card_index);
