@@ -125,6 +125,7 @@ export class Game {
 			players: observable,
 			current_player: observable,
 			dealer: observable,
+			messages: observable,
 		})
 	}
 
