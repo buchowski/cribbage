@@ -1,4 +1,4 @@
-import { makeObservable, computed, makeAutoObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
+import { makeObservable, observable, action } from "https://cdnjs.cloudflare.com/ajax/libs/mobx/6.13.5/mobx.esm.development.js"
 import { getCardIntVal, getCutCard, getDeck, STATE, isEmpty } from "./utils.js";
 
 export class Hand {
@@ -75,14 +75,6 @@ class Pile {
 	});
 
 	pushCard = action((card) => this.cards.push(card))
-
-	// return_cards_to_players = action(() => {
-	// 	var pile = this;
-	// 	while (pile.cards.length != 0) {
-	// 		var card = pile.cards.pop();
-	// 		card.holder.hand.push(card);
-	// 	}
-	// })
 }
 
 class Player {
@@ -125,7 +117,6 @@ export class Game {
 		this.dealer = null;
 		this.current_player = null;
 		this.cut_card = null;
-		// this.discard_count = 0;
 		this.duration = 'long';
 		this.messages = [];
 
@@ -136,12 +127,6 @@ export class Game {
 			dealer: observable,
 		})
 	}
-
-	// get isDiscarding() {
-	// 	return this.players.length === 2 &&
-	// 		(this.players[0]?.hand?.cards?.length > 4 ||
-	// 		this.players[1]?.hand?.cards?.length > 4);
-	// }
 
 	get state() {
 		if (this.players.length < 2) {
@@ -226,11 +211,6 @@ export class Game {
 
 		game.dealer = this.nonDealer;
 		if (game.current_player == game.dealer) game.switch_player();
-		// _.each(game.players, function (player) {
-		// 	returnCardsToDeck(game.deck, player.hand.cards);
-		// 	returnCardsToDeck(game.deck, player.crib.cards);
-		// })
-		// game.deck.cards.push(game.cut_card);
 	})
 
 	any_playable_cards = () => {

@@ -42,41 +42,8 @@ export class Controller {
 		this.game.setDuration(duration)
 	}
 
-	// close_warning = (e) => {
-	// 	$("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, [this.play_msg()]));
-	// 	$("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
-	// 	this.on_card_click(this.play_card);
-	// 	this.draw_board();
-	// }
-
-	// return_cards = (e) => {
-		// this.game.pile.return_cards_to_players();
-		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, []));
-		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
-		// this.draw_board();
-	// 	this.score_hand();
-	// }
-
 	new_round = () => {
 		this.game.new_round();
-
-		// game.discard_count = 0;
-		// game.return_cards_to_deck();
-		// game.deck.cards = _.shuffle(game.deck.cards);
-		// game.cut_card = getCutCard(game.deck.cards);
-		// game.deal();
-		// game.deck = getDeck();
-		// game.deck.cards = _.shuffle(game.deck.cards);
-		// game.cut_card = getCutCard(game.deck.cards);
-		// game.deal();
-
-		// game.dealer = (game.dealer == game.players[0]) ? game.players[1] : game.players[0];
-		// if (game.current_player == game.dealer) game.switch_player();
-
-		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(game, [this.discard_msg()]));
-		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
-		// this.draw_board();
-		// this.on_card_click(this.discard_card);
 	}
 
 	score_hands_and_crib = () => {
@@ -85,70 +52,11 @@ export class Controller {
 		dealer.scoreHand();
 		dealer.scoreCrib();
 		nonDealer.scoreHand();
-
-		// if ($("#" + player.id + " > table").length == 0) {
-		// 	var scores = player.hand.score_cards(); //scores[0] contains the scores array. scores[1] contains the score sum
-		// 	var el_id = player.id;
-		// 	$("#prompt").empty().append("<h3>" + this.scoring_hand("hand") + "</h3>");
-		// } else {
-		// 	var scores = player.crib.score_cards();
-		// 	var el_id = "crib";
-		// 	$("#prompt").empty().append("<h3>" + this.scoring_hand("crib") + "</h3>");
-		// }
-
-		// $("<table id='" + el_id + "_score_table' class='table table-striped table-condensed'></table>").insertBefore("#" + el_id + " > .card");
-		// this.append_scores(el_id, scores, 0);
 	}
-
-	// append_scores = (el_id, scores, index) => {
-	// 	var total_score = Hand.total_score(scores);
-	// 	setTimeout(() => {
-	// 		var score_template = (scores.length == 0) ? "bummer_template" : "score_row_template";
-	// 		$("#" + el_id + "_score_table").append(this.view.renders()[score_template].call(this, scores[index]));
-
-	// 		if (index < scores.length - 1) {
-	// 			this.append_scores(el_id, scores, index + 1);
-	// 		} else {
-	// 			var new_score = this.game.current_player.score + total_score;
-	// 			var callback = (scores.length != 0) ? this.score_animation: this.display_score_msg;
-	// 			callback(["+", total_score, "=", new_score], 0);
-	// 		}
-	// 	}, 1800)
-	// }
-
-	// score_animation = (new_score_array, index) => {
-	// 	setTimeout(() => {
-	// 		var callback = (index < new_score_array.length - 1) ? this.score_animation: this.slide_score;
-
-	// 		$("#" + this.game.current_player.id + "_score").append(" <span>" + new_score_array[index] + "</span>");
-	// 		callback(new_score_array, index + 1);
-	// 	}, 1000)
-	// }
-
-	// display_score_msg = (new_score_array) => {
-	// 	var callback = ($("#crib > table").length == 0) ? this.score_hand: this.new_round;
-	// 	var hand_name = ($("#crib > table").length == 0) ? "hand": "crib";
-
-	// 	$("#prompt").empty().append("<h3>" + this.points_scored_msg(new_score_array[1], hand_name) + "</h3>");
-	// 	this.display_info_msg(callback);
-
-	// 	this.game.current_player.score = new_score_array[3];
-	// 	if (this.game.current_player != this.game.dealer) this.game.switch_player();
-	// }
-
-	// slide_score = (new_score_array) => {
-	// 	setTimeout(() => {
-	// 		var player = this.game.current_player;
-	// 		$("#" + player.id + "_score").empty();
-	// 		$("#" + player.id + "_score").append(player.name + "'s Score: " + new_score_array[3]);
-	// 		this.display_score_msg(new_score_array);
-	// 	}, 700)
-	// }
 
 	play_card = (player_id, val_and_suit) => {
 		var hand = this.game.current_player.hand;
 		var pile = this.game.pile;
-		// var callback = this.close_warning;
 		var reset_score = false;
 		var messages = [];
 		this.game.clearMessages();
@@ -184,7 +92,6 @@ export class Controller {
 				if (this.game.are_both_hands_empty()) {
 					if (this.game.current_player == this.game.dealer) this.game.switch_player();
 					messages.push(this.both_hands_empty_msg());
-					// callback = this.return_cards;
 					this.score_hands_and_crib();
 				} else if (this.game.other_player.hand.cards.length == 0) {
 					messages.push(this.still_your_turn_msg());
@@ -195,12 +102,6 @@ export class Controller {
 		} else {
 			messages.push(this.invalid_card_msg());
 		}
-
-		// if (messages.length == 0) messages = [this.play_msg()];
-		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, messages));
-		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
-		// (messages[0] == this.play_msg()) ? this.on_card_click(this.play_card) : this.display_info_msg(callback);
-		// this.draw_board();
 
 		this.game.pushMessages(messages);
 		if (reset_score) pile.resetScore();
@@ -216,17 +117,11 @@ export class Controller {
 		return this.thirtyone_msg();
 	}
 
-	// display_info_msg = (callback) => {
-	// 	$("#prompt").append(this.view.renders()["ok_button_template"]);
-	// 	$("#warning").on("click", callback);
-	// }
-
 	discard_card = (player_id, val_and_suit) => {
 		const [playerOne, playerTwo] = this.game.players;
 		const isPlayerOne = player_id === playerOne.id;
 		const player = isPlayerOne ? playerOne : playerTwo;
 		var hand = player.hand;
-		// var count = this.game.discard_count;
 		var card_index = getCardIndex(val_and_suit, hand.cards);
 		if (card_index === -1) {
 			console.log(`card ${val_and_suit} does not belong to player ${player.name}`)
@@ -242,17 +137,6 @@ export class Controller {
 		player.copyHand(hand);
 
 		this.game.dealer.crib.pushCard(card);
-		// this.game.discard_count++;
-		// TODO 10-30-24 players shouldn't have to take turns discarding
-		// this.game.switch_player();
-
-		// var callback = (count < 3) ? this.discard_card : this.play_card;
-		// var message = (count < 3) ? this.discard_msg : this.play_msg;
-
-		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, [message.call(this)]));
-		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
-		// this.draw_board();
-		// this.on_card_click(callback)
 	}
 
 	create_game = (player_names) => {
@@ -262,24 +146,7 @@ export class Controller {
 		game.deck.cards = _.shuffle(game.deck.cards);
 		game.cut_card = getCutCard(game.deck.cards);
 		game.deal();
-
-		// $("#cribbage").empty().append(this.view.renders()["game_template"].call(this.game, [this.discard_msg()]));
-		// $("#" + this.game.dealer.id).append(this.view.renders()["crib_template"].call(this.game));
-		// this.draw_board();
-		// this.on_card_click(this.discard_card)
 	}
-
-	// on_card_click = (callback) => {
-	// 	$("#" + this.game.current_player.id).on("click", ".card", (e) => {
-	// 		const val_and_suit = Controller.get_val_suit(e);
-	// 		callback(val_and_suit);
-	// 	});
-	// }
-
-	// toggle_prompt_class (display) {
-	// 	$("body").toggleClass("gray", display);
-	// 	$("#prompt").toggleClass("white", display);
-	// }
 
 	play_msg = () => {
 		return this.game.current_player.name + ", slap a card down on the battlefield!";

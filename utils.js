@@ -26,12 +26,6 @@ export const getCutCard = (cards) => {
 	return cards.splice(index, 1)[0];
 }
 
-// export const returnCardsToDeck = (deck, cards) => {
-//   while (cards.length != 0) {
-//     deck.cards.push(cards.pop());
-//   }
-// }
-
 export const getDeck = () => {
 	const cards = []
 	for (var i = 0; i < SUITS.length; i++ ) {

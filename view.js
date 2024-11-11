@@ -146,9 +146,6 @@ export class View {
 				return "<tr><td>" + score[0].displayVal + score[0].suit + "</td><td>+</td><td>" + score[1].displayVal + score[1].suit +
 					"</td><td>=</td><td>" + score[2] + "</td><td>for</td><td>" + score[3] + "</td></tr>";
 			},
-			// bummer_template: function () {
-			// 	return "<tr><td>bummer. nothing scored.</td></tr>";
-			// },
 			draw_board: function ({game}) {
 				var canvas = document.getElementById("board");
 				if (!canvas) return null;
